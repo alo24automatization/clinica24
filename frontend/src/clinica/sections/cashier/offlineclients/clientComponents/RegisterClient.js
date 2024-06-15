@@ -19,7 +19,7 @@ export const RegisterClient = ({
   changeProduct,
   changeService,
   payments,
-  payment,
+  payment,                              
   client,
   index,
   services,

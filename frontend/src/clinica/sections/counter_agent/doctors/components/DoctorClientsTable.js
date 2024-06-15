@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next'
 import Select from 'react-select'
 import { Pagination } from '../../../reseption/components/Pagination'
 import { DatePickers } from '../../../reseption/offlineclients/clientComponents/DatePickers'
-import { Sort } from '../../../reseption/offlineclients/clientComponents/Sort'
-import { Link, useHistory } from 'react-router-dom/cjs/react-router-dom.min'
-const Table = ({
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
+const DoctorClientsTable = ({
     changeStart,
     changeEnd,
     searchClientName,
@@ -16,17 +17,24 @@ const Table = ({
     setCurrentConnectors,
     currentPage,
     setPageSize,
-    counterDoctorsList,
-    changeCounterDoctor
 }) => {
     const { t } = useTranslation()
-    const history = useHistory()
-    const [selected, setSelected] = useState(null)
-    const navigateToCounterDoctorClients = (id) => history.push(`/alo24/counter_doctors_report/${id}`)
+    const totalPrices = currentConnectors.reduce((total, connector) => total + (connector?.totalprice || 0), 0);
+    const totalAgentProfits = currentConnectors.reduce((total, connector) => total + (connector?.counteragent_profit || 0), 0);
+    const totalDoctorProfits = currentConnectors.reduce((total, connector) => total + (connector?.counterdoctor_profit || 0), 0);
+    const history=useHistory()
+    const handleBackToAllDoctors=()=>{
+        history.push('/alo24/counter_doctors_report')
+    }
     return (
         <div className="border-0 table-container mt-6">
             <div className="border-0 table-container">
-                <div className="bg-white flex gap-6 items-center py-2 px-2">
+                <div className="    bg-white flex gap-6 items-center py-2 px-2">
+                    <div>
+                        <button onClick={handleBackToAllDoctors} type='button' className='border w-16 py-1.5 font-medium rounded-sm bg-alotrade text-[#FFF] flex justify-center items-center'>
+                            <FontAwesomeIcon icon={faArrowLeft} className='text-lg'/>
+                        </button>
+                    </div>
                     <div>
                         <select
                             className="form-control form-control-sm selectpicker"
@@ -39,27 +47,6 @@ const Table = ({
                             <option value={50}>50</option>
                             <option value={'all'}>{t("Barchasi")}</option>
                         </select>
-                    </div>
-                    <div className='w-[300px]'>
-                        <Select
-                            value={selected}
-                            options={[
-                                {
-                                    label: t('Hammasi'),
-                                    value: "none"
-                                },
-                                ...[...counterDoctorsList].map(item => ({
-                                    ...item,
-                                    value: item._id,
-                                    label: item.firstname + ' ' + item.lastname
-                                }))
-                            ]}
-                            onChange={(e) => {
-                                setSelected(e);
-                                changeCounterDoctor(e)
-                            }}
-                            placeholder={t("Tanlang...")}
-                        />
                     </div>
                     <div>
                         <input
@@ -93,13 +80,11 @@ const Table = ({
                             <tr>
                                 <th className="border py-1 bg-alotrade text-[16px]">№</th>
                                 <th className="border py-1 bg-alotrade text-[16px]">
-                                    {t("Yunaltiruvchi shifokor")}
+                                    {t("Mijoz")}
                                 </th>
                                 <th className="border py-1 bg-alotrade text-[16px]">
-                                    {t("Yunaltiruvchini klinikasi")}
+                                    {t("Kelgan vaqti")}
                                 </th>
-                                <th className='border py-1 bg-alotrade text-[16px]'>{t("Mijozlar")}</th>
-                                <th className='border py-1 bg-alotrade text-[16px]'>{t("Telefon raqami")}</th>
                                 <th className="border py-1 bg-alotrade text-[16px]">
                                     {t("Umumiy narxi")}
                                 </th>
@@ -109,9 +94,7 @@ const Table = ({
                                 <th className="border py-1 bg-alotrade text-[16px]">
                                     {t("Shifokor ulushi")}
                                 </th>
-                                <th className="border py-1 bg-alotrade text-[16px]">
-                                    {t("Batafsil")}
-                                </th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -125,20 +108,13 @@ const Table = ({
                                             {currentPage * countPage + key + 1}
                                         </td>
                                         <td className="border py-1 font-weight-bold text-[16px]">
-                                            {connector?.counterdoctor?.lastname +
+                                            {connector?.lastname +
                                                 ' ' +
-                                                connector?.counterdoctor?.firstname}
-                                        </td>
-                                        <td className="border py-1 font-weight-bold text-[16px]">
-                                            {connector?.counterdoctor?.clinica_name}
+                                                connector?.firstname}
                                         </td>
                                         <td className="border py-1 text-left text-[16px]">
-                                            {connector?.client_count}
+                                            {new Date(connector?.createdAt).toLocaleDateString()}
                                         </td>
-                                        <td className="border py-1 text-left text-[16px]">
-                                            {(connector?.counterdoctor.phone)}
-                                        </td>
-
                                         <td className="border py-1 text-right text-[16px]">
                                             {connector.totalprice}
                                         </td>
@@ -147,13 +123,6 @@ const Table = ({
                                         </td>
                                         <td className="border py-1 text-right text-[16px]">
                                             {connector.counterdoctor_profit}
-                                        </td>
-                                        <td className="border py-1 text-right text-[16px]">
-
-                                            <button onClick={() => navigateToCounterDoctorClients(connector?.counterdoctor?._id)} type='button' className='w-full h-full bg-alotrade text-white rounded-sm'>
-                                                {t("Batafsil")}
-                                            </button>
-
                                         </td>
                                     </tr>
                                 )
@@ -164,17 +133,15 @@ const Table = ({
                                     style={{ maxWidth: '30px !important' }}
                                 ></td>
                                 <td className="border py-1 font-weight-bold text-[16px]"> </td>
-                                <td className="border py-1 font-weight-bold text-[16px]"></td>
-                                <td className="border py-1 text-left text-[16px]"></td>
                                 <td className="border py-1 text-left text-[16px]"></td>
                                 <td className="border py-1 text-right text-[16px] font-bold">
-                                    {connectors.reduce((prev, el) => prev + (el?.totalprice || 0), 0)}
+                                    {totalPrices}
                                 </td>
                                 <td className="border py-1 text-right text-[16px] font-bold">
-                                    {connectors.reduce((prev, el) => prev + (el?.counteragent_profit || 0), 0)}
+                                    {totalAgentProfits}
                                 </td>
                                 <td className="border py-1 text-right text-[16px] font-bold">
-                                    {connectors.reduce((prev, el) => prev + (el?.counterdoctor_profit || 0), 0)}
+                                    {totalDoctorProfits}
                                 </td>
                             </tr>
                         </tbody>
@@ -185,4 +152,4 @@ const Table = ({
     )
 }
 
-export default Table
+export default DoctorClientsTable

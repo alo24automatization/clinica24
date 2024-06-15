@@ -4,6 +4,7 @@ import CreateCounterDoctor from "./doctors/CreateCounterDoctor";
 import Doctors from "./doctors/Doctors";
 import StatsionarDoctors from "./doctors/StatsionarDoctors";
 import VisitPage from "./VisitPage";
+import DoctorsClients from "./doctors/DoctorsClients";
 
 export const CounterAgentRouter = () => {
     return (
@@ -14,6 +15,9 @@ export const CounterAgentRouter = () => {
                 </Route>
                 <Route path="/alo24/counter_doctors_report" exact>
                     <Doctors />
+                </Route>
+                <Route path="/alo24/counter_doctors_report/:id" exact>
+                    <DoctorsClients />
                 </Route>
                 <Route path="/alo24/visit_page" exact>
                     <VisitPage />
