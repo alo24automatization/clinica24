@@ -42,8 +42,9 @@ module.exports.create = async (req, res) => {
 
       return res.status(200).json(counterDoctor);
     } else {
+      let firstCounterAgent;
       if (!counter_agent) {
-        const firstCounterAgent = await User.findOne({
+        firstCounterAgent = await User.findOne({
           clinica,
           type: "CounterAgent",
         })
@@ -53,7 +54,6 @@ module.exports.create = async (req, res) => {
           res.status(400).json({
             message: "Diqqat! Kounter Agent ma'lumotlari topilmadi.",
           });
-          counter_agent = firstCounterAgent._id;
         }
       }
       const counterDoctor = new CounterDoctor({
@@ -61,7 +61,7 @@ module.exports.create = async (req, res) => {
         lastname,
         clinica,
         clinica_name,
-        counter_agent,
+        counter_agent: counter_agent ? counter_agent : firstCounterAgent._id,
         phone,
         statsionar_profit,
       });
@@ -74,70 +74,156 @@ module.exports.create = async (req, res) => {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
+const customAlphabetCompare = (a, b) => {
+  const alphabet = [
+    ...'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ', // Russian
+    ...'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЪЫЬЭЮЯЎҚҒҲ', // Uzbek Cyrillic
+    ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ' // English
+  ];
+
+  const aName = a.lastname + a.firstname;
+  const bName = b.lastname + b.firstname;
+
+  for (let i = 0; i < Math.max(aName.length, bName.length); i++) {
+    const aChar = aName[i] || '';
+    const bChar = bName[i] || '';
+
+    const aIndex = alphabet.indexOf(aChar.toUpperCase());
+    const bIndex = alphabet.indexOf(bChar.toUpperCase());
+
+    if (aIndex !== bIndex) {
+      return aIndex - bIndex;
+    }
+  }
+  return 0;
+};
+module.exports.getDoctorClients = async (req, res) => {
+  try {
+    const { id: counterdoctor } = req.params;
+    const { clinica, beginDay, endDay } = req.body;
+
+    if (!counterdoctor || !clinica) {
+      return res.status(400).json({ error: "counterdoctor and clinica are required." });
+    }
+
+    const query = {
+      clinica,
+      counterdoctor,
+      createdAt: {
+        $gte: beginDay,
+        $lt: endDay,
+      },
+    };
+
+    const services = await OfflineService.find(query)
+      .select("service createdAt counterdoctor pieces client")
+      .populate({
+        path: "counterdoctor",
+        select: "firstname lastname phone",
+      })
+      .populate("client", "firstname lastname createdAt phone")
+      .lean();
+
+    // Filter out services that are refused
+    const validServices = services.filter(service => !service.refuse);
+
+    // Group clients and calculate doctor and agent profit
+    const clients = validServices.map(service => {
+      const totalprice = service.service.price * service.pieces;
+      const counterdoctor_profit = service.service.counterDoctorProcient <= 100
+        ? (totalprice / 100) * service.service.counterDoctorProcient
+        : service.service.counterDoctorProcient;
+      const counteragent_profit = service.service.counterAgentProcient <= 100
+        ? (totalprice / 100) * service.service.counterAgentProcient
+        : service.service.counterAgentProcient;
+
+      return {
+        firstname: service.client.firstname,
+        lastname: service.client.lastname,
+        phone: service.client.phone,
+        createdAt: service.client.createdAt,
+        totalprice: totalprice,
+        counterdoctor_profit: counterdoctor_profit,
+        counteragent_profit: counteragent_profit,
+      };
+    });
+    clients?.sort(customAlphabetCompare);
+    res.status(200).json(clients);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
 
 module.exports.get = async (req, res) => {
   try {
-    const { counterdoctor, counter_agent, beginDay, endDay, clinica } =
-      req.body;
+    const { counterdoctor, counter_agent, beginDay, endDay, clinica } = req.body;
 
-    let offlineservices = [];
-    if (!counterdoctor) {
-      offlineservices = await OfflineService.find({
-        clinica,
-        createdAt: {
-          $gte: beginDay,
-          $lt: endDay,
-        },
-      })
-        .select("service createdAt counterdoctor pieces refuse")
-        .populate({
-          path: "counterdoctor",
-          select: "firstname lastname clinica_name counter_agent",
-          match: { counter_agent: counter_agent },
-        })
-        .populate("client", "firstname lastname createdAt")
-        .lean()
-        .then((services) => {
-          return services.filter(
-            (service) => !service.refuse && service.counterdoctor
-          );
-        });
-    } else {
-      offlineservices = await OfflineService.find({
-        clinica,
-        counterdoctor: counterdoctor,
-        createdAt: {
-          $gte: beginDay,
-          $lt: endDay,
-        },
-      })
-        .select("service createdAt counterdoctor pieces refuse")
-        .populate("counterdoctor", "firstname lastname clinica_name")
-        .populate("client", "firstname lastname")
-        .lean()
-        .then((services) => {
-          return services.filter((service) => !service.refuse);
-        });
+    const query = {
+      clinica,
+      createdAt: {
+        $gte: beginDay,
+        $lt: endDay,
+      },
+    };
+
+    if (counterdoctor) {
+      query.counterdoctor = counterdoctor;
     }
 
-    for (const service of offlineservices) {
-      service.totalprice = service.service.price * service.pieces;
-      service.counterdoctor_profit =
-        service.service.counterDoctorProcient <= 100
-          ? ((service.service.price * service.pieces) / 100) *
-          service.service.counterDoctorProcient
-          : service.service.counterDoctorProcient;
-      service.counteragent_profit =
-        service.service.counterAgentProcient <= 100
-          ? ((service.service.price * service.pieces) / 100) *
-          service.service.counterAgentProcient
-          : service.service.counterAgentProcient;
-    }
+    const services = await OfflineService.find(query)
+      .select("service createdAt counterdoctor pieces refuse client")
+      .populate({
+        path: "counterdoctor",
+        select: "firstname lastname clinica_name counter_agent phone",
+        match: counter_agent ? { counter_agent } : {},
+      })
+      .populate("client", "firstname lastname")
+      .lean();
 
-    res.status(200).json(offlineservices);
+    // Filter out services that are refused or do not have a counterdoctor (if counterdoctor was not specified)
+    const validServices = services.filter(service => !service.refuse && (counterdoctor || service.counterdoctor));
+
+    // Group services by counterdoctor and count unique clients
+    const groupedByCounterdoctor = validServices.reduce((acc, service) => {
+      if (!acc[service.counterdoctor._id]) {
+        acc[service.counterdoctor._id] = {
+          counterdoctor: service.counterdoctor,
+          totalprice: 0,
+          counterdoctor_profit: 0,
+          counteragent_profit: 0,
+          clients: new Set(),
+        };
+      }
+      const totalprice = service.service.price * service.pieces;
+      const counterdoctor_profit = service.service.counterDoctorProcient <= 100
+        ? (totalprice / 100) * service.service.counterDoctorProcient
+        : service.service.counterDoctorProcient;
+      const counteragent_profit = service.service.counterAgentProcient <= 100
+        ? (totalprice / 100) * service.service.counterAgentProcient
+        : service.service.counterAgentProcient;
+
+      acc[service.counterdoctor._id].totalprice += totalprice;
+      acc[service.counterdoctor._id].counterdoctor_profit += counterdoctor_profit;
+      acc[service.counterdoctor._id].counteragent_profit += counteragent_profit;
+      acc[service.counterdoctor._id].clients.add(service.client._id);
+
+      return acc;
+    }, {});
+
+    // Convert grouped data to an array and count clients
+    const result = Object.values(groupedByCounterdoctor).map(doc => ({
+      counterdoctor: doc.counterdoctor,
+      totalprice: doc.totalprice,
+      counterdoctor_profit: doc.counterdoctor_profit,
+      counteragent_profit: doc.counteragent_profit,
+      client_count: doc.clients.size,
+    }));
+    // Sort clients by name using the custom alphabet compare function
+    res.status(200).json(result);
   } catch (error) {
-    console.log(error);
-    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+    console.error(error);
+    res.status(500).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
 

@@ -10,12 +10,18 @@ router.post('/counter_agent/doctors_services/get', auth, (req, res) => {
     require('./counter_agent').get(req, res);
 })
 
+
+
+
 router.post('/counter_agent/statsionar/get', auth, (req, res) => {
     require('./counter_agent').getStatsionarProfit(req, res);
 })
 
 router.post('/counter_agent/counterdoctorall/get', auth, (req, res) => {
     require('./counter_agent').getDcotors(req, res);
+})
+router.post('/counter_agent/counterdoctor_clients/:id', auth, (req, res) => {
+    require('./counter_agent').getDoctorClients(req, res);
 })
 
 router.post('/counter_agent/get', auth, (req, res) => {

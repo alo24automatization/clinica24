@@ -61,7 +61,7 @@ export const RegisterClient = ({
         departments.map((department) => {
           return department.services.map((service) => {
             return s.push({
-              label: <div className="w-full flex justify-between items-center gap-x-2"><span>{service.name}</span>{"  "}<span className="p-1 !bg-green-500 font-medium  text-white">{service.price} so'm</span></div>,
+              label: <div className="w-full flex justify-between  items-center gap-x-2"><span>{service.name}</span>{"  "}<span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">{service.price} so'm</span></div>,
               value: service._id,
               service: service,
               department: department,
@@ -73,7 +73,7 @@ export const RegisterClient = ({
           if (e === department._id) {
             department.services.map((service) => {
               s.push({
-                label: <div className="w-full flex justify-between items-center gap-x-2"><span>{service.name}</span>{"  "}<span className="p-1 !bg-green-500 font-medium text-white">{service.price} so'm</span></div>,
+                label: <div className="w-full flex justify-between  items-center gap-x-2"><span>{service.name}</span>{"  "}<span className="p-1 rounded-sm !bg-green-500 font-medium text-white">{service.price} so'm</span></div>,
                 value: service._id,
                 service: service,
                 department: department,
@@ -332,56 +332,62 @@ export const RegisterClient = ({
                 )}
 
                 <div className="col-sm-6 col-12">
-                
+
                   <div className="form-group">
                     <label htmlFor="biO">{t("Yullanma")}</label>
                     <div className="flex items-center gap-x-3">
-                    <button onClick={showNewCounterDoctor} type="button" className="flex  justify-center items-center bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 w-[42px] h-[37px]   text-white font-semibold">
-                      {newCounterDoctor.visible?
-                      <FontAwesomeIcon size="1xl" icon={faClose}/>
-                      :<FontAwesomeIcon size="1xl" icon={faPlus}/>
-                    }
-                </button>
-                    <Select 
-                    className="w-full"
-                      onChange={changeCounterDoctor}
-                      placeholder={t("Tanlang...")}
-                      // styles={CustomStyle}
-                      isDisabled={
+                      <button disabled={
                         auth.clinica?.connectorDoctor_client
                           ? false
                           : isAddHandler || isConnectorHandler
-                      }
-                      value={selectedDoctor}
-                      options={[
-                        {
-                          label: t("Hammasi"),
-                          value: "delete",
-                        },
-                        ...counterdoctors,
-                      ]}
-                      // isDisabled={isDisabled}
-                      // placeholder={placeholder}
-                      components={{
-                        IndicatorSeparator: () => null,
-                      }}
-                    />
+                      } onClick={showNewCounterDoctor} type="button" className={`
+                    ${(isAddHandler || isConnectorHandler) ? "cursor-not-allowed" : ""}
+                    flex disabled:bg-green-700  justify-center items-center bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 w-[42px] h-[37px]   text-white font-semibold`}>
+                        {newCounterDoctor.visible ?
+                          <FontAwesomeIcon size="1xl" icon={faClose} />
+                          : <FontAwesomeIcon size="1xl" icon={faPlus} />
+                        }
+                      </button>
+                      <Select
+                        className="w-full"
+                        onChange={changeCounterDoctor}
+                        placeholder={t("Tanlang...")}
+                        // styles={CustomStyle}
+                        isDisabled={
+                          auth.clinica?.connectorDoctor_client
+                            ? false
+                            : isAddHandler || isConnectorHandler
+                        }
+                        value={selectedDoctor}
+                        options={[
+                          {
+                            label: t("Hammasi"),
+                            value: "delete",
+                          },
+                          ...counterdoctors,
+                        ]}
+                        // isDisabled={isDisabled}
+                        // placeholder={placeholder}
+                        components={{
+                          IndicatorSeparator: () => null,
+                        }}
+                      />
                     </div>
                     {
-                      newCounterDoctor.visible&&
-                    <div className="mt-1">
+                      newCounterDoctor.visible &&
+                      <div className="mt-1">
                         <div className="form-group">
                           <label htmlFor="addreSs">{t("Familya  Ism")}</label>
                           <div className="input-group input-group-sm mb-3 gap-x-2">
                             <input
-                            onChange={handleNewCounterDoctorInputChange} value={newCounterDoctor.value}
+                              onChange={handleNewCounterDoctorInputChange} value={newCounterDoctor.value}
                               type="text"
                               className="form-control"
                               placeholder="Familya Ism"
                             />
-                          <button onClick={handleNewCounterDoctorCreate} type="button"  className="bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 px-2 h-[30px]  flex  justify-center items-center  text-white font-semibold">
-                            <FontAwesomeIcon icon={faSave}/>
-                          </button>
+                            <button onClick={handleNewCounterDoctorCreate} type="button" className="bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 px-2 h-[30px]  flex  justify-center items-center  text-white font-semibold">
+                              <FontAwesomeIcon icon={faSave} />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -434,18 +440,18 @@ export const RegisterClient = ({
                     justifyContent={"space-between"}
                   >
                     <FormLabel htmlFor="email-alerts" mb="0">
-                    {t("Ambulator karta raqami:")}
+                      {t("Ambulator karta raqami:")}
                     </FormLabel>
                     <button
-                    className="bg-gray-300 flex  justify-center items-center rounded-md text-lg hover:bg-gray-200 transition-all duration-200 px-3.5 h-[40px]   text-black font-semibold"
+                      className="bg-gray-300 flex  justify-center items-center rounded-md text-lg hover:bg-gray-200 transition-all duration-200 px-3.5 h-[40px]   text-black font-semibold"
                       disabled={localStorage.getItem("newClient") !== "true" && client.card_number}
                       onClick={(e) => {
-                        if (client?.card_number===null&&localStorage.getItem("newClient")==="false") {
+                        if (client?.card_number === null && localStorage.getItem("newClient") === "false") {
                           changeClientData({ ...e, target: { ...e.target, name: "card_number", value: +lastCardNumber + 1 } })
-                        }else if(client?.card_number===null&&localStorage.getItem("newClient")==="true"){
+                        } else if (client?.card_number === null && localStorage.getItem("newClient") === "true") {
                           changeClientData({ ...e, target: { ...e.target, name: "card_number", value: +lastCardNumber + 1 } })
-                        }else{
-                          changeClientData({ ...e, target: { ...e.target, name: "card_number", value:null } })
+                        } else {
+                          changeClientData({ ...e, target: { ...e.target, name: "card_number", value: null } })
                         }
                       }}
                     >

@@ -1,22 +1,22 @@
 export const checkData = (totalpayment, payment, discount, services, products) => {
 
-    for (const service of services) {
-        if (service.refuse && !service.comment) {
-            return {
-                title: `Diqqat! Xizmat rad etilgani sababini ko'rsating.`,
-                description: ".",
-                status: 'error',
-            }
-        }
+    // for (const service of services) {
+    //     if (service.refuse && !service.comment) {
+    //         return {
+    //             title: `Diqqat! Xizmat rad etilgani sababini ko'rsating.`,
+    //             description: ".",
+    //             status: 'error',
+    //         }
+    //     }
 
-        if (service.refuse && service.comment.length < 5) {
-            return {
-                title: "Diqqat! Xizmat rad etilgani sababi kamida belgidan iborat bo'lishi lozim.",
-                description: ".",
-                status: 'error',
-            }
-        }
-    }
+    //     if (service.refuse && service.comment.length < 5) {
+    //         return {
+    //             title: "Diqqat! Xizmat rad etilgani sababi kamida belgidan iborat bo'lishi lozim.",
+    //             description: ".",
+    //             status: 'error',
+    //         }
+    //     }
+    // }
 
     for (const product of products) {
         if (product.refuse && !product.comment) {
