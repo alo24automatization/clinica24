@@ -36,6 +36,7 @@ export const OfflineClients = () => {
   //====================================================================
 
   const [servicesBody, setServicesBody] = useState([]);
+  const [newCounterDoctor, setNewCounterDoctor] = useState({ value: "", visible: false })
 
   //====================================================================
   //====================================================================
@@ -124,7 +125,7 @@ export const OfflineClients = () => {
   // getConnectors
   const [connectors, setConnectors] = useState([]);
   const [searchStorage, setSearchStrorage] = useState([]);
-const [lastCardNumber,setLastCardNumber]=useState(0)
+  const [lastCardNumber, setLastCardNumber] = useState(0)
   const getConnectors = useCallback(
     async (beginDay, endDay) => {
       try {
@@ -151,10 +152,10 @@ const [lastCardNumber,setLastCardNumber]=useState(0)
     },
     [request, auth, notify, indexFirstConnector, indexLastConnector]
   );
-  const getLastCardNumber=async()=>{
+  const getLastCardNumber = async () => {
     try {
-      const {card_number} = await request(
-        `/api/offlineclient/client/lastCardNumber/${auth&&auth.clinica._id}`,
+      const { card_number } = await request(
+        `/api/offlineclient/client/lastCardNumber/${auth && auth.clinica._id}`,
         "GET",
         null,
         {
@@ -923,7 +924,48 @@ const [lastCardNumber,setLastCardNumber]=useState(0)
     setEndDay(date);
     getConnectors(beginDay, date);
   };
+  const handleNewCounterDoctorInputChange = (e) => {
+    let value = e.target.value;
+    console.log(value);
+    setNewCounterDoctor({ ...newCounterDoctor, value })
 
+  };
+  const handleNewCounterDoctorCreate = async () => {
+    let nameParts = newCounterDoctor.value.split(' ');
+    let firstname = nameParts[0];
+    let lastname = nameParts.slice(1).join(' ');
+    try {
+      const data = await request(
+        `/api/counter_agent/doctor/create`,
+        "POST",
+        {
+          clinica: auth.clinica._id,
+          firstname,
+          lastname
+        },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
+      getCounterDoctors()
+    setTimeout(() => {
+      setCounterDoctor(data?._id);
+      setSelectedCounterDoctor({
+        value: data?._id,
+        label: firstname + " " + lastname,
+      });
+      showNewCounterDoctor()
+    }, 0);
+
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
+    }
+  }
+  const showNewCounterDoctor = () => setNewCounterDoctor(prev => ({ value: "", visible: !prev.visible }))
   //====================================================================
   //====================================================================
   // useEffect
@@ -980,27 +1022,32 @@ const [lastCardNumber,setLastCardNumber]=useState(0)
               <div className="col-12 text-end">
                 <button
                   className={`btn bg-alotrade text-white mb-2 w-100 `}
-                  onClick={()=>{
+                  onClick={() => {
                     changeVisible()
-                    if(visible===false){
-                    localStorage.setItem("newClient","true")
-                    }else{
+                    if (visible === false) {
+                      localStorage.setItem("newClient", "true")
+                    } else {
                       localStorage.removeItem("newClient")
                     }
                   }}
                 >
                   {t("Registratsiya")}
                 </button>
-              
+
               </div>
             </div>
             <div className={` ${visible ? "" : "d-none"}`}>
               <RegisterClient
-              lastCardNumber={lastCardNumber}
+                lastCardNumber={lastCardNumber}
                 requiredFields={requiredFields}
                 isAddService={isAddService}
+                newCounterDoctor={newCounterDoctor}
+                setNewCounterDoctor={setNewCounterDoctor}
+                handleNewCounterDoctorCreate={handleNewCounterDoctorCreate}
+                handleNewCounterDoctorInputChange={handleNewCounterDoctorInputChange}
                 selectedServices={selectedServices}
                 selectedProducts={selectedProducts}
+                showNewCounterDoctor={showNewCounterDoctor}
                 updateData={updateHandler}
                 checkData={checkData}
                 setNewProducts={setNewProducts}
@@ -1015,6 +1062,7 @@ const [lastCardNumber,setLastCardNumber]=useState(0)
                 client={client}
                 setClient={setClient}
                 changeClientData={changeClientData}
+
                 changeClientBorn={changeClientBorn}
                 departments={departments}
                 counterdoctors={counterdoctors}
@@ -1109,8 +1157,8 @@ const [lastCardNumber,setLastCardNumber]=useState(0)
           client._id && !isAddConnector
             ? isActive && addHandler
             : client._id && isAddConnector
-            ? isActive && addConnectorHandler
-            : isActive && createHandler
+              ? isActive && addConnectorHandler
+              : isActive && createHandler
         }
         basic={client.lastname + " " + client.firstname}
       />

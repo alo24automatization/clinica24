@@ -42,6 +42,20 @@ module.exports.create = async (req, res) => {
 
       return res.status(200).json(counterDoctor);
     } else {
+      if (!counter_agent) {
+        const firstCounterAgent = await User.findOne({
+          clinica,
+          type: "CounterAgent",
+        })
+          .select("_id") // Only select the _id field
+          .lean();
+        if (!firstCounterAgent) {
+          res.status(400).json({
+            message: "Diqqat! Kounter Agent ma'lumotlari topilmadi.",
+          });
+          counter_agent = firstCounterAgent._id;
+        }
+      }
       const counterDoctor = new CounterDoctor({
         firstname,
         lastname,
@@ -111,12 +125,12 @@ module.exports.get = async (req, res) => {
       service.counterdoctor_profit =
         service.service.counterDoctorProcient <= 100
           ? ((service.service.price * service.pieces) / 100) *
-            service.service.counterDoctorProcient
+          service.service.counterDoctorProcient
           : service.service.counterDoctorProcient;
       service.counteragent_profit =
         service.service.counterAgentProcient <= 100
           ? ((service.service.price * service.pieces) / 100) *
-            service.service.counterAgentProcient
+          service.service.counterAgentProcient
           : service.service.counterAgentProcient;
     }
 
