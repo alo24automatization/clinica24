@@ -121,7 +121,14 @@ module.exports.getDoctorClients = async (req, res) => {
         path: "counterdoctor",
         select: "firstname lastname phone",
       })
-      .populate("client", "firstname lastname createdAt phone")
+      .populate({
+        path: "client",
+        select: "firstname lastname createdAt phone",
+      })
+      .populate({
+        path: "service",
+        select: "name",
+      })
       .lean();
 
     // Filter out services that are refused
@@ -142,19 +149,22 @@ module.exports.getDoctorClients = async (req, res) => {
         lastname: service.client.lastname,
         phone: service.client.phone,
         createdAt: service.client.createdAt,
+        serviceName: service.service.name,
         totalprice: totalprice,
         counterdoctor_profit: counterdoctor_profit,
         counteragent_profit: counteragent_profit,
       };
     });
-    clients?.sort(customAlphabetCompare);
+
+    // Sort clients by name using the custom alphabet compare function
+    clients.sort(customAlphabetCompare);
+
     res.status(200).json(clients);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
-
 module.exports.get = async (req, res) => {
   try {
     const { counterdoctor, counter_agent, beginDay, endDay, clinica } = req.body;

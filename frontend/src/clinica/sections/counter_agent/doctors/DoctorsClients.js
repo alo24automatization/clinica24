@@ -184,6 +184,8 @@ const DoctorsClients = () => {
                         <DoctorClientsTable
                             changeStart={changeStart}
                             changeEnd={changeEnd}
+                            beginDay={beginDay}
+                            endDay={endDay}
                             connectors={searchStorage}
                             setCurrentConnectors={setCounterdoctorClients}
                             currentConnectors={counterdoctorClients}

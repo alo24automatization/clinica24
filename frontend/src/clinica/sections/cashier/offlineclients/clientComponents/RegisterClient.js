@@ -108,7 +108,7 @@ export const RegisterClient = ({
                         <th className="border py-1 bg-alotrade">
                           {t("To'lov")}
                         </th>
-                        <th className="border py-1 bg-alotrade">{t("Izoh")}</th>
+                        {/* <th className="border py-1 bg-alotrade">{t("Izoh")}</th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -149,7 +149,7 @@ export const RegisterClient = ({
                                   ></label>
                                 </div>
                               </td>
-                              <td className="text-right py-1 border">
+                              {/* <td className="text-right py-1 border">
                                 {service.refuse ? (
                                   <input
                                     onChange={(e) => serviceComment(e, index)}
@@ -163,7 +163,7 @@ export const RegisterClient = ({
                                 ) : (
                                   service?.addUser
                                 )}
-                              </td>
+                              </td> */}
                             </tr>
                           );
                         })}

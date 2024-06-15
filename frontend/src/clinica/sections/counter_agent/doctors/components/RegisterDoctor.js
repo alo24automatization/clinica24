@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 const RegisterDoctor = ({ doctor, changeDoctorData, loading, checkData }) => {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     return (
         <div className=''>
             <div className="w-full flex flex-col items-center bg-white p-2">

@@ -5,7 +5,10 @@ import { Pagination } from '../../../reseption/components/Pagination'
 import { DatePickers } from '../../../reseption/offlineclients/clientComponents/DatePickers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
+import { useHistory, useLocation } from 'react-router-dom/cjs/react-router-dom.min'
+const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+};
 const DoctorClientsTable = ({
     changeStart,
     changeEnd,
@@ -17,22 +20,28 @@ const DoctorClientsTable = ({
     setCurrentConnectors,
     currentPage,
     setPageSize,
+    endDay,
+    beginDay
 }) => {
+  
     const { t } = useTranslation()
     const totalPrices = currentConnectors.reduce((total, connector) => total + (connector?.totalprice || 0), 0);
     const totalAgentProfits = currentConnectors.reduce((total, connector) => total + (connector?.counteragent_profit || 0), 0);
     const totalDoctorProfits = currentConnectors.reduce((total, connector) => total + (connector?.counterdoctor_profit || 0), 0);
-    const history=useHistory()
-    const handleBackToAllDoctors=()=>{
+    const history = useHistory();
+    const query = useQuery();
+    const beginDate = query.get('beginDate');
+    const endDate = query.get('endDate');
+    const handleBackToAllDoctors = () => {
         history.push('/alo24/counter_doctors_report')
     }
     return (
         <div className="border-0 table-container mt-6">
             <div className="border-0 table-container">
-                <div className="    bg-white flex gap-6 items-center py-2 px-2">
+                <div className=" bg-white flex gap-6 items-center py-2 px-2">
                     <div>
                         <button onClick={handleBackToAllDoctors} type='button' className='border w-16 py-1.5 font-medium rounded-sm bg-alotrade text-[#FFF] flex justify-center items-center'>
-                            <FontAwesomeIcon icon={faArrowLeft} className='text-lg'/>
+                            <FontAwesomeIcon icon={faArrowLeft} className='text-lg' />
                         </button>
                     </div>
                     <div>
@@ -70,8 +79,8 @@ const DoctorClientsTable = ({
                         className="text-center ml-auto flex gap-2"
                         style={{ overflow: 'hidden' }}
                     >
-                        <DatePickers changeDate={changeStart} />
-                        <DatePickers changeDate={changeEnd} />
+                        <DatePickers value={beginDate || new Date()} changeDate={changeStart} />
+                        <DatePickers value={endDate || new Date()} changeDate={changeEnd} />
                     </div>
                 </div>
                 <div className="table-responsive">
@@ -84,6 +93,9 @@ const DoctorClientsTable = ({
                                 </th>
                                 <th className="border py-1 bg-alotrade text-[16px]">
                                     {t("Kelgan vaqti")}
+                                </th>
+                                <th className="border py-1 bg-alotrade text-[16px]">
+                                    {t("Xizmat nomi")}
                                 </th>
                                 <th className="border py-1 bg-alotrade text-[16px]">
                                     {t("Umumiy narxi")}
@@ -115,6 +127,9 @@ const DoctorClientsTable = ({
                                         <td className="border py-1 text-left text-[16px]">
                                             {new Date(connector?.createdAt).toLocaleDateString()}
                                         </td>
+                                        <td className="border py-1 text-left text-[16px]">
+                                            {connector?.serviceName}
+                                        </td>
                                         <td className="border py-1 text-right text-[16px]">
                                             {connector.totalprice}
                                         </td>
@@ -133,6 +148,7 @@ const DoctorClientsTable = ({
                                     style={{ maxWidth: '30px !important' }}
                                 ></td>
                                 <td className="border py-1 font-weight-bold text-[16px]"> </td>
+                                <td className="border py-1 text-left text-[16px]"></td>
                                 <td className="border py-1 text-left text-[16px]"></td>
                                 <td className="border py-1 text-right text-[16px] font-bold">
                                     {totalPrices}

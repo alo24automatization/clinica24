@@ -216,6 +216,8 @@ const Doctors = () => {
                         <Table
                             changeStart={changeStart}
                             changeEnd={changeEnd}
+                            endDay={endDay}
+                            beginDay={beginDay}
                             changeCounterDoctor={changeCounterDoctor}
                             counterDoctorsList={doctors}
                             connectors={searchStorage}

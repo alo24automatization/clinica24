@@ -17,12 +17,21 @@ const Table = ({
     currentPage,
     setPageSize,
     counterDoctorsList,
-    changeCounterDoctor
+    changeCounterDoctor,
+    beginDay,
+    endDay
 }) => {
     const { t } = useTranslation()
     const history = useHistory()
     const [selected, setSelected] = useState(null)
-    const navigateToCounterDoctorClients = (id) => history.push(`/alo24/counter_doctors_report/${id}`)
+    const formatDateToDDMMYYYY = (date) => {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+    const navigateToCounterDoctorClients = (id) => history.push(`/alo24/counter_doctors_report/${id}?beginDate=${formatDateToDDMMYYYY(beginDay)}&endDate=${formatDateToDDMMYYYY(endDay)}`)
     return (
         <div className="border-0 table-container mt-6">
             <div className="border-0 table-container">
