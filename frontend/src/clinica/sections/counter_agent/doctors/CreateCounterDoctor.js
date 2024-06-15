@@ -21,14 +21,13 @@ const CreateCounterDoctor = () => {
     //====================================================
     //====================================================
 
-    const {t} = useTranslation()
+    const { t } = useTranslation()
 
     //====================================================
     //====================================================
 
     const { request, loading } = useHttp();
     const auth = useContext(AuthContext);
-
     //====================================================
     //====================================================
 
@@ -60,13 +59,12 @@ const CreateCounterDoctor = () => {
 
     //====================================================
     //====================================================
-
     const [doctor, setDoctor] = useState({
         lastname: "",
         firstname: "",
         clinica_name: "",
-        clinica: auth?.clinica?._id,
-        counter_agent: auth?.user?._id,
+        clinica: null,
+        counter_agent: null,
         phone: "",
         statsionar_profit: ""
     })
@@ -93,7 +91,7 @@ const CreateCounterDoctor = () => {
             const data = await request(
                 `/api/counter_agent/doctor/create`,
                 "POST",
-                { ...doctor, statsionar_profit: Number(doctor?.statsionar_profit) || 0 },
+                { ...doctor, counter_agent:auth?.user?._id, clinica:auth?.clinica?._id ,statsionar_profit: Number(doctor?.statsionar_profit) || 0 },
                 {
                     Authorization: `Bearer ${auth.token}`,
                 }
@@ -137,20 +135,20 @@ const CreateCounterDoctor = () => {
                 status: "error"
             })
         }
-        if (!doctor.clinica_name) {
-            return notify({
-                title: t("Shifokorni klinikasi terilmagan!"),
-                description: "",
-                status: "error"
-            })
-        }
-        if (!doctor.phone) {
-            return notify({
-                title: t("Shifokorni telefon raqami terilmagan!"),
-                description: "",
-                status: "error"
-            })
-        }
+        // if (!doctor.clinica_name) {
+        //     return notify({
+        //         title: t("Shifokorni klinikasi terilmagan!"),
+        //         description: "",
+        //         status: "error"
+        //     })
+        // }
+        // if (!doctor.phone) {
+        //     return notify({
+        //         title: t("Shifokorni telefon raqami terilmagan!"),
+        //         description: "",
+        //         status: "error"
+        //     })
+        // }
         createHandler();
     }
 

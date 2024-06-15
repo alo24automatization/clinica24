@@ -5,8 +5,8 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../../../context/AuthContext";
-import { Button, Checkbox, FormControl, FormLabel, Switch } from "@chakra-ui/react";
-import { faRotate } from "@fortawesome/free-solid-svg-icons";
+import { Button, Checkbox, FormControl, FormLabel, Input, Switch } from "@chakra-ui/react";
+import { faClose, faPlus, faRotate, faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const animatedComponents = makeAnimated();
@@ -20,6 +20,7 @@ export const RegisterClient = ({
   checkData,
   requiredFields,
   setNewServices,
+  showNewCounterDoctor,
   setNewProducts,
   newproducts,
   newservices,
@@ -40,7 +41,10 @@ export const RegisterClient = ({
   clientDate,
   servicetypes,
   isAddService,
-  lastCardNumber
+  lastCardNumber,
+  newCounterDoctor,
+  handleNewCounterDoctorInputChange,
+  handleNewCounterDoctorCreate
 }) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
@@ -57,7 +61,7 @@ export const RegisterClient = ({
         departments.map((department) => {
           return department.services.map((service) => {
             return s.push({
-              label: service.name,
+              label: <div className="w-full flex justify-between items-center gap-x-2"><span>{service.name}</span>{"  "}<span className="p-1 !bg-green-500 font-medium  text-white">{service.price} so'm</span></div>,
               value: service._id,
               service: service,
               department: department,
@@ -69,7 +73,7 @@ export const RegisterClient = ({
           if (e === department._id) {
             department.services.map((service) => {
               s.push({
-                label: service.name,
+                label: <div className="w-full flex justify-between items-center gap-x-2"><span>{service.name}</span>{"  "}<span className="p-1 !bg-green-500 font-medium text-white">{service.price} so'm</span></div>,
                 value: service._id,
                 service: service,
                 department: department,
@@ -90,11 +94,6 @@ export const RegisterClient = ({
       getServices("all");
     }
   }, [departments, getServices]);
-  //   isDisabled={
-  //     isConnectorHandler ||
-  //     isAddHandler ||
-  //     !auth.clinica?.connectorDoctor_client
-  //   }
   return (
     <>
       {/* Row start */}
@@ -333,9 +332,18 @@ export const RegisterClient = ({
                 )}
 
                 <div className="col-sm-6 col-12">
+                
                   <div className="form-group">
                     <label htmlFor="biO">{t("Yullanma")}</label>
-                    <Select
+                    <div className="flex items-center gap-x-3">
+                    <button onClick={showNewCounterDoctor} type="button" className="flex  justify-center items-center bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 w-[42px] h-[37px]   text-white font-semibold">
+                      {newCounterDoctor.visible?
+                      <FontAwesomeIcon size="1xl" icon={faClose}/>
+                      :<FontAwesomeIcon size="1xl" icon={faPlus}/>
+                    }
+                </button>
+                    <Select 
+                    className="w-full"
                       onChange={changeCounterDoctor}
                       placeholder={t("Tanlang...")}
                       // styles={CustomStyle}
@@ -358,6 +366,26 @@ export const RegisterClient = ({
                         IndicatorSeparator: () => null,
                       }}
                     />
+                    </div>
+                    {
+                      newCounterDoctor.visible&&
+                    <div className="mt-1">
+                        <div className="form-group">
+                          <label htmlFor="addreSs">{t("Familya  Ism")}</label>
+                          <div className="input-group input-group-sm mb-3 gap-x-2">
+                            <input
+                            onChange={handleNewCounterDoctorInputChange} value={newCounterDoctor.value}
+                              type="text"
+                              className="form-control"
+                              placeholder="Familya Ism"
+                            />
+                          <button onClick={handleNewCounterDoctorCreate} type="button"  className="bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 px-2 h-[30px]  flex  justify-center items-center  text-white font-semibold">
+                            <FontAwesomeIcon icon={faSave}/>
+                          </button>
+                          </div>
+                        </div>
+                      </div>
+                    }
                     {/* <select
                                             onChange={changeCounterDoctor}
                                             className="form-control form-control-sm selectpicker"
@@ -408,7 +436,8 @@ export const RegisterClient = ({
                     <FormLabel htmlFor="email-alerts" mb="0">
                     {t("Ambulator karta raqami:")}
                     </FormLabel>
-                    <Button
+                    <button
+                    className="bg-gray-300 flex  justify-center items-center rounded-md text-lg hover:bg-gray-200 transition-all duration-200 px-3.5 h-[40px]   text-black font-semibold"
                       disabled={localStorage.getItem("newClient") !== "true" && client.card_number}
                       onClick={(e) => {
                         if (client?.card_number===null&&localStorage.getItem("newClient")==="false") {
@@ -421,7 +450,7 @@ export const RegisterClient = ({
                       }}
                     >
                       <FontAwesomeIcon icon={faRotate} />
-                    </Button>
+                    </button>
                   </FormControl>
                   <h1 style={{ color: "green", fontSize: "22px" }}>{client?.card_number}
                   </h1>
