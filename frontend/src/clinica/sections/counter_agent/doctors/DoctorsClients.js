@@ -70,7 +70,7 @@ const DoctorsClients = () => {
     const [counterdoctorClients, setCounterdoctorClients] = useState([]);
     const [searchStorage, setSearchStorage] = useState([]);
 
-   
+
     //==============================================================
     //==============================================================
 
@@ -87,20 +87,33 @@ const DoctorsClients = () => {
     }
 
     // ChangeDate
+    const parseDateString = (dateString) => {
+        const [day, month, year] = dateString.split('/');
+        return new Date(Date.UTC(year, month - 1, day));
+    };
+    const changeStart = (e, type) => {
+        if (type === "onLoad") {
+            setBeginDay(parseDateString(e))
+        } else {
+            setBeginDay(new Date(new Date(e).setUTCHours(0, 0, 0, 0)));
+        }
 
-    const changeStart = (e) => {
-        setBeginDay(new Date(new Date(e).setUTCHours(0, 0, 0, 0)));
     };
 
-    const changeEnd = (e) => {
-        const date = new Date(
-            new Date(new Date().setDate(new Date(e).getDate() + 1)).setUTCHours(
-                0,
-                0,
-                0,
-                0
-            )
-        );
+    const changeEnd = (e, type) => {
+        let date;
+        if (type === "onLoad") {
+            date = parseDateString(e);
+        } else {
+            date = new Date(
+                new Date(new Date().setDate(new Date(e).getDate() + 1)).setUTCHours(
+                    0,
+                    0,
+                    0,
+                    0
+                )
+            );
+        }
 
         setEndDay(date);
     }
@@ -157,7 +170,7 @@ const DoctorsClients = () => {
                 status: "error",
             });
         }
-    }, [auth, request, notify,beginDay,endDay])
+    }, [auth, request, notify, beginDay, endDay])
 
     useEffect(() => {
         getDoctorsClients()
@@ -172,7 +185,7 @@ const DoctorsClients = () => {
         if (auth.clinica && !s) {
             setS(1);
         }
-    }, [ auth, s]);
+    }, [auth, s]);
 
 
 

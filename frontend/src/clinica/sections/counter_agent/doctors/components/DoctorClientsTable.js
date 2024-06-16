@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Select from 'react-select'
 import { Pagination } from '../../../reseption/components/Pagination'
@@ -23,7 +23,7 @@ const DoctorClientsTable = ({
     endDay,
     beginDay
 }) => {
-  
+
     const { t } = useTranslation()
     const totalPrices = currentConnectors.reduce((total, connector) => total + (connector?.totalprice || 0), 0);
     const totalAgentProfits = currentConnectors.reduce((total, connector) => total + (connector?.counteragent_profit || 0), 0);
@@ -35,6 +35,12 @@ const DoctorClientsTable = ({
     const handleBackToAllDoctors = () => {
         history.push('/alo24/counter_doctors_report')
     }
+    useEffect(() => {
+        if (beginDate && endDate) {
+            changeEnd(endDate, "onLoad")
+            changeStart(beginDate, "onLoad")
+        }
+    }, [beginDate, endDate])
     return (
         <div className="border-0 table-container mt-6">
             <div className="border-0 table-container">
