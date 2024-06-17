@@ -17,6 +17,7 @@ export const RegisterClient = ({
   isAddHandler,
   isConnectorHandler,
   updateData,
+  isNewClient,
   checkData,
   requiredFields,
   setNewServices,
@@ -94,6 +95,7 @@ export const RegisterClient = ({
       getServices("all");
     }
   }, [departments, getServices]);
+
   return (
     <>
       {/* Row start */}
@@ -127,8 +129,8 @@ export const RegisterClient = ({
                       onChange={changeClientData}
                       type="text"
                       className="form-control form-control-sm"
-                      id="lastname"
                       name="lastname"
+                      id="client_lastname"
                       placeholder={t("Familiyasi")}
                     />
                   </div>
@@ -141,7 +143,7 @@ export const RegisterClient = ({
                       onChange={changeClientData}
                       type="text"
                       className="form-control form-control-sm"
-                      id="firstname"
+                      id="client_firstname"
                       name="firstname"
                       placeholder={t("Ismi")}
                     />
@@ -434,21 +436,19 @@ export const RegisterClient = ({
                   </div>
                 </div>
                 <div>
-                  <FormControl
-                    display="flex"
-                    alignItems="center"
-                    justifyContent={"space-between"}
+                  <div
+                    className="flex items-center justify-between"
                   >
-                    <FormLabel htmlFor="email-alerts" mb="0">
+                    <h4 className="font-semibold text-base mr-2">
                       {t("Ambulator karta raqami:")}
-                    </FormLabel>
+                    </h4>
                     <button
-                      className="bg-gray-300 flex  justify-center items-center rounded-md text-lg hover:bg-gray-200 transition-all duration-200 px-3.5 h-[40px]   text-black font-semibold"
-                      disabled={localStorage.getItem("newClient") !== "true" && client.card_number}
+                      className="bg-gray-300 flex  justify-center items-center rounded-md text-lg hover:bg-gray-200 transition-all duration-200 px-3.5 h-[40px]  text-black font-semibold"
+                      disabled={!isNewClient && client.card_number}
                       onClick={(e) => {
-                        if (client?.card_number === null && localStorage.getItem("newClient") === "false") {
+                        if (client?.card_number === null && !isNewClient) {
                           changeClientData({ ...e, target: { ...e.target, name: "card_number", value: +lastCardNumber + 1 } })
-                        } else if (client?.card_number === null && localStorage.getItem("newClient") === "true") {
+                        } else if (client?.card_number === null && isNewClient) {
                           changeClientData({ ...e, target: { ...e.target, name: "card_number", value: +lastCardNumber + 1 } })
                         } else {
                           changeClientData({ ...e, target: { ...e.target, name: "card_number", value: null } })
@@ -457,7 +457,7 @@ export const RegisterClient = ({
                     >
                       <FontAwesomeIcon icon={faRotate} />
                     </button>
-                  </FormControl>
+                  </div>
                   <h1 style={{ color: "green", fontSize: "22px" }}>{client?.card_number}
                   </h1>
                 </div>

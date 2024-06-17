@@ -370,6 +370,7 @@ export const DirectorRegistor = ({ onFinishCreate, directorData }) => {
                 </div>
                 <div className="col-md-6">
                   <FormControl isRequired>
+                  
                     <FileUpload
                       removeImage={removeImage}
                       handleImage={handleImage}
@@ -383,6 +384,7 @@ export const DirectorRegistor = ({ onFinishCreate, directorData }) => {
                     />
                   </FormControl>
                 </div>
+
 
                 <div className="col-md-6 text-center mt-2">
                   {loading || load ? (

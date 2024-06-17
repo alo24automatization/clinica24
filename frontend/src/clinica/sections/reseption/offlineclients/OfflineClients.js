@@ -254,7 +254,7 @@ export const OfflineClients = () => {
   //====================================================================
 
   const [phone, setPhone] = useState("");
-
+  const [isNewClient, setIsNewClient] = useState(false)
   const getByClientPhone = async () => {
     try {
       const data = await request(
@@ -634,7 +634,15 @@ export const OfflineClients = () => {
   });
 
   const changeClientData = (e) => {
-    setClient({ ...client, [e.target.name]: e.target.value });
+    let key = e.target.name
+    let value = e.target.value
+    if (key === "lastname" && value.endsWith(' ')) {
+      document.querySelector('input[id="client_firstname"]').focus();
+    }
+    if (key === "firstname" || key === "lastname" || key === "fathername") {
+      value = value.charAt(0).toUpperCase() + value.slice(1);
+    }
+    setClient({ ...client, [key]: value });
   };
 
   const changeClientBorn = (e) => {
@@ -948,14 +956,14 @@ export const OfflineClients = () => {
         }
       );
       getCounterDoctors()
-    setTimeout(() => {
-      setCounterDoctor(data?._id);
-      setSelectedCounterDoctor({
-        value: data?._id,
-        label: firstname + " " + lastname,
-      });
-      showNewCounterDoctor()
-    }, 0);
+      setTimeout(() => {
+        setCounterDoctor(data?._id);
+        setSelectedCounterDoctor({
+          value: data?._id,
+          label: firstname + " " + lastname,
+        });
+        showNewCounterDoctor()
+      }, 0);
 
     } catch (error) {
       notify({
@@ -1025,9 +1033,9 @@ export const OfflineClients = () => {
                   onClick={() => {
                     changeVisible()
                     if (visible === false) {
-                      localStorage.setItem("newClient", "true")
+                      setIsNewClient(true)
                     } else {
-                      localStorage.removeItem("newClient")
+                      setIsNewClient(false)
                     }
                   }}
                 >
@@ -1039,6 +1047,7 @@ export const OfflineClients = () => {
             <div className={` ${visible ? "" : "d-none"}`}>
               <RegisterClient
                 lastCardNumber={lastCardNumber}
+                isNewClient={isNewClient}
                 requiredFields={requiredFields}
                 isAddService={isAddService}
                 newCounterDoctor={newCounterDoctor}
@@ -1088,6 +1097,8 @@ export const OfflineClients = () => {
               changeEnd={changeEnd}
               searchPhone={searchPhone}
               setClient={setClient}
+              isNewClient={isNewClient}
+              setIsNewClient={setIsNewClient}
               setSelectedCounterDoctor={setSelectedCounterDoctor}
               searchFullname={searchFullname}
               searchId={searchId}

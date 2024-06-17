@@ -337,21 +337,28 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
             </div>
           </div>}
           <div className="flex justify-between items-center" style={{ fontSize: "20pt" }}>
-            <div className="pt-2" style={{ textAlign: "center" }}>
-              <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
-                {auth?.clinica?.name}
-              </pre>
-            </div>
-            <div className="pt-2" style={{ textAlign: "center" }}>
-              <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
-                {auth?.clinica?.name2}
-              </pre>
-            </div>
-            <div className="" style={{ textAlign: "center" }}>
-              <p className="text-end m-0">
-                <img width="120" src={qr && qr} alt="QR" />
-              </p>
-            </div>
+            {
+              auth.clinica.blanka ? <div className="py-2 w-full">
+                <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-[21cm] h-[4cm] mx-auto" />
+              </div>
+                : <>
+                  <div className="pt-2" style={{ textAlign: "center" }}>
+                    <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
+                      {auth?.clinica?.name}
+                    </pre>
+                  </div>
+                  <div className="pt-2" style={{ textAlign: "center" }}>
+                    <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
+                      {auth?.clinica?.name2}
+                    </pre>
+                  </div>
+                  <div className="" style={{ textAlign: "center" }}>
+                    <p className="text-end m-0">
+                      <img width="120" src={qr && qr} alt="QR" />
+                    </p>
+                  </div>
+                </>
+            }
           </div>
           <div className="row">
             <div className="col-12" style={{ padding: "0" }}>
@@ -528,7 +535,7 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
                       onChange={(e) => {
                         handleAddTemplate(e, section.service._id)
                         setTemplateModal(false)
-                        }
+                      }
                       }
                       components={{ Option: CustomMenuWithInput }}
                       onHover={handleOnHover}
@@ -853,21 +860,27 @@ const LabTemplate = ({ client, connector, services, baseUrl }) => {
             </div>
           </div>}
           <div className="row" style={{ fontSize: "20pt" }}>
-            <div className="col-6 pt-2" style={{ textAlign: "center" }}>
-              <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
-                {auth?.clinica?.name}
-              </pre>
-            </div>
-            <div className="col-6 pt-2" style={{ textAlign: "center" }}>
-              <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
-                {auth?.clinica?.name2}
-              </pre>
-            </div>
-            <div className="col-6" style={{ textAlign: "center" }}>
-              <p className="text-end m-0">
-                {/* <img width="120" src={qr && qr} alt="QR" /> */}
-              </p>
-            </div>
+            {
+              auth?.clinica?.blanka ? <div className="py-2 w-full">
+                <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-[21cm] h-[4cm] mx-auto" />
+              </div> : <>
+                <div className="col-6 pt-2" style={{ textAlign: "center" }}>
+                  <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
+                    {auth?.clinica?.name}
+                  </pre>
+                </div>
+                <div className="col-6 pt-2" style={{ textAlign: "center" }}>
+                  <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
+                    {auth?.clinica?.name2}
+                  </pre>
+                </div>
+                <div className="col-6" style={{ textAlign: "center" }}>
+                  <p className="text-end m-0">
+                    {/* <img width="120" src={qr && qr} alt="QR" /> */}
+                  </p>
+                </div>
+              </>
+            }
           </div>
           <div className="row">
             <div className="col-12" style={{ padding: "0" }}>
@@ -1064,86 +1077,86 @@ const LabTemplate = ({ client, connector, services, baseUrl }) => {
                     <tbody>
                       {section?.services.map((service, ind) => {
                         return <>
-                        {service.tables && service.tables.length > 0 && service.tables.map((table, key, tabless) => (
-                          <tr key={key} >
-                            <td className="border-2 border-black p-[10px]"> <textarea rows={2}
-                              className={"w-full border-none outline-none"}
-                              onChange={(e) => handleChangeTables(e, index, service._id, key, "col1")}
-                            >
-                              {table?.col1}
-                            </textarea> </td>
-                            <td className="border-2 border-black p-[10px] text-center">
-                              <textarea rows={2}
-                                className={"w-full border-none outline-none text-center focus:outline-2 focus:outline-emerald-600"}
-                                onChange={(e) => handleChangeTables(e, index, service._id, key, "col2")}
-                                onKeyDown={
-                                  (e) => {
-                                    if (e.key === "ArrowDown") {
-                                      if (key === service.tables.length - 1 && ind !== section.services.length - 1 && index !== sections.length - 1) {
-                                        document.getElementById(`result${index}-${ind + 1}-${0}`).focus()
-                                      } else if (index !== sections.length - 1 && ind === section.services.length - 1 && key === service.tables.length - 1) {
-                                        document.getElementById(`result${index + 1}-${0}-${0}`).focus()
-                                      } else if (index === sections.length - 1 && ind === section.services.length - 1 && key === service.tables.length - 1) {
-                                        document.getElementById(`result${0}-${0}-${0}`).focus()
-                                      } else {
-                                        document.getElementById(`result${index}-${ind}-${key + 1}`).focus()
+                          {service.tables && service.tables.length > 0 && service.tables.map((table, key, tabless) => (
+                            <tr key={key} >
+                              <td className="border-2 border-black p-[10px]"> <textarea rows={2}
+                                className={"w-full border-none outline-none"}
+                                onChange={(e) => handleChangeTables(e, index, service._id, key, "col1")}
+                              >
+                                {table?.col1}
+                              </textarea> </td>
+                              <td className="border-2 border-black p-[10px] text-center">
+                                <textarea rows={2}
+                                  className={"w-full border-none outline-none text-center focus:outline-2 focus:outline-emerald-600"}
+                                  onChange={(e) => handleChangeTables(e, index, service._id, key, "col2")}
+                                  onKeyDown={
+                                    (e) => {
+                                      if (e.key === "ArrowDown") {
+                                        if (key === service.tables.length - 1 && ind !== section.services.length - 1 && index !== sections.length - 1) {
+                                          document.getElementById(`result${index}-${ind + 1}-${0}`).focus()
+                                        } else if (index !== sections.length - 1 && ind === section.services.length - 1 && key === service.tables.length - 1) {
+                                          document.getElementById(`result${index + 1}-${0}-${0}`).focus()
+                                        } else if (index === sections.length - 1 && ind === section.services.length - 1 && key === service.tables.length - 1) {
+                                          document.getElementById(`result${0}-${0}-${0}`).focus()
+                                        } else {
+                                          document.getElementById(`result${index}-${ind}-${key + 1}`).focus()
+                                        }
                                       }
-                                    }
-                                    if (e.key === "ArrowUp") {
-                                      if (key === 0 && ind === 0 && index === 0) {
-                                        document.getElementById(`result${sections.length - 1}-${sections[sections.length - 1].services.length - 1}-${sections[sections.length - 1].services[sections[sections.length - 1].services.length - 1].tables.length - 1}`).focus()
-                                      } else if (key === 0 && ind !== 0 && index === 0) {
-                                        document.getElementById(`result${index}-${ind - 1}-${sections[index].services[ind - 1].tables.length - 1}`).focus()
-                                      } else if (key === 0 && ind !== 0 && index !== 0) {
-                                        document.getElementById(`result${index - 1}-${sections[index - 1].services[services.length - 1]}-${sections[index - 1].services[services.length - 1].tables.length - 1}`).focus()
-                                      } else {
-                                        document.getElementById(`result${index}-${ind}-${key - 1}`).focus()
+                                      if (e.key === "ArrowUp") {
+                                        if (key === 0 && ind === 0 && index === 0) {
+                                          document.getElementById(`result${sections.length - 1}-${sections[sections.length - 1].services.length - 1}-${sections[sections.length - 1].services[sections[sections.length - 1].services.length - 1].tables.length - 1}`).focus()
+                                        } else if (key === 0 && ind !== 0 && index === 0) {
+                                          document.getElementById(`result${index}-${ind - 1}-${sections[index].services[ind - 1].tables.length - 1}`).focus()
+                                        } else if (key === 0 && ind !== 0 && index !== 0) {
+                                          document.getElementById(`result${index - 1}-${sections[index - 1].services[services.length - 1]}-${sections[index - 1].services[services.length - 1].tables.length - 1}`).focus()
+                                        } else {
+                                          document.getElementById(`result${index}-${ind}-${key - 1}`).focus()
+                                        }
                                       }
-                                    }
-                                  }}
-                                id={`result${index}-${ind}-${key}`}
-                              >
-                                {table?.col2}
-                              </textarea>
-                            </td>
-                            <td className="border-2 border-black p-[10px]">
-                              <textarea rows={2}
-                                className={"w-full border-none outline-none text-center"}
-                                onChange={(e) => handleChangeTables(e, index, service._id, key, "col3")}
-                              >
-                                {table?.col3}
-                              </textarea>
-                            </td>
-                            {section?.column?.col4 && <td className="border-2 border-black p-[10px]">
-                              <textarea rows={2}
-                                className={"w-full border-none outline-none text-center"}
-                                onChange={(e) => handleChangeTables(e, index, service._id, key, "col4")}
-                              >
-                                {table?.col4}
-                              </textarea></td>}
-                            {section?.column?.col5 && <td className="border-2 border-black p-[10px]">
-                              <textarea rows={2}
-                                className={"w-full border-none outline-none text-center"}
-                                onChange={(e) => handleChangeTables(e, index, service._id, key, "col5")}
-                              >
-                                {table?.col5}
-                              </textarea></td>}
-                            <td className={`border-2 border-black p-[10px]`}>
-                              <div className="custom-control custom-checkbox text-center">
-                                <input
-                                  checked={table?.accept}
-                                  type="checkbox"
-                                  className="custom-control-input border border-dager"
-                                  id={`service${table._id}`}
-                                  onChange={() => handleCheckAccept(index, service._id, key)}
-                                />
-                                <label className="custom-control-label"
-                                  htmlFor={`service${table._id}`}></label>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </>
+                                    }}
+                                  id={`result${index}-${ind}-${key}`}
+                                >
+                                  {table?.col2}
+                                </textarea>
+                              </td>
+                              <td className="border-2 border-black p-[10px]">
+                                <textarea rows={2}
+                                  className={"w-full border-none outline-none text-center"}
+                                  onChange={(e) => handleChangeTables(e, index, service._id, key, "col3")}
+                                >
+                                  {table?.col3}
+                                </textarea>
+                              </td>
+                              {section?.column?.col4 && <td className="border-2 border-black p-[10px]">
+                                <textarea rows={2}
+                                  className={"w-full border-none outline-none text-center"}
+                                  onChange={(e) => handleChangeTables(e, index, service._id, key, "col4")}
+                                >
+                                  {table?.col4}
+                                </textarea></td>}
+                              {section?.column?.col5 && <td className="border-2 border-black p-[10px]">
+                                <textarea rows={2}
+                                  className={"w-full border-none outline-none text-center"}
+                                  onChange={(e) => handleChangeTables(e, index, service._id, key, "col5")}
+                                >
+                                  {table?.col5}
+                                </textarea></td>}
+                              <td className={`border-2 border-black p-[10px]`}>
+                                <div className="custom-control custom-checkbox text-center">
+                                  <input
+                                    checked={table?.accept}
+                                    type="checkbox"
+                                    className="custom-control-input border border-dager"
+                                    id={`service${table._id}`}
+                                    onChange={() => handleCheckAccept(index, service._id, key)}
+                                  />
+                                  <label className="custom-control-label"
+                                    htmlFor={`service${table._id}`}></label>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </>
                       })}
                     </tbody>
                   </table>
@@ -1212,7 +1225,6 @@ const AdoptionTemplate = () => {
   useEffect(() => {
     getBaseUrl()
   }, [getBaseUrl]);
-
   return <div className="container p-4 bg-white text-center">
     <div className="flex">
       <div className="w-[300px]">

@@ -160,6 +160,9 @@ const RegisterClinica = () => {
         [request, indexFirstConnector, indexLastConnector]
     );
 
+    const handleUploadBlanka=(e)=>{
+
+    }
     useEffect(() => {
         getClinicas();
     }, [getClinicas])

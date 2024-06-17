@@ -3,7 +3,7 @@ import cloudUpLoad from "./image/cloudUpLoad.png";
 import { SmallCloseIcon } from "@chakra-ui/icons";
 import { Button, useToast } from "@chakra-ui/react";
 
-export const FileUpload = ({ imgUrl, img, handleImage, removeImage, load }) => {
+export const FileUpload = ({ imgUrl, img, handleImage, removeImage, load, newAlt }) => {
   const toast = useToast();
   return (
     <div className="container" style={{ marginTop: "30px" }}>
@@ -13,7 +13,7 @@ export const FileUpload = ({ imgUrl, img, handleImage, removeImage, load }) => {
             <img
               id="clinicaimg"
               src={imgUrl}
-              alt="Fayl topilmadi"
+              alt="Fayl topilmadi"  
               className="rounded-3"
             />
             <button id="cancel-btn" onClick={() => removeImage(img)}>
@@ -26,7 +26,7 @@ export const FileUpload = ({ imgUrl, img, handleImage, removeImage, load }) => {
               <img
                 src={imgUrl ? imgUrl : cloudUpLoad}
                 style={{ width: "100px", margin: "auto" }}
-                alt="Klinika logotipi yoki suratini yuklang"
+                alt={newAlt ? newAlt : "Klinika logotipi yoki suratini yuklang"}
               />
             </div>
             <div className="text">Surat yuklanmagan!</div>
@@ -53,7 +53,7 @@ export const FileUpload = ({ imgUrl, img, handleImage, removeImage, load }) => {
           onClick={() => {
             if (!img) {
               document.getElementById("default-btn").click();
-            } else {
+            }  else {
               toast({
                 title: "Diqqat! Surat avval yuklangan",
                 description:

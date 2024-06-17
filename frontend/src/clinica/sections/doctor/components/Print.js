@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import parse from "html-react-parser"
 import ReactHtmlParser from 'react-html-parser'
 import './Print.css'
 import { useTranslation } from 'react-i18next'
+import { AuthContext } from '../../../context/AuthContext'
 
 const Print = ({ client, connector, sections, clinica, baseUrl, doctor, qr }) => {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
+    const auth = useContext(AuthContext)
     return (
         <div className="bg-white pt-4">
             <div>
@@ -42,24 +44,31 @@ const Print = ({ client, connector, sections, clinica, baseUrl, doctor, qr }) =>
                     </div>
                 </div>}
                 <div className="flex justify-between items-center" style={{ fontSize: "20pt", marginBottom: "10px" }}>
-                    <div className="" style={{ textAlign: "center" }}>
-                        <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
-                            {clinica?.name}
-                        </pre>
-                    </div>
-                    <div style={{ textAlign: "center" }}>
-                        <img style={{ width: "150px" }} src={baseUrl + '/api/upload/file/' + clinica?.image} alt="logo" />
-                    </div>
-                    <div className="" style={{ textAlign: "center" }}>
-                        <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
-                            {clinica?.name2}
-                        </pre>
-                    </div>
-                    <div className="" style={{ textAlign: "center" }}>
-                        <p className="text-end m-0">
-                            <img width="100" src={qr && qr} alt="QR" />
-                        </p>
-                    </div>
+                    {
+                        auth?.clinica?.blanka ? <div className="py-2 w-full">
+                            <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-[21cm] h-[4cm] mx-auto" />
+                        </div> :
+                            <>
+                                <div className="" style={{ textAlign: "center" }}>
+                                    <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
+                                        {clinica?.name}
+                                    </pre>
+                                </div>
+                                <div style={{ textAlign: "center" }}>
+                                    <img style={{ width: "150px" }} src={baseUrl + '/api/upload/file/' + clinica?.image} alt="logo" />
+                                </div>
+                                <div className="" style={{ textAlign: "center" }}>
+                                    <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
+                                        {clinica?.name2}
+                                    </pre>
+                                </div>
+                                <div className="" style={{ textAlign: "center" }}>
+                                    <p className="text-end m-0">
+                                        <img width="100" src={qr && qr} alt="QR" />
+                                    </p>
+                                </div>
+                            </>
+                    }
                 </div>
                 <div className="">
                     <div className="" style={{ padding: "0" }}>

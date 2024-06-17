@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHttp } from "../hooks/http.hook";
 import {
   Input,
@@ -8,7 +8,16 @@ import {
   InputLeftAddon,
   Button,
   Textarea,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalOverlay,
+  ModalContent,
+  ModalFooter,
+  ModalCloseButton,
 } from "@chakra-ui/react";
+import Cropper from 'react-cropper';
+import 'cropperjs/dist/cropper.css';
 import { FileUpload } from "./fileUpLoad/FileUpload";
 import { useToast } from "@chakra-ui/react";
 import { checkClinicaData } from "./checkData";
@@ -16,6 +25,8 @@ import { useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouseMedical } from "@fortawesome/free-solid-svg-icons";
 import { Loader } from "../loader/Loader";
+import { FileUploadBlanka } from "./fileUpLoad/FileUploadBlanka";
+import { t } from "i18next";
 const storageName = "clinicaData";
 
 const styleDefault = {
@@ -89,6 +100,7 @@ export const ClinicaRegister = ({ onFinishCreate, onFinishUpdate, clinicaData })
   //====================================================================
   //====================================================================
   const handleImage = async (e) => {
+    console.log("handleImage");
     if (clinica.image) {
       return notify({
         title: "Diqqat! Surat avval yuklangan",
@@ -111,11 +123,95 @@ export const ClinicaRegister = ({ onFinishCreate, onFinishUpdate, clinicaData })
       title: "Surat muvaffaqqiyatli yuklandi",
     });
   };
-
+  const [blankaImage, setBlankaImage] = useState(null);
+  const cropperRef = useRef(null);
+  const cmToPx = (cm) => Math.round(cm * 96 / 2.54);
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setBlankaImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  const handleCrop = async () => {
+    const cropper = cropperRef.current.cropper;
+    const croppedCanvas = cropper.getCroppedCanvas({
+      width: cmToPx(21),
+      height: cmToPx(4),
+    });
+    croppedCanvas.toBlob(async (blob) => {
+      const data = new FormData();
+      data.append("file", blob, "cropped_image.jpg");
+      setLoad(true);
+      try {
+        const res = await fetch("/api/upload", { method: "POST", body: data });
+        const result = await res.json();
+        setClinica({ ...clinica, blanka: result.filename });
+        notify({
+          status: "success",
+          description: "",
+          title: "Surat muvaffaqqiyatli yuklandi",
+        });
+      } catch (error) {
+        notify({
+          status: "error",
+          description: "Fayl yuklash muvaffaqqiyatsiz tugadi",
+          title: "Xato",
+        });
+      } finally {
+        setLoad(false);
+        setBlankaImage(null)
+      }
+    });
+  };
+  const handleUploadBlanka = async (e) => {
+    if (clinica.blanka) {
+      return notify({
+        title: "Diqqat! Surat avval yuklangan",
+        description:
+          "Suratni qayta yulash uchun suratni ustiga bir marotaba bosib uni o'chiring!",
+        status: "error",
+      });
+    }
+    const files = e.target.files[0];
+    const data = new FormData();
+    data.append("file", files);
+    setLoad(true);
+    const res = await fetch("/api/upload", { method: "POST", body: data });
+    const file = await res.json();
+    setClinica({ ...clinica, blanka: file.filename });
+    setLoad(false);
+    notify({
+      status: "success",
+      description: "",
+      title: "Surat muvaffaqqiyatli yuklandi",
+    });
+  };
   const removeImage = async (filename) => {
     try {
       const data = await request(`/api/upload/del`, "POST", { filename });
       setClinica({ ...clinica, image: null });
+      document.getElementById("default-btn").value = null;
+      notify({
+        status: "success",
+        description: "",
+        title: data.accept,
+      });
+    } catch (error) {
+      notify({
+        status: "error",
+        description: "",
+        title: error,
+      });
+    }
+  };
+  const removeBlanka = async (filename) => {
+    try {
+      const data = await request(`/api/upload/del`, "POST", { filename });
+      setClinica({ ...clinica, blanka: null });
       document.getElementById("default-btn").value = null;
       notify({
         status: "success",
@@ -728,8 +824,73 @@ export const ClinicaRegister = ({ onFinishCreate, onFinishUpdate, clinicaData })
                         }
                       />
                     </FormControl>
+                    <FormControl>
+                      <FormLabel
+                        htmlFor="blanka_upload"
+                        style={{ color: "#38B2AC", marginTop: "1rem" }}
+                      >
+                        Blanka
+                      </FormLabel>
+                      <FileUploadBlanka
+                        removeImage={removeBlanka}
+                        handleImage={handleImageChange}
+                        load={load}
+                        img={clinica?.blanka}
+                        newAlt={"Blanka yuklang"}
+                        imgUrl={
+                          baseUrl &&
+                          clinica?.blanka &&
+                          `${baseUrl}/api/upload/file/${clinica?.blanka}`
+                        }
+                      />
+                    </FormControl>
+                    <Modal isOpen={!!blankaImage} onClose={() => setBlankaImage(null)}>
+                      <ModalOverlay />
+                      <ModalContent>
+                        <ModalHeader>
+                          {t("Suratni qirqish")}
+                        </ModalHeader>
+                          <ModalCloseButton />
+                        <ModalBody>
+                          {blankaImage && (
+                            <Cropper
+                              src={blankaImage}
+                              style={{ height: 400, width: '100%' }}
+                              initialAspectRatio={21 / 4}
+                              aspectRatio={21 / 4}
+                              viewMode={1} // restrict crop box to within the canvas
+                              dragMode="move" // only allow moving the image
+                              guides={false}
+                              cropBoxResizable={false} // disable resizing of the crop box
+                              cropBoxMovable={true} // allow moving the crop box
+                              autoCropArea={1} // set the crop box to cover the entire image initially
+                              ready={() => {
+                                const cropper = cropperRef.current.cropper;
+                                const requiredWidth = cmToPx(21);
+                                const requiredHeight = cmToPx(4);
+                                cropper.setCropBoxData({
+                                  width: requiredWidth,
+                                  height: requiredHeight,
+                                  left: (cropper.getContainerData().width - requiredWidth) / 2,
+                                  top: (cropper.getContainerData().height - requiredHeight) / 2,
+                                });
+                              }}
+                              ref={cropperRef}
+                            />
+                          )}
+                        </ModalBody>
+                        <ModalFooter>
+                          <Button
+                            colorScheme="teal"
+                            variant="solid"
+                            onClick={handleCrop}
+                          >
+                            {load ? 'Yuklanmoqda...' : 'Rasmni kesish va yuklash'}
+                          </Button>
+                        </ModalFooter>
+                      </ModalContent>
+                    </Modal>
                   </div>
-
                   <div className="col-md-6 text-center mt-2">
                     {loading || load ? (
                       <Button

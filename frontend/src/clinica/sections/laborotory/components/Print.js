@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
+import { AuthContext } from '../../../context/AuthContext';
 
 
 const Print = ({ client, connector, sections, baseUrl, clinica, user, qr }) => {
     const location = useLocation()
-    const {t} = useTranslation()
-
+    const { t } = useTranslation()
+    const auth = useContext(AuthContext)
     const [printSections, setPrintSections] = useState([])
 
 
@@ -16,49 +17,49 @@ const Print = ({ client, connector, sections, baseUrl, clinica, user, qr }) => {
         } else {
             const servicetypesAll = sections.reduce((prev, el) => {
                 if (!prev.includes(el.serviceid.servicetype.name)) {
-                  prev.push(el.serviceid.servicetype.name)
+                    prev.push(el.serviceid.servicetype.name)
                 }
                 return prev;
-              }, [])
-        
-              let servicetypes = []
-              for (const type of servicetypesAll) {
+            }, [])
+
+            let servicetypes = []
+            for (const type of servicetypesAll) {
                 sections.map((service) => {
-                  if (service.column && service.tables.length > 0) {
-                    if (service.serviceid.servicetype.name === type && service.tables.length <= 2) {
-                      const cols = Object.keys(service.column).filter(c => c.includes('col') && service.column[c]).length;
-                      const isExist = servicetypes.findIndex(i => i.servicetype === type && i.cols === cols)
-                      if (isExist >= 0) {
-                        servicetypes[isExist].services.push(service); 
-                      } else {
-                        servicetypes.push({
-                          column: service.column,
-                          servicetype: type,
-                          services: [service],
-                          cols: cols
-                        })
-                      }
+                    if (service.column && service.tables.length > 0) {
+                        if (service.serviceid.servicetype.name === type && service.tables.length <= 2) {
+                            const cols = Object.keys(service.column).filter(c => c.includes('col') && service.column[c]).length;
+                            const isExist = servicetypes.findIndex(i => i.servicetype === type && i.cols === cols)
+                            if (isExist >= 0) {
+                                servicetypes[isExist].services.push(service);
+                            } else {
+                                servicetypes.push({
+                                    column: service.column,
+                                    servicetype: type,
+                                    services: [service],
+                                    cols: cols
+                                })
+                            }
+                        }
                     }
-                  }
-                  return service;
+                    return service;
                 })
-              }
-              const servicesmore = [...servicetypesAll].reduce((prev, el) => {
+            }
+            const servicesmore = [...servicetypesAll].reduce((prev, el) => {
                 sections.map((service) => {
-                  if (service.serviceid.servicetype.name === el && service.tables.length > 2) {
-                    prev.push({
-                      column: service.column,
-                      servicetype: service.service.name,
-                      services: [service]
-                    })
-                  }
-                  return service;
+                    if (service.serviceid.servicetype.name === el && service.tables.length > 2) {
+                        prev.push({
+                            column: service.column,
+                            servicetype: service.service.name,
+                            services: [service]
+                        })
+                    }
+                    return service;
                 })
                 return prev;
-              }, [])
-          
-              setPrintSections([...servicetypes, ...servicesmore])
-            }
+            }, [])
+
+            setPrintSections([...servicetypes, ...servicesmore])
+        }
     }, [sections, location])
 
     return (
@@ -97,24 +98,32 @@ const Print = ({ client, connector, sections, baseUrl, clinica, user, qr }) => {
                     </div>
                 </div>}
                 <div className="flex justify-between items-center" style={{ fontSize: "20pt", marginBottom: "10px" }}>
-                    <div className="" style={{ textAlign: "center" }}>
-                        <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
-                            {clinica?.name}
-                        </pre>
-                    </div>
-                    <div style={{textAlign: "center" }}>
-                        <img style={{ width: "150px"}}  src={baseUrl + '/api/upload/file/' + clinica?.image} alt="logo" />
-                    </div>
-                    <div className="" style={{ textAlign: "center" }}>
-                        <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
-                            {clinica?.name2}
-                        </pre>
-                    </div>
-                    <div className="" style={{ textAlign: "center" }}>
-                        <p className="text-end m-0">
-                            <img width="100" src={qr && qr} alt="QR" />
-                        </p>
-                    </div>
+                    {
+                        auth?.clinica?.blanka ? <div className="py-2 w-full">
+                            <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-[21cm] h-[4cm] mx-auto" />
+                        </div>
+                            :
+                            <>
+                                <div className="" style={{ textAlign: "center" }}>
+                                    <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
+                                        {clinica?.name}
+                                    </pre>
+                                </div>
+                                <div style={{ textAlign: "center" }}>
+                                    <img style={{ width: "150px" }} src={baseUrl + '/api/upload/file/' + clinica?.image} alt="logo" />
+                                </div>
+                                <div className="" style={{ textAlign: "center" }}>
+                                    <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
+                                        {clinica?.name2}
+                                    </pre>
+                                </div>
+                                <div className="" style={{ textAlign: "center" }}>
+                                    <p className="text-end m-0">
+                                        <img width="100" src={qr && qr} alt="QR" />
+                                    </p>
+                                </div>
+                            </>
+                    }
                 </div>
                 <div className="">
                     <div className="" style={{ padding: "0" }}>
@@ -310,7 +319,7 @@ const Print = ({ client, connector, sections, baseUrl, clinica, user, qr }) => {
                                                 </pre> </td>
                                                 <td className={`border-[1px] text-[16px] border-black py-1 px-[12px]`}>
                                                     <pre
-                                                        style={{fontFamily: "sans-serif" }}
+                                                        style={{ fontFamily: "sans-serif" }}
                                                         className="border-none outline-none"
                                                     >
                                                         {table?.col2}
