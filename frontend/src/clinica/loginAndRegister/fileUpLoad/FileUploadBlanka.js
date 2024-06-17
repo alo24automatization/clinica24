@@ -9,12 +9,12 @@ export const FileUploadBlanka = ({ imgUrl, img, handleImage, removeImage, load, 
         <div className="container" style={{ marginTop: "30px" }}>
             <div className="wrapper">
                 {img ? (
-                    <div className="" style={{ zIndex: "1" }}>
+                    <div className="image" style={{ zIndex: "1" }}>
                         <img
                             id="clinicaimg"
                             src={imgUrl}
                             alt="Fayl topilmadi"
-                            className="rounded-3"
+                            className="rounded-3 !object-contain"
                         />
                         <button id="cancel-btn" onClick={() => removeImage(img)}>
                             <SmallCloseIcon />
