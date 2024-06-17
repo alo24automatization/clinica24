@@ -139,7 +139,7 @@ export const ClinicaRegister = ({ onFinishCreate, onFinishUpdate, clinicaData })
   const handleCrop = async () => {
     const cropper = cropperRef.current.cropper;
     const croppedCanvas = cropper.getCroppedCanvas({
-      width: cmToPx(21),
+      width: cmToPx(30),
       height: cmToPx(4),
     });
     croppedCanvas.toBlob(async (blob) => {
