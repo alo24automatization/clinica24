@@ -99,8 +99,8 @@ const Print = ({ client, connector, sections, baseUrl, clinica, user, qr }) => {
                 </div>}
                 <div className="flex justify-between items-center" style={{ fontSize: "20pt", marginBottom: "10px" }}>
                     {
-                        auth?.clinica?.blanka ? <div className="py-2 w-full">
-                            <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-[21cm] h-[4cm] mx-auto" />
+                        auth?.clinica?.blanka ? <div className="py-2 px-[12px] w-full">
+                            <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-full h-[4cm]" />
                         </div>
                             :
                             <>

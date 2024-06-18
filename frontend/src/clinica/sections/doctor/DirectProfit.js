@@ -31,7 +31,7 @@ const DirectProfit = () => {
 
     //======================================================
     //======================================================
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     //======================================================
     //======================================================
     // Pagination
@@ -66,7 +66,6 @@ const DirectProfit = () => {
     const [doctors, setDoctors] = useState([])
     const [currentDoctors, setCurrentDoctors] = useState([])
     const [searchStorage, setSearchStrorage] = useState([])
-
     const getDirectDoctors = useCallback(
         async (beginDay, endDay) => {
             try {
@@ -158,11 +157,13 @@ const DirectProfit = () => {
 
     const searchFullname =
         (e) => {
+     
             const searching = searchStorage.filter((item) =>
                 item.service.service.name
                     .toLowerCase()
                     .includes(e.target.value.toLowerCase()))
             setDoctors(searching)
+     
             setCurrentDoctors(searching.slice(0, countPage))
         }
 
@@ -195,147 +196,147 @@ const DirectProfit = () => {
             </div>
             <div className="border-0 table-container">
                 <div className="border-0 table-container">
-                        <div className="bg-white flex gap-4 items-center p-2">
-                            <div>
-                                <select
-                                    className="form-control form-control-sm selectpicker"
-                                    placeholder="Bo'limni tanlang"
-                                    onChange={setPageSize}
-                                    style={{ minWidth: "50px" }}
-                                >
-                                    <option value={10}>10</option>
-                                    <option value={25}>25</option>
-                                    <option value={50}>50</option>
-                                    <option value={'all'}>Barchasi</option>
-                                </select>
-                            </div>
-                            <div>
-                                <input
-                                    onChange={searchFullname}
-                                    style={{ minWidth: "100px" }}
-                                    type="search"
-                                    className="w-100 form-control form-control-sm selectpicker"
-                                    placeholder={t("Xizmat")}
-                                />
-                            </div>
-                            <div className="w-[300px]">
-                                <Select
-                                    options={[
-                                        {
-                                            label: 'Xammasi',
-                                            value: "all"
-                                        },
-                                        ...departments
-                                    ]}
-                                    onChange={(e) => {
-                                        if (e.value === 'all') {
-                                            setDoctors(searchStorage)
-                                            setCurrentDoctors(searchStorage)
-                                        } else {
-                                            setDoctors([...searchStorage].filter(i => i.service.department._id === e.value))
-                                            setCurrentDoctors([...searchStorage].filter(i => i.service.department._id === e.value))
-                                        }
-                                    }}
-                                    placeholder={t('Tanlang...')}
-                                />
-                            </div>
-                            <div
-                                className="text-center ml-auto flex gap-2"
-                                style={{ overflow: 'hidden' }}
+                    <div className="bg-white flex gap-4 items-center p-2">
+                        <div>
+                            <select
+                                className="form-control form-control-sm selectpicker"
+                                placeholder="Bo'limni tanlang"
+                                onChange={setPageSize}
+                                style={{ minWidth: "50px" }}
                             >
-                                <DatePickers value={new Date(beginDay).toISOString().slice(0, 10)} changeDate={changeStart} />
-                                <DatePickers value={new Date(endDay).toISOString().slice(0, 10)} changeDate={changeEnd} />
-                            </div>
-                            <div className="text-center ml-auto mr-4">
-                                <Pagination
-                                    setCurrentDatas={setCurrentDoctors}
-                                    datas={doctors}
-                                    setCurrentPage={setCurrentPage}
-                                    countPage={countPage}
-                                    totalDatas={doctors.length}
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={'all'}>Barchasi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input
+                                onChange={searchFullname}
+                                style={{ minWidth: "100px" }}
+                                type="search"
+                                className="w-100 form-control form-control-sm selectpicker"
+                                placeholder={t("Xizmat")}
+                            />
+                        </div>
+                        <div className="w-[300px]">
+                            <Select
+                                options={[
+                                    {
+                                        label: 'Xammasi',
+                                        value: "all"
+                                    },
+                                    ...departments
+                                ]}
+                                onChange={(e) => {
+                                    if (e.value === 'all') {
+                                        setDoctors(searchStorage)
+                                        setCurrentDoctors(searchStorage)
+                                    } else {
+                                        setDoctors([...searchStorage].filter(i => i.service.department._id === e.value))
+                                        setCurrentDoctors([...searchStorage].filter(i => i.service.department._id === e.value))
+                                    }
+                                }}
+                                placeholder={t('Tanlang...')}
+                            />
+                        </div>
+                        <div
+                            className="text-center ml-auto flex gap-2"
+                            style={{ overflow: 'hidden' }}
+                        >
+                            <DatePickers value={new Date(beginDay).toISOString().slice(0, 10)} changeDate={changeStart} />
+                            <DatePickers value={new Date(endDay).toISOString().slice(0, 10)} changeDate={changeEnd} />
+                        </div>
+                        <div className="text-center ml-auto mr-4">
+                            <Pagination
+                                setCurrentDatas={setCurrentDoctors}
+                                datas={doctors}
+                                setCurrentPage={setCurrentPage}
+                                countPage={countPage}
+                                totalDatas={doctors.length}
+                            />
+                        </div>
+                        <div className="text-center">
+                            <div className="btn btn-primary">
+                                <ReactHtmlTableToExcel
+                                    id="reacthtmltoexcel"
+                                    table="directservices"
+                                    sheet="Sheet"
+                                    buttonText="Excel"
+                                    filename="Yunaltiruvchi shifokor"
                                 />
-                            </div>
-                            <div className="text-center">
-                                <div className="btn btn-primary">
-                                    <ReactHtmlTableToExcel
-                                        id="reacthtmltoexcel"
-                                        table="directservices"
-                                        sheet="Sheet"
-                                        buttonText="Excel"
-                                        filename="Yunaltiruvchi shifokor"
-                                    />
-                                </div>
                             </div>
                         </div>
-                        <table className="table m-0 table-sm" id="directservices">
-                            <thead>
-                                <tr>
-                                    <th className="border py-1 bg-alotrade text-[16px]">№</th>
-                                    <th className="border py-1 bg-alotrade text-[16px]">
-                                        {t("F.I.O")}
-                                    </th>
-                                    <th className="border py-1 bg-alotrade text-[16px]">
-                                        {t("Xizmat")}
-                                    </th>
-                                    <th className="border py-1 bg-alotrade text-[16px]">
-                                        {t("Bo'lim")}
-                                    </th>
-                                    <th className="border py-1 bg-alotrade text-[16px]">
-                                        {t("Soni")}
-                                    </th>
-                                    <th className="border py-1 bg-alotrade text-[16px]">
-                                        {t("Narxi")}
-                                    </th>
-                                    <th className="border py-1 bg-alotrade text-[16px]">{t("Umumiy narxi")}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentDoctors.map((doctor, key) => {
-                                    return (
-                                        <tr key={key}>
-                                            <td
-                                                className={`border py-1 font-weight-bold text-right text-[16px]`}
-                                                style={{ maxWidth: "30px !important" }}
-                                            >
-                                                {currentPage * countPage + key + 1}
-                                            </td>
-                                            <td className="border py-1 text-[16px] font-weight-bold">
-                                                {doctor?.service?.client?.firstname} {doctor?.service?.client?.lastname}
-                                            </td>
-                                            <td className="border py-1 text-[16px] font-weight-bold">
-                                                {doctor?.service?.service?.name}
-                                            </td>
-                                            <td className="border py-1 text-[16px] text-center">
-                                                {doctor?.service?.department?.name}
-                                            </td>
-                                            <td className="border py-1 text-[16px] text-right">
-                                                {doctor?.service?.pieces}
-                                            </td>
-                                            <td className="border py-1 text-[16px] text-right">
-                                                {doctor?.service?.service?.price}
-                                            </td>
-                                            <td className="border py-1 text-[16px] text-right">
-                                                {doctor?.service?.pieces * doctor?.service?.service?.price}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                                <tr>
-                                    <td
-                                        className={`border py-1 font-weight-bold text-right text-[16px]`}
-                                        style={{ maxWidth: "30px !important" }}
-                                    >
-                                    </td>
-                                    <td className="border py-1 text-[16px] font-weight-bold"></td>
-                                    <td className="border py-1 text-[16px] text-center"></td>
-                                    <td className="border py-1 text-[16px] text-right"></td>
-                                    <td className="border py-1 text-[16px] text-center"></td>
-                                    <td className="border py-1 text-[16px] text-right font-bold">
-                                        {searchStorage.reduce((prev, el) => prev + (el?.service?.pieces * el?.service?.service?.price || 0), 0)}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    </div>
+                    <table className="table m-0 table-sm" id="directservices">
+                        <thead>
+                            <tr>
+                                <th className="border py-1 bg-alotrade text-[16px]">№</th>
+                                <th className="border py-1 bg-alotrade text-[16px]">
+                                    {t("F.I.O")}
+                                </th>
+                                <th className="border py-1 bg-alotrade text-[16px]">
+                                    {t("Xizmat")}
+                                </th>
+                                <th className="border py-1 bg-alotrade text-[16px]">
+                                    {t("Bo'lim")}
+                                </th>
+                                <th className="border py-1 bg-alotrade text-[16px]">
+                                    {t("Soni")}
+                                </th>
+                                <th className="border py-1 bg-alotrade text-[16px]">
+                                    {t("Narxi")}
+                                </th>
+                                <th className="border py-1 bg-alotrade text-[16px]">{t("Umumiy narxi")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentDoctors.map((doctor, key) => {
+                                return (
+                                    <tr key={key}>
+                                        <td
+                                            className={`border py-1 font-weight-bold text-right text-[16px]`}
+                                            style={{ maxWidth: "30px !important" }}
+                                        >
+                                            {currentPage * countPage + key + 1}
+                                        </td>
+                                        <td className="border py-1 text-[16px] font-weight-bold">
+                                            {doctor?.service?.client?.firstname} {doctor?.service?.client?.lastname}
+                                        </td>
+                                        <td className="border py-1 text-[16px] font-weight-bold">
+                                            {doctor?.service?.service?.name}
+                                        </td>
+                                        <td className="border py-1 text-[16px] text-center">
+                                            {doctor?.service?.department?.name}
+                                        </td>
+                                        <td className="border py-1 text-[16px] text-right">
+                                            {doctor?.service?.pieces}
+                                        </td>
+                                        <td className="border py-1 text-[16px] text-right">
+                                            {doctor?.service?.service?.price}
+                                        </td>
+                                        <td className="border py-1 text-[16px] text-right">
+                                            {doctor?.service?.pieces * doctor?.service?.service?.price}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            <tr>
+                                <td
+                                    className={`border py-1 font-weight-bold text-right text-[16px]`}
+                                    style={{ maxWidth: "30px !important" }}
+                                >
+                                </td>
+                                <td className="border py-1 text-[16px] font-weight-bold"></td>
+                                <td className="border py-1 text-[16px] text-center"></td>
+                                <td className="border py-1 text-[16px] text-right"></td>
+                                <td className="border py-1 text-[16px] text-center"></td>
+                                <td className="border py-1 text-[16px] text-right font-bold">
+                                    {(searchStorage).reduce((prev, el) => prev + (el?.service?.pieces * el?.service?.service?.price || 0), 0)}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -62,7 +62,9 @@ export const RegisterClient = ({
         departments.map((department) => {
           return department.services.map((service) => {
             return s.push({
-              label: <div className="w-full flex justify-between  items-center gap-x-2"><span>{service.name}</span>{"  "}<span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">{service.price} so'm</span></div>,
+              label: <div className="w-full flex justify-between items-center gap-x-2"><span>{service.name}</span><span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">{service.price} so'm</span></div>,
+              price: service.price,
+              name: service.name,
               value: service._id,
               service: service,
               department: department,
@@ -74,8 +76,10 @@ export const RegisterClient = ({
           if (e === department._id) {
             department.services.map((service) => {
               s.push({
-                label: <div className="w-full flex justify-between  items-center gap-x-2"><span>{service.name}</span>{"  "}<span className="p-1 rounded-sm !bg-green-500 font-medium text-white">{service.price} so'm</span></div>,
+                label: <div className="w-full flex justify-between  items-center gap-x-2"><span>{service.name}</span><span className="p-1 rounded-sm !bg-green-500 font-medium text-white">{service.price} so'm</span></div>,
                 value: service._id,
+                price: service.price,
+                name: service.name,
                 service: service,
                 department: department,
               });
@@ -95,7 +99,13 @@ export const RegisterClient = ({
       getServices("all");
     }
   }, [departments, getServices]);
-
+  const filterOption = (option, rawInput) => {
+    const input = rawInput.toLowerCase();
+    if (!isNaN(input.charAt(0))) {
+      return option.data.price.toString().includes(input);
+    }
+    return option.data.name.toLowerCase().includes(input);
+  };
   return (
     <>
       {/* Row start */}
@@ -508,6 +518,7 @@ export const RegisterClient = ({
                       closeMenuOnSelect={false}
                       components={animatedComponents}
                       placeholder={t("Tanlang...")}
+                      filterOption={filterOption}
                       options={services}
                       theme={(theme) => ({
                         ...theme,

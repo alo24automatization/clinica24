@@ -336,10 +336,10 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
               </p>
             </div>
           </div>}
-          <div className="flex justify-between items-center" style={{ fontSize: "20pt" }}>
+          <div className="flex justify-between items-center row" style={{ fontSize: "20pt" }}>
             {
-              auth.clinica.blanka ? <div className="py-2 w-full">
-                <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-[21cm] h-[4cm] mx-auto" />
+              auth?.clinica?.blanka ? <div className="py-2 w-full">
+                <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-full h-[4cm]" />
               </div>
                 : <>
                   <div className="pt-2" style={{ textAlign: "center" }}>
@@ -862,8 +862,8 @@ const LabTemplate = ({ client, connector, services, baseUrl }) => {
           <div className="row" style={{ fontSize: "20pt" }}>
             {
               auth?.clinica?.blanka ? <div className="py-2 w-full">
-                <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-[21cm] h-[4cm] mx-auto" />
-              </div> : <>
+              <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-full h-[4cm]" />
+            </div> : <>
                 <div className="col-6 pt-2" style={{ textAlign: "center" }}>
                   <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
                     {auth?.clinica?.name}
@@ -1179,8 +1179,8 @@ const AdoptionTemplate = () => {
 
   const { t } = useTranslation()
 
-  const { client, connector, services, clientsType, user } = useLocation().state;
-  const connectorData = useLocation().state;
+  const { client, connector, services, clientsType, user } = useLocation()?.state || {};
+  const connectorData = useLocation()?.state || {};
 
   const [modal, setModal] = useState(false)
   const [modalBody, setModalBody] = useState('all')

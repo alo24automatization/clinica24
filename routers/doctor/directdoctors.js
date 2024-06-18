@@ -86,3 +86,76 @@ module.exports.getDirectService = async (req, res) => {
         res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
     }
 }
+module.exports.getComplaint = async (req, res) => {
+    const { clinica, doctor } = req.query;
+    if (!clinica) {
+        return res.status(400).json({
+            message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+        });
+    }
+    if (!doctor) {
+        return res.status(400).json({
+            message: "Diqqat! Doctor ma'lumotlari topilmadi.",
+        });
+    }
+    try {
+        const findedDoctor = await User.findOne({
+            clinica: clinica,
+            _id: doctor
+        }).select("complaint");
+        if (!findedDoctor) {
+            return res.status(400).json({
+                message: "Diqqat! Doctor ma'lumotlari topilmadi.",
+            });
+        }
+        const complaint = findedDoctor.complaint;
+        res.status(200).json(complaint);
+    } catch (error) {
+        console.error(error);
+        res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+    }
+};
+module.exports.updateAndCreateComplaint = async (req, res) => {
+    const { clinica, doctor } = req.query
+    const { type, value, index } = req.body;
+    if (!clinica) {
+        return res.status(400).json({
+            message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+        });
+    }
+    if (!doctor) {
+        return res.status(400).json({
+            message: "Diqqat! Doctor ma'lumotlari topilmadi.",
+        });
+    }
+    if (!type || !value) {
+        return res.status(400).json({
+            message: "Diqqat! Ma'lumotlari topilmadi.",
+        });
+    }
+    try {
+        const updatedDoctor = await User.findOne(
+            { clinica: clinica, _id: doctor },
+        );
+        if (index !== undefined) {
+            updatedDoctor.complaint[type][index] = value
+        } else {
+            updatedDoctor.complaint[type]?.push(value)
+        }
+        await updatedDoctor.save()
+        if (!updatedDoctor) {
+            return res.status(400).json({
+                message: "Diqqat! Doctor ma'lumotlari topilmadi.",
+            });
+        }
+        res.status(200).json({
+            message: "Complaint muvaffaqiyatli yangilandi.",
+            complaint: updatedDoctor.complaint
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+    }
+};
+
+

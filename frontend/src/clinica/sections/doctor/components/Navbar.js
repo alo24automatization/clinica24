@@ -29,7 +29,7 @@ export const Navbar = () => {
   const [activePage, setActivePage] = useState(window.location.pathname);
   //====================================================================
   //====================================================================
-  const {t} = useTranslation()
+  const { t } = useTranslation()
   //====================================================================
   //====================================================================
 
@@ -182,6 +182,20 @@ export const Navbar = () => {
                 >
                   <i className="icon-devices_other nav-icon" />
                   {t("Statsionar ulushi")}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${activePage === "/alo24/settings" ? "active-page" : ""
+                    }`}
+                  onClick={() => {
+                    setActivePage("/alo24/settings");
+                  }}
+                  to="/alo24/settings"
+                  style={{ background: activePage === "/alo24/settings" ? "#F97316" : "" }}
+                >
+                  <i className="icon-settings nav-icon" />
+                  {t("Sozlamalar")}
                 </Link>
               </li>
             </ul>

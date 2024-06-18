@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useHttp } from '../hooks/http.hook'
 import { Loader } from '../loader/Loader'
 import { Pagination } from '../sections/director/components/Pagination'
@@ -243,7 +243,68 @@ const Users = () => {
     const changeHandler = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value })
     }
-
+    const [blankaImage, setBlankaImage] = useState(null);
+    const cropperRef = useRef(null);
+    const cmToPx = (cm) => Math.round(cm * 96 / 2.54);
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setBlankaImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    const handleCrop = async () => {
+        const cropper = cropperRef.current.cropper;
+        const croppedCanvas = cropper.getCroppedCanvas({
+            width: cmToPx(30),
+            height: cmToPx(3),
+        });
+        croppedCanvas.toBlob(async (blob) => {
+            const data = new FormData();
+            data.append("file", blob, "cropped_image.jpg");
+            setLoad(true);
+            try {
+                const res = await fetch("/api/upload", { method: "POST", body: data });
+                const result = await res.json();
+                setUser({ ...user, blanka: result.filename });
+                notify({
+                    status: "success",
+                    description: "",
+                    title: "Surat muvaffaqqiyatli yuklandi",
+                });
+            } catch (error) {
+                notify({
+                    status: "error",
+                    description: "Fayl yuklash muvaffaqqiyatsiz tugadi",
+                    title: "Xato",
+                });
+            } finally {
+                setLoad(false);
+                setBlankaImage(null)
+            }
+        });
+    };
+    const removeBlanka = async (filename) => {
+        try {
+            const data = await request(`/api/upload/del`, "POST", { filename });
+            setClinica({ ...clinica, blanka: null });
+            document.getElementById("default-btn").value = null;
+            notify({
+                status: "success",
+                description: "",
+                title: data.accept,
+            });
+        } catch (error) {
+            notify({
+                status: "error",
+                description: "",
+                title: error,
+            });
+        }
+    };
     const createHandler = async () => {
         if (checkUserData(user)) {
             return notify(checkUserData(user))
@@ -393,6 +454,11 @@ const Users = () => {
     // if (loading) {
     //     return <Loader />
     // }
+    useEffect(() => {
+        if (!clinica) {
+            getUsers(clinicaList[0])
+        }
+    }, [])
     return (
         <div className="content-wrapper px-lg-5 px-3">
             <div className="row">
@@ -413,6 +479,13 @@ const Users = () => {
             </div>
             <div className={` ${visible ? '' : 'd-none'}`}>
                 <RegistorUser
+                    blankaImage={blankaImage}
+                    setBlankaImage={setBlankaImage}
+                    cropperRef={cropperRef}
+                    cmToPx={cmToPx}
+                    handleImageChange={handleImageChange}
+                    handleCrop={handleCrop}
+                    removeBlanka={removeBlanka}
                     counteragents={counteragents}
                     removeImage={removeImage}
                     handleImage={handleImage}

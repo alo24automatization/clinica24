@@ -772,8 +772,10 @@ export const OfflineClients = () => {
       setTimeout(() => {
         setIsActive(true);
       }, 1000);
-
-      setModal1(true);
+      setOpenSmallCheck(true)
+      setTimeout(() => {
+        setOpenSmallCheck(false)
+      }, 1000);
     } catch (error) {
       notify({
         title: t(`${error}`),
@@ -811,17 +813,15 @@ export const OfflineClients = () => {
             <div className="row">
               <div className="col-12 text-end">
                 <button
-                  className={`btn bg-alotrade text-white mb-2 w-100 ${
-                    visible ? "d-none" : ""
-                  }`}
+                  className={`btn bg-alotrade text-white mb-2 w-100 ${visible ? "d-none" : ""
+                    }`}
                   onClick={changeVisible}
                 >
                   {t("Malumot")}
                 </button>
                 <button
-                  className={`btn bg-alotrade text-white mb-2 w-100 ${
-                    visible ? "" : "d-none"
-                  }`}
+                  className={`btn bg-alotrade text-white mb-2 w-100 ${visible ? "" : "d-none"
+                    }`}
                   onClick={changeVisible}
                 >
                   {t("Malumot")}

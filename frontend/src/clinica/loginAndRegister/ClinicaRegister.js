@@ -167,29 +167,6 @@ export const ClinicaRegister = ({ onFinishCreate, onFinishUpdate, clinicaData })
       }
     });
   };
-  const handleUploadBlanka = async (e) => {
-    if (clinica.blanka) {
-      return notify({
-        title: "Diqqat! Surat avval yuklangan",
-        description:
-          "Suratni qayta yulash uchun suratni ustiga bir marotaba bosib uni o'chiring!",
-        status: "error",
-      });
-    }
-    const files = e.target.files[0];
-    const data = new FormData();
-    data.append("file", files);
-    setLoad(true);
-    const res = await fetch("/api/upload", { method: "POST", body: data });
-    const file = await res.json();
-    setClinica({ ...clinica, blanka: file.filename });
-    setLoad(false);
-    notify({
-      status: "success",
-      description: "",
-      title: "Surat muvaffaqqiyatli yuklandi",
-    });
-  };
   const removeImage = async (filename) => {
     try {
       const data = await request(`/api/upload/del`, "POST", { filename });

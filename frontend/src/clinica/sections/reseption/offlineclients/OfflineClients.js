@@ -378,7 +378,7 @@ export const OfflineClients = () => {
 
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
-
+ 
   const changeService = (services) => {
     let s = [];
     services.map((service) => {
@@ -1071,7 +1071,6 @@ export const OfflineClients = () => {
                 client={client}
                 setClient={setClient}
                 changeClientData={changeClientData}
-
                 changeClientBorn={changeClientBorn}
                 departments={departments}
                 counterdoctors={counterdoctors}

@@ -147,6 +147,13 @@ router.post('/directdoctors/get', (req, res) => {
 router.post('/directdoctors/services/get', (req, res) => {
     require('./directdoctors').getDirectService(req, res)
 })
+router.get('/complaint', auth, (req, res) => {
+    require('./directdoctors').getComplaint(req, res)
+})
+router.post('/complaint', auth, (req, res) => {
+    require('./directdoctors').updateAndCreateComplaint(req, res)
+})
+
 
 //===============================================================
 //===============================================================
@@ -158,6 +165,7 @@ router.post('/statsionardoctors/get', auth, (req, res) => {
 router.post('/statsionardoctors/room/get', auth, (req, res) => {
     require('./statsionardoctor').getStatsionarRoom(req, res)
 })
+
 
 
 

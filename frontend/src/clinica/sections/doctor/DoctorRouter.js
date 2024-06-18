@@ -10,6 +10,7 @@ import StatsionarDoctorProfit from "./StatsionarDoctorProfit";
 import DirectProfit from "./DirectProfit";
 import { OnlineClients } from "./OnlineClients";
 import StatsionarRoom from "./StatsionarRoom";
+import DoctorComplaint from "./DoctorComplaint";
 // import Tables from "./tables/Tables";
 
 export const DoctorRouter = () => {
@@ -33,6 +34,9 @@ export const DoctorRouter = () => {
         </Route>
         <Route path="/alo24/doctor_profit">
           <DoctorProfit />
+        </Route>
+        <Route path="/alo24/settings">
+          <DoctorComplaint />
         </Route>
         <Route path="/alo24/doctor_statsionar_profit">
           <StatsionarDoctorProfit />

@@ -17,6 +17,14 @@ const user = new Schema(
     signature: { type: String },
     statsionar_profit: { type: Number },
     isArchive: { type: Boolean, default: false },
+    blanka: { type: String, default: null },
+    complaint: {
+      type: {
+        complaint: { type: [String], default: [] },
+        diagnostics: { type: [String], default: [] }
+      },
+      default: { complaint: [], diagnostics: [] }
+    }
   },
   {
     timestamps: true,
@@ -28,6 +36,7 @@ function validateUser(user) {
     firstname: Joi.string().required(),
     lastname: Joi.string().required(),
     fathername: Joi.string(),
+    blanka: Joi.string().optional(),
     image: Joi.string(),
     phone: Joi.string(),
     signature: Joi.string().optional(),
@@ -40,6 +49,10 @@ function validateUser(user) {
     user: Joi.string(),
     statsionar_profit: Joi.number().optional(),
     _id: Joi.string(),
+    complaint: Joi.object({
+      complaint: Joi.array().items(Joi.string().optional()).optional(),
+      diagnostics: Joi.array().items(Joi.string().optional()).optional()
+    }).optional()
   })
 
   return schema.validate(user)

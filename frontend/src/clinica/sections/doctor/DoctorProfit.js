@@ -14,7 +14,7 @@ const DoctorProfit = () => {
     //======================================================
     //======================================================
 
-    const {t} = useTranslation()
+    const { t } = useTranslation()
 
     const { request, loading } = useHttp();
     const auth = useContext(AuthContext);
@@ -23,7 +23,7 @@ const DoctorProfit = () => {
     const [beginDay, setBeginDay] = useState(new Date(new Date().setUTCHours(0, 0, 0, 0)));
     const [endDay, setEndDay] = useState(new Date(new Date().setDate(new Date().getDate() + 1)));
 
-  
+
     //======================================================
     //======================================================
     // Pagination
@@ -58,6 +58,7 @@ const DoctorProfit = () => {
     const [services, setServices] = useState([])
     const [currentServices, setCurrentServices] = useState([])
     const [searchStorage, setSearchStrorage] = useState([])
+    const [searchedServices, setSearchedServices] = useState([])
 
     const getDoctorServices = useCallback(
         async (beginDay, endDay) => {
@@ -125,14 +126,15 @@ const DoctorProfit = () => {
             setCurrentServices(searching.slice(0, countPage))
         }
 
-        const searchService =
+    const searchService =
         (e) => {
             const searching = searchStorage.filter((item) =>
                 item.service.name
                     .toLowerCase()
-                    .includes(e.target.value.toLowerCase()) 
+                    .includes(e.target.value.toLowerCase())
             )
             setServices(searching)
+            setSearchedServices(searching)
             setCurrentServices(searching.slice(0, countPage))
         }
 
@@ -293,16 +295,16 @@ const DoctorProfit = () => {
                                             <td className="border py-1 text-[16px] text-center"></td>
                                             <td className="border py-1 text-[16px] text-center"></td>
                                             <td className="border py-1 text-[16px] text-right font-bold">
-                                                {searchStorage.reduce((prev, el) => prev + el?.totalprice, 0)}
+                                                {(searchedServices.length !== 0 ? searchedServices : searchStorage).reduce((prev, el) => prev + el?.totalprice, 0)}
                                             </td>
                                             <td className="border py-1 text-[16px] text-right font-bold">
-                                                {searchStorage.reduce((prev, el) => prev + el?.agent_profit, 0)}
+                                                {(searchedServices.length !== 0 ? searchedServices : searchStorage).reduce((prev, el) => prev + el?.agent_profit, 0)}
                                             </td>
                                             <td className="border py-1 text-[16px] text-right font-bold">
-                                                {searchStorage.reduce((prev, el) => prev + el?.counterdoctor_profit, 0)}
+                                                {(searchedServices.length !== 0 ? searchedServices : searchStorage).reduce((prev, el) => prev + el?.counterdoctor_profit, 0)}
                                             </td>
                                             <td className="border py-1 text-[16px] text-right font-bold">
-                                                {searchStorage.reduce((prev, el) => prev + el?.doctor_profit, 0)}
+                                                {(searchedServices.length !== 0 ? searchedServices : searchStorage).reduce((prev, el) => prev + el?.doctor_profit, 0)}
                                             </td>
                                         </tr>
                                     </tbody>

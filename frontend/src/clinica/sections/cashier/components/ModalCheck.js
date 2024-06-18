@@ -28,7 +28,6 @@ export const CheckModal = ({
   const handlePrint2 = useReactToPrint({
     content: () => smallcheckref.current,
   });
-  useEffect(() => {}, []);
   useEffect(() => {
     if (connector && baseUrl) {
       QRCode.toDataURL(

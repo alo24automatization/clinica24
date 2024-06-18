@@ -5,7 +5,7 @@ import { useToast } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
 export const FileUpload = ({ imgUrl, img, handleImage, removeImage, load }) => {
-  const {t} = useTranslation()
+  const { t } = useTranslation()
   const toast = useToast();
   return (
     <div className="container" style={{ marginTop: "30px" }}>
