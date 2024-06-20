@@ -20,8 +20,8 @@ const user = new Schema(
     blanka: { type: String, default: null },
     complaint: {
       type: {
-        complaint: { type: [String], default: [] },
-        diagnostics: { type: [String], default: [] }
+        complaint: { type: [{ name: { type: String } }], default: [] },
+        diagnostics: { type: [{ name: { type: String } }], default: [] }
       },
       default: { complaint: [], diagnostics: [] }
     }
@@ -50,8 +50,12 @@ function validateUser(user) {
     statsionar_profit: Joi.number().optional(),
     _id: Joi.string(),
     complaint: Joi.object({
-      complaint: Joi.array().items(Joi.string().optional()).optional(),
-      diagnostics: Joi.array().items(Joi.string().optional()).optional()
+      complaint: Joi.array().items(Joi.object({
+        name: Joi.string().required()
+      }).optional()).optional(),
+      diagnostics: Joi.array().items(Joi.object({
+        name: Joi.string().required()
+      }).optional()).optional()
     }).optional()
   })
 

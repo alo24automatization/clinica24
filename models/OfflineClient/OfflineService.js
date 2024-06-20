@@ -37,7 +37,8 @@ const service = new Schema(
     counterdoctor: { type: Schema.Types.ObjectId, ref: "CounterDoctor" },
     files: [{ type: String }],
     waitingTime: { type: Date },
-    addUser: { type: String }
+    addUser: { type: String },
+    clientMoreDetails: { type: { complaints: [String], diagnostics: [String] }, default: null }
   },
   {
     timestamps: true,
@@ -65,7 +66,11 @@ function validateOfflineService(clientservice) {
     column: Joi.object(),
     tables: Joi.array(),
     counterdoctor: Joi.string(),
-    addUser: Joi.string().optional()
+    addUser: Joi.string().optional(),
+    clientMoreDetails: Joi.object({
+      complaints: Joi.array().items(Joi.string()),
+      diagnostics: Joi.array().items(Joi.string())
+    }).default(null)
   });
 
   return schema.validate(clientservice);

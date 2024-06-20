@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleUp,
@@ -19,6 +19,7 @@ import Select from "react-select";
 import makeAnimated from 'react-select/animated'
 import { Modal } from "../../../reseption/components/Modal";
 import { useTranslation } from "react-i18next";
+import { ModalOverlay, Modal as ChakraModal, ModalBody, ModalContent, FormControl, FormLabel, Stack, RadioGroup, Radio, ModalFooter, Button } from "@chakra-ui/react";
 
 const animatedComponents = makeAnimated()
 
@@ -50,7 +51,8 @@ export const TableClients = ({
   setIsAddConnector,
   setSelectedServices,
   setNewServices,
-  setNewProducts
+  setNewProducts,
+  complaints,
 }) => {
 
   const { t } = useTranslation()
@@ -70,8 +72,31 @@ export const TableClients = ({
       return ""
     }
   }
+  const [openFilterModal, setOpenFilterModal] = useState(false)
+  const closeFilterModal = () => {
+    setOpenFilterModal(false)
+  }
+  const [clientFilterData, setClientFilterData] = useState({});
+  const handleChangeFilter = (value, type) => {
+    setClientFilterData(prev => ({ ...prev, [type]: value }))
+  }
+  const [updatedCliets, setUpdatesClients] = useState([]);
+  const handleFilterClients = () => {
+    const { complaints, diagnostics, from_age, to_age, gender, national } = clientFilterData;
 
+    const filteredClients = currentDoctorClients?.filter(client => {
+      return (
+        (!complaints || client.complaints.value === complaints.value) &&
+        (!diagnostics || client.diagnostics.value === diagnostics.value) &&
+        (!from_age || client.age >= parseInt(from_age, 10)) &&
+        (!to_age || client.age <= parseInt(to_age, 10)) &&
+        (!gender || client.gender === gender) &&
+        (!national || client.national === national)
+      );
+    });
 
+    setUpdatesClients(filteredClients);
+  };
   return (
     <div className="border-0 shadow-lg table-container">
       <div className="border-0 table-container">
@@ -185,6 +210,93 @@ export const TableClients = ({
                 <option value="not">{t("Tasdiqlanmagan")}</option>
               </select>
             </div> */}
+            <button onClick={() => setOpenFilterModal(true)} className=" bg-alotrade py-1.5 text-white rounded-sm px-5 font-semibold text-base flex items-center justify-center">{t("Filtr")}</button>
+            <ChakraModal size="4xl" isOpen={openFilterModal} onClose={closeFilterModal}>
+              <ModalOverlay />
+              <ModalContent >
+                <ModalBody>
+                  <div className="space-y-3 pt-2">
+                    <div className="grid grid-cols-2 gap-x-4">
+                      {/* <span className="border border-black font-medium text-lg p-1">Shikoyat</span> */}
+                      <Select onChange={(value) => handleChangeFilter(value, "complaints")} options={complaints?.complaints?.map(item => ({ value: item._id, label: item.name }))} placeholder="Shikoyat" />
+                      <Select onChange={(value) => handleChangeFilter(value, "diagnostics")} options={complaints?.diagnostics?.map(item => ({ value: item._id, label: item.name }))} placeholder="Diagnoz" />
+                      {/* <span className="border border-black font-medium text-lg p-1">Diagnoz</span> */}
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-3">
+                      <FormControl>
+                        <FormLabel>
+                          {t("Yosh tanlang")}
+                        </FormLabel>
+                        <div className="flex items-center gap-x-2">
+                          <input onChange={(e) => handleChangeFilter(e.target.value, "from_age")} className="form-control" placeholder="Yosh dan" />
+                          <input onChange={(e) => handleChangeFilter(e.target.value, "to_age")} className="form-control" placeholder="Yosh gacha" />
+                        </div>
+                      </FormControl>
+                      <FormControl onChange={(e) => handleChangeFilter(e.target.value, "gender")}>
+                        <FormLabel>
+                          {t("Jinsi")}
+                        </FormLabel>
+                        <RadioGroup >
+                          <Stack direction='row'>
+                            <Radio value='man'>Erkak</Radio>
+                            <Radio value='woman'>Ayol</Radio>
+                          </Stack>
+                        </RadioGroup>
+                      </FormControl>
+                    </div>
+                    <div className="grid grid-cols-2">
+                      <FormControl onChange={(e) => handleChangeFilter(e.target.value, "national")}>
+                        <FormLabel>
+                          {t("Millati")}
+                        </FormLabel>
+                        <RadioGroup >
+                          <Stack direction='row'>
+                            <Radio value='uzbek'>O'zbek</Radio>
+                            <Radio value='foreigner'>Chet el fuqarosi</Radio>
+                          </Stack>
+                        </RadioGroup>
+                      </FormControl>
+                    </div>
+                    <div className="grid grid-cols-2">
+                      <FormControl>
+                        <FormLabel>
+                          {t("Operatsiya")}
+                        </FormLabel>
+                        <RadioGroup >
+                          <Stack direction='row'>
+                            <Radio value='uzbek'>Bo'lgan</Radio>
+                            <Radio value='other'>Bo'lmagan</Radio>
+                          </Stack>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormControl onChange={(e) => handleChangeFilter(e.target.value, "isDisability")}>
+                        <FormLabel>
+                          {t("Nogironligi")}
+                        </FormLabel>
+                        <RadioGroup >
+                          <Stack direction='row'>
+                            <Radio value='true'>Mavjud</Radio>
+                            <Radio value="false">Mavjud emas</Radio>
+                          </Stack>
+                        </RadioGroup>
+                      </FormControl>
+                    </div>
+                    <div className="grid grid-cols-2">
+                      <FormControl>
+                        <FormLabel>
+                          {t("Operatsiya turi")}
+                        </FormLabel>
+                        <input className="form-control" />
+                      </FormControl>
+                    </div>
+                  </div>
+                </ModalBody>
+                <ModalFooter className=" gap-x-3">
+                  <Button onClick={closeFilterModal} colorScheme='red'>{t("Bekor qilish")}</Button>
+                  <Button className=" !bg-alotrade py-1.5 text-white rounded-sm px-5 font-semibold text-base flex items-center justify-center" onClick={handleFilterClients}>{t("Qiridish")}</Button>
+                </ModalFooter>
+              </ModalContent>
+            </ChakraModal>
           </div>
           <table className="table m-0" id="discount-table">
             <thead>
@@ -225,8 +337,8 @@ export const TableClients = ({
               </tr>
             </thead>
             <tbody>
-              {currentDoctorClients.length > 0 &&
-                currentDoctorClients.map((connector, key) => {
+              {(currentDoctorClients.length > 0 ?
+                currentDoctorClients : updatedCliets?.length !== 0 && updatedCliets).map((connector, key) => {
                   return (
                     <tr key={key}>
                       <td

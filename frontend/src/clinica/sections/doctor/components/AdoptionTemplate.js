@@ -1,4 +1,4 @@
-import { useToast } from "@chakra-ui/react";
+import { Button, FormControl, FormLabel, useToast } from "@chakra-ui/react";
 import {
   faSave,
   faTrash,
@@ -21,8 +21,7 @@ import { useTranslation } from "react-i18next";
 import AllServices from "./AllServices";
 import ModalPrint from "./ModalPrint";
 import ReactHtmlParser from 'react-html-parser'
-
-
+import CreatableSelect from 'react-select/creatable';
 const CustomMenuWithInput = ({ selectProps: { onHover, onChange, outHover }, ...props }) => {
 
   const { data } = props
@@ -65,7 +64,23 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
   //   documentTitle: client && client?.firstname + ' ' + client?.lastname,
 
   // })
-
+  const [complaints, setComplaints] = useState({});
+  const getComplaints = async () => {
+    try {
+      const response = await request(`/api/doctor/complaint?clinica=${auth?.clinica?._id}&doctor=${auth?.userId}`,
+        "GET",
+        null, {
+        Authorization: `Bearer ${auth.token}`,
+      });
+      setComplaints(response)
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
+    }
+  }
   const [sections, setSections] = useState([]);
   const [templates, setTemplates] = useState();
 
@@ -131,13 +146,18 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
   }
 
   const saveService = async () => {
+
     try {
+      const updatedSections = sections.map(section => ({
+        ...section,
+        clientMoreDetails: { ...clientMoreDetails, _id: client?._id }
+      }));
       const data = await request(
         `/api/doctor/clients/adopt`,
         "POST",
         {
-          services: sections,
-          connector: connector._id
+          services: updatedSections,
+          connector: connector._id,
         },
         {
           Authorization: `Bearer ${auth.token}`,
@@ -285,6 +305,7 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
 
   useEffect(() => {
     getTemplates();
+    getComplaints()
   }, [getTemplates]);
 
   //=====================================================================
@@ -298,6 +319,29 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
     setTemplateModal(true)
     setTemplateModalTitle(data?.label)
     setTemplateModalText(data?.template)
+  }
+  const [clientMoreDetails, setClientMoreDetails] = useState({})
+  const onCreateComplaint = async (newValue, type) => {
+    try {
+      await request(`/api/doctor/complaint?clinica=${auth?.clinica?._id}&doctor=${auth?.userId}`,
+        "POST",
+        { type: type, name: newValue }, {
+        Authorization: `Bearer ${auth.token}`,
+      });
+      getComplaints()
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
+    }
+  }
+  const changeUserMoreDetails = (value, type) => {
+    if (type === "complaints" || type === "diagnostics") {
+      value = value.map(option => option.label)
+    }
+    setClientMoreDetails(prev => ({ ...prev, [type]: value }))
   }
 
   return (
@@ -521,6 +565,29 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
           <div className="mt-4 flex justify-between items-center">
             <span className="text-[20px] font-bold">{auth?.user?.signature}</span>
           </div>
+        </div>
+        <div className="grid grid-cols-4  gap-x-3 p-3">
+          <FormControl>
+            <FormLabel htmlFor="complaint_select">{t("Shikoyati")}</FormLabel>
+            <CreatableSelect onChange={(value) => changeUserMoreDetails(value, "complaints")} isMulti isLoading={loading} onCreateOption={(newValue) => onCreateComplaint(newValue, "complaints")} placeholder={"Shikoyat tanlang"} id="complaint_select" isClearable options={complaints?.complaints?.map(item => ({ value: item._id, label: item.name }))} />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="diagnostics_select">{t("Diagnoz")}</FormLabel>
+            <CreatableSelect onChange={(value) => changeUserMoreDetails(value, "diagnostics")} isMulti isLoading={loading} onCreateOption={(newValue) => onCreateComplaint(newValue, "diagnostics")} placeholder={"Diagnoz tanlang"} id="diagnostics_select" isClearable options={complaints?.diagnostics?.map(item => ({ value: item._id, label: item.name }))} />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="Operatsiya_select">{t("Operatsiya")}</FormLabel>
+            <CreatableSelect isLoading={loading} placeholder={"Operatsiya"} id="Operatsiya_select" isClearable
+            // options={complaints?.diagnostics?.map(item => ({ value: item._id, label: item.name }))}
+            />
+          </FormControl>
+          <FormControl >
+            <FormLabel htmlFor="complaint_select">{t("Nogironligi")}</FormLabel>
+            <div className="btn-group gap-x-3 ">
+              <Button onClick={() => changeUserMoreDetails(true, "isDisability")} variant={clientMoreDetails?.isDisability ? "solid" : "outline"} className="focus:!shadow-none">{t("Bor")}</Button>
+              <Button onClick={() => changeUserMoreDetails(false, "isDisability")} variant={!clientMoreDetails?.isDisability ? "solid" : "outline"} className="focus:!shadow-none">{t("Yo'q")}</Button>
+            </div>
+          </FormControl>
         </div>
         <div className="pt-4 w-full">
           {sections.length > 0 &&
@@ -862,8 +929,8 @@ const LabTemplate = ({ client, connector, services, baseUrl }) => {
           <div className="row" style={{ fontSize: "20pt" }}>
             {
               auth?.clinica?.blanka ? <div className="py-2 w-full">
-              <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-full h-[4cm]" />
-            </div> : <>
+                <img src={baseUrl + "/api/upload/file/" + auth?.clinica?.blanka} className="w-full h-[4cm]" />
+              </div> : <>
                 <div className="col-6 pt-2" style={{ textAlign: "center" }}>
                   <pre className="pt-3" style={{ fontFamily: "-moz-initial" }}>
                     {auth?.clinica?.name}

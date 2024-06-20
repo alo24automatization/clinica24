@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Select from 'react-select'
 import { Pagination } from '../../../reseption/components/Pagination'
@@ -6,6 +6,7 @@ import { DatePickers } from '../../../reseption/offlineclients/clientComponents/
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useHistory, useLocation } from 'react-router-dom/cjs/react-router-dom.min'
+import { AuthContext } from '../../../../context/AuthContext'
 const useQuery = () => {
     return new URLSearchParams(useLocation().search);
 };
@@ -28,12 +29,25 @@ const DoctorClientsTable = ({
     const totalPrices = currentConnectors.reduce((total, connector) => total + (connector?.totalprice || 0), 0);
     const totalAgentProfits = currentConnectors.reduce((total, connector) => total + (connector?.counteragent_profit || 0), 0);
     const totalDoctorProfits = currentConnectors.reduce((total, connector) => total + (connector?.counterdoctor_profit || 0), 0);
-    const history = useHistory();
     const query = useQuery();
     const beginDate = query.get('beginDate');
     const endDate = query.get('endDate');
+    const history = useHistory();
+    const auth = useContext(AuthContext)
+    const location = useLocation()
     const handleBackToAllDoctors = () => {
-        history.push('/alo24/counter_doctors_report')
+        if (auth && auth.user && auth?.user?.type === "Director") {
+            const connector = JSON.parse(localStorage.getItem("last_location_state"))
+            history.push({
+                pathname: '/alo24/counteragent_info',
+                state: connector,
+            });
+            setTimeout(() => {
+                localStorage.removeItem("last_location_state");
+              }, 0);
+        } else {
+            history.push('/alo24/counter_doctors_report')
+        }
     }
     useEffect(() => {
         if (beginDate && endDate) {

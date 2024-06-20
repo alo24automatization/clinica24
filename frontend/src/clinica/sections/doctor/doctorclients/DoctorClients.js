@@ -704,6 +704,7 @@ export const DoctorClients = () => {
       getDepartments()
       getBaseUrl()
       getProducts()
+      getComplaints()
     }
   }, [auth, beginDay, s, endDay, getDoctorClients, getDepartments, getProducts]);
 
@@ -808,7 +809,26 @@ export const DoctorClients = () => {
 
   //=====================================================================
   //=====================================================================
-
+  const [complaints, setComplaints] = useState({});
+  const getComplaints = async () => {
+    try {
+      const response = await request(`/api/doctor/complaint?clinica=${auth?.clinica?._id}&doctor=${auth?.userId}`,
+        "GET",
+        null, {
+        Authorization: `Bearer ${auth.token}`,
+      });
+      setComplaints(response)
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
+    }
+  }
+  const handleFilterClients=()=>{
+    
+  }
   const changeAccept = (e) => {
 
     let searching = []
@@ -1075,9 +1095,11 @@ export const DoctorClients = () => {
               currentDoctorClients={currentDoctorClients}
               setCurrentDoctorClients={setCurrentDoctorClients}
               currentPage={currentPage}
+              complaints={complaints}
               setPageSize={setPageSize}
               loading={loading}
               handlePrint={handlePrint}
+              handleFilterClients={handleFilterClients}
               setClient={setClient}
               setConnector={setConnector}
               setVisible={setVisible}

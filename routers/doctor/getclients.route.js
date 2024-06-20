@@ -53,12 +53,12 @@ module.exports.getAll = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
-        .populate("clinica", "name phone1 image")
-        .populate("client", "lastname firstname born id phone address")
+        .populate("clinica", "name phone1 image ")
+        .populate("client", "lastname firstname born id phone address isDisability clientMoreDetails")
         .populate({
           path: "services",
           select:
-            "service serviceid accept createdAt reseption refuse column payment tables turn connector client files department",
+            "service clientMoreDetails serviceid accept createdAt reseption refuse column payment tables turn connector client files department",
           populate: {
             path: "service",
             select: "price",
@@ -67,7 +67,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service serviceid accept createdAt reseption refuse column payment tables turn connector client files department",
+            "service clientMoreDetails serviceid accept createdAt reseption refuse column payment tables turn connector client files department",
           populate: {
             path: "serviceid",
             select: "servicetype",
@@ -80,7 +80,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service serviceid accept createdAt reseption refuse column payment tables turn connector client files department",
+            "service clientMoreDetails serviceid accept createdAt reseption refuse column payment tables turn connector client files department",
           populate: {
             path: "templates",
             select: "name template",
@@ -89,7 +89,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service serviceid accept createdAt reseption refuse column payment tables turn connector client files department",
+            "service clientMoreDetails serviceid accept createdAt reseption refuse column payment tables turn connector client files department",
           populate: {
             path: "department",
             select: "probirka",
@@ -109,9 +109,9 @@ module.exports.getAll = async (req, res) => {
               new Date(
                 new Date(connector.client.born).setUTCHours(0, 0, 0, 0)
               ).toISOString() ===
-                new Date(
-                  new Date(clientborn).setUTCHours(0, 0, 0, 0)
-                ).toISOString()
+              new Date(
+                new Date(clientborn).setUTCHours(0, 0, 0, 0)
+              ).toISOString()
           )
         );
     } else if (name) {
@@ -121,11 +121,11 @@ module.exports.getAll = async (req, res) => {
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
         .populate("clinica", "name phone1 image")
-        .populate("client", "lastname firstname born id phone address fullname")
+        .populate("client", "lastname firstname born id phone address fullname isDisability clientMoreDetails")
         .populate({
           path: "services",
           select:
-            "service serviceid createdAt accept reseption refuse column payment tables turn connector client files department",
+            "service clientMoreDetails serviceid createdAt accept reseption refuse column payment tables turn connector client files department",
           populate: {
             path: "service",
             select: "price",
@@ -134,7 +134,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service serviceid createdAt accept reseption refuse column payment tables turn connector client files department",
+            "service  clientMoreDetails  serviceid createdAt accept reseption refuse column payment tables turn connector client files department",
           populate: {
             path: "serviceid",
             select: "servicetype",
@@ -147,7 +147,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service serviceid createdAt accept reseption refuse column payment tables turn connector client files department",
+            "service  clientMoreDetails serviceid createdAt accept reseption refuse column payment tables turn connector client files department",
           populate: {
             path: "templates",
             select: "name template",
@@ -156,7 +156,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service serviceid createdAt accept reseption refuse column payment tables turn connector client files department",
+            "service clientMoreDetails  serviceid createdAt accept reseption refuse column payment tables turn connector client files department",
           populate: {
             path: "department",
             select: "probirka",
@@ -189,11 +189,11 @@ module.exports.getAll = async (req, res) => {
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
         .populate("clinica", "name phone1 image")
-        .populate("client", "lastname firstname born id phone address")
+        .populate("client", "lastname firstname born id phone address isDisability clientMoreDetails")
         .populate({
           path: "services",
           select:
-            "service createdAt serviceid reseption accept refuse column payment tables turn connector client files department",
+            "service clientMoreDetails createdAt serviceid reseption accept refuse column payment tables turn connector client files department",
           populate: {
             path: "service",
             select: "price",
@@ -202,7 +202,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service createdAt serviceid reseption accept refuse column payment tables turn connector client files department",
+            "service clientMoreDetails createdAt serviceid reseption accept refuse column payment tables turn connector client files department",
           populate: {
             path: "serviceid",
             select: "servicetype",
@@ -215,7 +215,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service createdAt serviceid reseption accept refuse payment column tables turn connector client files department",
+            "service clientMoreDetails createdAt serviceid reseption accept refuse payment column tables turn connector client files department",
           populate: {
             path: "templates",
             select: "name template",
@@ -224,7 +224,7 @@ module.exports.getAll = async (req, res) => {
         .populate({
           path: "services",
           select:
-            "service createdAt serviceid reseption accept payment refuse column tables turn connector client files department",
+            "service clientMoreDetails createdAt serviceid reseption accept payment refuse column tables turn connector client files department",
           populate: {
             path: "department",
             select: "probirka",
@@ -355,9 +355,9 @@ module.exports.getStatsionarAll = async (req, res) => {
               new Date(
                 new Date(connector.client.born).setUTCHours(0, 0, 0, 0)
               ).toISOString() ===
-                new Date(
-                  new Date(clientborn).setUTCHours(0, 0, 0, 0)
-                ).toISOString()
+              new Date(
+                new Date(clientborn).setUTCHours(0, 0, 0, 0)
+              ).toISOString()
           )
         );
     } else if (name) {
@@ -884,6 +884,7 @@ module.exports.adoptClient = async (req, res) => {
       offlineService.templates = service.templates;
       offlineService.files = service.files;
       offlineService.accept = true;
+      offlineService.clientMoreDetails = service.clientMoreDetails
       if (service.tables && service.tables.length > 0) {
         offlineService.tables = service.tables;
       }
@@ -903,19 +904,19 @@ module.exports.adoptClient = async (req, res) => {
 
 module.exports.adoptStatsionarClient = async (req, res) => {
   try {
-    const { services, connector } = req.body;
+    const { services, connector, clientMoreDetails } = req.body;
 
     for (const service of services) {
       const statsionarservice = await StatsionarService.findById(service._id);
       statsionarservice.templates = service.templates;
       statsionarservice.files = service.files;
       statsionarservice.accept = true;
+      statsionarservice.clientMoreDetails=clientMoreDetails
       if (service.tables && service.tables.length > 0) {
         statsionarservice.tables = service.tables;
       }
       statsionarservice.save();
     }
-
     const statsionarconnector = await StatsionarConnector.findById(connector);
     statsionarconnector.accept = true;
     statsionarconnector.save();

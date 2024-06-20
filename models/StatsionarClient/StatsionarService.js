@@ -34,6 +34,7 @@ const service = new Schema(
         payment: { type: Boolean, default: true },
         column: { type: Object },
         tables: { type: Array },
+        clientMoreDetails: { type: { complaints: [String], diagnostics: [String] }, default: null }
     },
     {
         timestamps: true,
@@ -59,7 +60,11 @@ function validateStatsionarService(clientservice) {
         comment: Joi.string(),
         payment: Joi.boolean(),
         column: Joi.object(),
-        tables: Joi.array()
+        tables: Joi.array(),
+        clientMoreDetails: Joi.object({
+            complaints: Joi.array().items(Joi.string()),
+            diagnostics: Joi.array().items(Joi.string())
+        }).default(null)
     })
 
     return schema.validate(clientservice)

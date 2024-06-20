@@ -115,14 +115,15 @@ const DoctorProfit = () => {
     const searchFullname =
         (e) => {
             const searching = searchStorage.filter((item) =>
-                item.firstname
+                item.client.firstname
                     .toLowerCase()
                     .includes(e.target.value.toLowerCase()) ||
-                item.lastname
+                item.client.lastname
                     .toLowerCase()
                     .includes(e.target.value.toLowerCase())
             )
             setServices(searching)
+            setSearchedServices(searching)
             setCurrentServices(searching.slice(0, countPage))
         }
 

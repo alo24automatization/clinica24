@@ -38,6 +38,7 @@ import StatsionarDoctor from "./statsionardoctor/StatsionarDoctor";
 import StatsionarRoomDoctor from "./statsionardoctor/StatsionarRoomDoctor";
 import { Users } from "./users/Users";
 import SettingForms from "./settingForms/SettingForms";
+import DoctorsClients from "../counter_agent/doctors/DoctorsClients";
 
 export const DirectorRouter = () => {
   return (
@@ -118,6 +119,9 @@ export const DirectorRouter = () => {
         </Route>
         <Route path="/alo24/counteragent_info">
           <CounterAgentInfo />
+        </Route>
+        <Route path="/alo24/counter_doctors_report/:id" exact>
+          <DoctorsClients />
         </Route>
         <Route path="/alo24/visit_info">
           <VisitInfo />

@@ -11,6 +11,7 @@ import { Pagination } from '../components/Pagination'
 import Select from "react-select"
 import ReactHtmlTableToExcel from 'react-html-table-to-excel'
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min'
 
 const CounterAgentInfo = () => {
 
@@ -181,7 +182,7 @@ const CounterAgentInfo = () => {
     //====================================================================
 
     const changeCounterDoctor = (e) => {
-        setSelected(e) 
+        setSelected(e)
         if (e.value === 'none') {
             type === 'offline' ? getConnectors(beginDay, endDay, '') : getCounterDoctorsService(beginDay, endDay, '')
         } else {
@@ -288,6 +289,20 @@ const CounterAgentInfo = () => {
 
     //====================================================================
     //====================================================================
+
+    const history = useHistory();
+    const formatDateToDDMMYYYY = (date) => {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+    console.log(location.state);
+    const navigateToCounterDoctorClients = (id) => {
+        localStorage.setItem("last_location_state", JSON.stringify(location.state))
+        history.push(`/alo24/counter_doctors_report/${id}?beginDate=${formatDateToDDMMYYYY(beginDay)}&endDate=${formatDateToDDMMYYYY(endDay)}`)
+    }
     return (
         <div className="min-h-full">
             <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
@@ -367,7 +382,7 @@ const CounterAgentInfo = () => {
                                 </div>
                             </div>
                             <div className="table-responsive">
-                                {type === "offline" ? <table className="table m-0">
+                                {type !== "offline" ? <table className="table m-0">
                                     <thead>
                                         <tr>
                                             <th className="border py-1 bg-alotrade text-[16px]">№</th>
@@ -462,17 +477,24 @@ const CounterAgentInfo = () => {
                                             <tr>
                                                 <th className="border py-1 bg-alotrade text-[16px]">№</th>
                                                 <th className="border py-1 bg-alotrade text-[16px]">
-                                                    {t("Mijoz")}
+                                                    {t("Yunaltiruvchi shifokor")}
                                                 </th>
                                                 <th className="border py-1 bg-alotrade text-[16px]">
-                                                    {t("Kelgan sa'nasi")}
+                                                    {t("Yunaltiruvchini klinikasi")}
                                                 </th>
-                                                <th className='border py-1 bg-alotrade text-[16px]'>{t("Kuni")}</th>
+                                                <th className='border py-1 bg-alotrade text-[16px]'>{t("Mijozlar")}</th>
+                                                <th className='border py-1 bg-alotrade text-[16px]'>{t("Telefon raqami")}</th>
                                                 <th className="border py-1 bg-alotrade text-[16px]">
-                                                    {t("Ulushi")}
+                                                    {t("Umumiy narxi")}
                                                 </th>
                                                 <th className="border py-1 bg-alotrade text-[16px]">
-                                                    {t("Yullanma")}
+                                                    {t("Kounteragent ulushi")}
+                                                </th>
+                                                <th className="border py-1 bg-alotrade text-[16px]">
+                                                    {t("Shifokor ulushi")}
+                                                </th>
+                                                <th className="border py-1 bg-alotrade text-[16px]">
+                                                    {t("Batafsil")}
                                                 </th>
                                             </tr>
                                         </thead>
@@ -481,46 +503,63 @@ const CounterAgentInfo = () => {
                                                 return (
                                                     <tr key={key}>
                                                         <td
-                                                            className="border py-1 text-right"
+                                                            className="border py-1 font-weight-bold text-right"
                                                             style={{ maxWidth: '30px !important' }}
                                                         >
                                                             {currentPage * countPage + key + 1}
                                                         </td>
-                                                        <td className="border py-1 text-[16px]">
-                                                            {connector?.client?.lastname +
-                                                                ' ' +
-                                                                connector?.client?.firstname}
-                                                        </td>
-                                                        <td className="border py-1 text-[16px]">
-                                                            {new Date(connector?.beginday).toLocaleDateString()}
-                                                        </td>
-                                                        <td className="border py-1 text-left text-[16px]">
-                                                            {connector?.endday ?
-                                                                Math.round((new Date(connector?.endday) - new Date(connector?.beginday)) / (60 * 60 * 24 * 1000)) :
-                                                                Math.round((new Date() - new Date(connector?.beginday)) / (60 * 60 * 24 * 1000))
-                                                            }
-                                                        </td>
-                                                        <td className="border py-1 text-left text-[16px]">
-                                                            {connector?.counterdoctor?.statsionar_profit || 0}
-                                                        </td>
-                                                        <td className="border py-1 text-left text-[16px]">
+                                                        <td className="border py-1 font-weight-bold text-[16px]">
                                                             {connector?.counterdoctor?.lastname +
                                                                 ' ' +
                                                                 connector?.counterdoctor?.firstname}
+                                                        </td>
+                                                        <td className="border py-1 font-weight-bold text-[16px]">
+                                                            {connector?.counterdoctor?.clinica_name}
+                                                        </td>
+                                                        <td className="border py-1 text-left text-[16px]">
+                                                            {connector?.client_count}
+                                                        </td>
+                                                        <td className="border py-1 text-left text-[16px]">
+                                                            {(connector?.counterdoctor.phone)}
+                                                        </td>
+
+                                                        <td className="border py-1 text-right text-[16px]">
+                                                            {connector.totalprice}
+                                                        </td>
+                                                        <td className="border py-1 text-right text-[16px]">
+                                                            {connector?.counteragent_profit}
+                                                        </td>
+                                                        <td className="border py-1 text-right text-[16px]">
+                                                            {connector.counterdoctor_profit}
+                                                        </td>
+                                                        <td className="border py-1 text-right text-[16px]">
+
+                                                            <button onClick={() => navigateToCounterDoctorClients(connector?.counterdoctor?._id)} type='button' className='w-full h-full bg-alotrade text-white rounded-sm'>
+                                                                {t("Batafsil")}
+                                                            </button>
+
                                                         </td>
                                                     </tr>
                                                 )
                                             })}
                                             <tr>
-                                                <td className="border py-1 font-weight-bold text-right">
-                                                </td>
-                                                <td className="border py-1 font-weight-bold text-[16px]"></td>
+                                                <td
+                                                    className="border py-1 font-weight-bold text-right"
+                                                    style={{ maxWidth: '30px !important' }}
+                                                ></td>
+                                                <td className="border py-1 font-weight-bold text-[16px]"> </td>
                                                 <td className="border py-1 font-weight-bold text-[16px]"></td>
                                                 <td className="border py-1 text-left text-[16px]"></td>
-                                                <td className="border py-1 text-left text-[16px] font-bold">
-                                                    {currentConnectors.reduce((prev, el) => prev + (el?.counterdoctor?.statsionar_profit || 0), 0)}
-                                                </td>
                                                 <td className="border py-1 text-left text-[16px]"></td>
+                                                <td className="border py-1 text-right text-[16px] font-bold">
+                                                    {connectors.reduce((prev, el) => prev + (el?.totalprice || 0), 0)}
+                                                </td>
+                                                <td className="border py-1 text-right text-[16px] font-bold">
+                                                    {connectors.reduce((prev, el) => prev + (el?.counteragent_profit || 0), 0)}
+                                                </td>
+                                                <td className="border py-1 text-right text-[16px] font-bold">
+                                                    {connectors.reduce((prev, el) => prev + (el?.counterdoctor_profit || 0), 0)}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>

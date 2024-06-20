@@ -1,5 +1,6 @@
 const { Clinica } = require("../../models/DirectorAndClinica/Clinica");
 const { AddedService } = require("../../models/Services/AddedService");
+const { UserHealthRecord } = require("../../models/UserHealthRecord/UserHealthRecord");
 const { User } = require("../../models/Users");
 require("../../models/OfflineClient/OfflineService");
 require('../../models/Services/Department')
@@ -102,14 +103,24 @@ module.exports.getComplaint = async (req, res) => {
         const findedDoctor = await User.findOne({
             clinica: clinica,
             _id: doctor
-        }).select("complaint");
+        });
         if (!findedDoctor) {
             return res.status(400).json({
                 message: "Diqqat! Doctor ma'lumotlari topilmadi.",
             });
         }
-        const complaint = findedDoctor.complaint;
-        res.status(200).json(complaint);
+        const findedUserHelthRecord = await UserHealthRecord.find({
+            doctor
+        })
+        let complaints = [], diagnostics = [];
+        findedUserHelthRecord.forEach((item) => {
+            if (item.type === "complaints") {
+                complaints.push(item)
+            } else if (item.type === "diagnostics") {
+                diagnostics.push(item)
+            }
+        })
+        res.status(200).json({ complaints, diagnostics });
     } catch (error) {
         console.error(error);
         res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
@@ -117,7 +128,7 @@ module.exports.getComplaint = async (req, res) => {
 };
 module.exports.updateAndCreateComplaint = async (req, res) => {
     const { clinica, doctor } = req.query
-    const { type, value, index } = req.body;
+    const { type, name, _id } = req.body;
     if (!clinica) {
         return res.status(400).json({
             message: "Diqqat! Klinika ma'lumotlari topilmadi.",
@@ -128,29 +139,30 @@ module.exports.updateAndCreateComplaint = async (req, res) => {
             message: "Diqqat! Doctor ma'lumotlari topilmadi.",
         });
     }
-    if (!type || !value) {
-        return res.status(400).json({
-            message: "Diqqat! Ma'lumotlari topilmadi.",
-        });
-    }
+
     try {
-        const updatedDoctor = await User.findOne(
+        const findedUser = await User.findOne(
             { clinica: clinica, _id: doctor },
         );
-        if (index !== undefined) {
-            updatedDoctor.complaint[type][index] = value
-        } else {
-            updatedDoctor.complaint[type]?.push(value)
-        }
-        await updatedDoctor.save()
-        if (!updatedDoctor) {
+        if (!findedUser) {
             return res.status(400).json({
                 message: "Diqqat! Doctor ma'lumotlari topilmadi.",
             });
         }
+        if (_id !== undefined) {
+            const findedUserHelthRecord = await UserHealthRecord.findOne({ _id, type });
+            findedUserHelthRecord.name = name;
+            await findedUserHelthRecord.save()
+        } else {
+            const newUserHealthRecord = new UserHealthRecord({
+                doctor,
+                type,
+                name
+            })
+            await newUserHealthRecord.save()
+        }
         res.status(200).json({
-            message: "Complaint muvaffaqiyatli yangilandi.",
-            complaint: updatedDoctor.complaint
+            message: `Muvaffaqiyatli yangilandi.`,
         });
     } catch (error) {
         console.error(error);
