@@ -97,6 +97,9 @@ export const TableClients = ({
 
     setUpdatesClients(filteredClients);
   };
+  const clients = currentDoctorClients.length > 0 ? 
+                currentDoctorClients : 
+                (updatedCliets && updatedCliets.length !== 0 ? updatedCliets : []);
   return (
     <div className="border-0 shadow-lg table-container">
       <div className="border-0 table-container">
@@ -119,7 +122,7 @@ export const TableClients = ({
               <input
                 onChange={searchFullname}
                 style={{ maxWidth: "100px", minWidth: "100px" }}
-                type="search"
+                type="search" 
                 className="w-100 form-control form-control-sm selectpicker"
                 placeholder={t("F.I.O")}
                 onKeyDown={(e) => e.key === 'Enter' && getClientsByName()}
@@ -337,8 +340,7 @@ export const TableClients = ({
               </tr>
             </thead>
             <tbody>
-              {(currentDoctorClients.length > 0 ?
-                currentDoctorClients : updatedCliets?.length !== 0 && updatedCliets).map((connector, key) => {
+              {clients.map((connector, key) => {
                   return (
                     <tr key={key}>
                       <td
