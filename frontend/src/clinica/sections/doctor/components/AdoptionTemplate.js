@@ -682,9 +682,9 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
               </div>
             ))}
         </div>
-        <div className="py-2 w-full">
+        {auth?.user.blanka ? <div className="py-2 w-full">
           <img src={baseUrl + "/api/upload/file/" + auth?.user?.blanka} className="w-full h-[4cm]" />
-        </div>
+        </div> : null}
         <div className="row">
           <div className="col-12 text-center my-4">
             <button className="btn btn-success px-4 mx-4" onClick={() => handleSave()} > {t("Tasdiqlash")}</button>
@@ -1247,9 +1247,9 @@ const LabTemplate = ({ client, connector, services, baseUrl }) => {
               }
             })}
         </div>
-        <div className="py-2 w-full">
+        {auth?.user.blanka ? <div className="py-2 w-full">
           <img src={baseUrl + "/api/upload/file/" + auth?.user?.blanka} className="w-full h-[4cm]" />
-        </div>
+        </div> : null}
         <div className="row">
           <div className="col-12 text-center my-4">
             <button className="btn btn-info px-5" onClick={handlePrint} >{t("Chop etish")}</button>
