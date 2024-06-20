@@ -44,7 +44,7 @@ const PopularServices = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //======================================================

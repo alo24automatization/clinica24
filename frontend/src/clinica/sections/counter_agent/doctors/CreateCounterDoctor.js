@@ -44,7 +44,7 @@ const CreateCounterDoctor = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //====================================================

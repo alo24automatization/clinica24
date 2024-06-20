@@ -33,7 +33,7 @@ const ClientCard = ({ connector, setConnector }) => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     const {t} = useTranslation()

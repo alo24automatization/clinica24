@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleUp,
@@ -9,6 +9,7 @@ import {
   faSearch,
   faArrowsUpDown,
   faRotate,
+  faClose,
 } from "@fortawesome/free-solid-svg-icons";
 import { Sort } from "./Sort";
 import { Pagination } from "../../components/Pagination";
@@ -19,7 +20,7 @@ import Select from "react-select";
 import makeAnimated from 'react-select/animated'
 import { Modal } from "../../../reseption/components/Modal";
 import { useTranslation } from "react-i18next";
-import { ModalOverlay, Modal as ChakraModal, ModalBody, ModalContent, FormControl, FormLabel, Stack, RadioGroup, Radio, ModalFooter, Button } from "@chakra-ui/react";
+import { ModalOverlay, Modal as ChakraModal, ModalBody, ModalContent, FormControl, FormLabel, Stack, RadioGroup, Radio, ModalFooter, Button, useToast } from "@chakra-ui/react";
 
 const animatedComponents = makeAnimated()
 
@@ -27,6 +28,7 @@ export const TableClients = ({
   changeStart,
   changeEnd,
   searchId,
+  handleFilterClients,
   searchFullname,
   doctorClients,
   setCurrentPage,
@@ -53,6 +55,7 @@ export const TableClients = ({
   setNewServices,
   setNewProducts,
   complaints,
+  updatedCliets,
 }) => {
 
   const { t } = useTranslation()
@@ -72,34 +75,40 @@ export const TableClients = ({
       return ""
     }
   }
+  const [startedFilter, setStaredFiltered] = useState(false)
   const [openFilterModal, setOpenFilterModal] = useState(false)
   const closeFilterModal = () => {
     setOpenFilterModal(false)
+    setClientFilterData({})
+    setStaredFiltered(false)
   }
   const [clientFilterData, setClientFilterData] = useState({});
   const handleChangeFilter = (value, type) => {
     setClientFilterData(prev => ({ ...prev, [type]: value }))
   }
-  const [updatedCliets, setUpdatesClients] = useState([]);
-  const handleFilterClients = () => {
-    const { complaints, diagnostics, from_age, to_age, gender, national } = clientFilterData;
 
-    const filteredClients = currentDoctorClients?.filter(client => {
-      return (
-        (!complaints || client.complaints.value === complaints.value) &&
-        (!diagnostics || client.diagnostics.value === diagnostics.value) &&
-        (!from_age || client.age >= parseInt(from_age, 10)) &&
-        (!to_age || client.age <= parseInt(to_age, 10)) &&
-        (!gender || client.gender === gender) &&
-        (!national || client.national === national)
-      );
-    });
+  const toast = useToast();
 
-    setUpdatesClients(filteredClients);
-  };
-  const clients = currentDoctorClients.length > 0 ? 
-                currentDoctorClients : 
-                (updatedCliets && updatedCliets.length !== 0 ? updatedCliets : []);
+  const notify = useCallback(
+    (data) => {
+      toast({
+        title: data.title && data.title,
+        description: data.description && data.description,
+        status: data.status && data.status,
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+    },
+    [toast]
+  );
+
+  const clients = startedFilter ? updatedCliets : currentDoctorClients;
+  const handleStartFilter = (data) => {
+    handleFilterClients(data);
+    setOpenFilterModal(false)
+    setStaredFiltered(true)
+  }
   return (
     <div className="border-0 shadow-lg table-container">
       <div className="border-0 table-container">
@@ -122,7 +131,7 @@ export const TableClients = ({
               <input
                 onChange={searchFullname}
                 style={{ maxWidth: "100px", minWidth: "100px" }}
-                type="search" 
+                type="search"
                 className="w-100 form-control form-control-sm selectpicker"
                 placeholder={t("F.I.O")}
                 onKeyDown={(e) => e.key === 'Enter' && getClientsByName()}
@@ -213,7 +222,20 @@ export const TableClients = ({
                 <option value="not">{t("Tasdiqlanmagan")}</option>
               </select>
             </div> */}
-            <button onClick={() => setOpenFilterModal(true)} className=" bg-alotrade py-1.5 text-white rounded-sm px-5 font-semibold text-base flex items-center justify-center">{t("Filtr")}</button>
+            <button onClick={() => {
+              if (!startedFilter) {
+                setOpenFilterModal(true)
+              } else {
+                setStaredFiltered(false)
+                setClientFilterData({})
+              }
+            }} className=" bg-alotrade py-1.5 text-white rounded-sm px-5 font-semibold text-base flex items-center justify-center">
+              {startedFilter ?
+                <FontAwesomeIcon icon={faClose} /> :
+                t("Filtr")
+              }
+            </button>
+
             <ChakraModal size="4xl" isOpen={openFilterModal} onClose={closeFilterModal}>
               <ModalOverlay />
               <ModalContent >
@@ -221,8 +243,8 @@ export const TableClients = ({
                   <div className="space-y-3 pt-2">
                     <div className="grid grid-cols-2 gap-x-4">
                       {/* <span className="border border-black font-medium text-lg p-1">Shikoyat</span> */}
-                      <Select onChange={(value) => handleChangeFilter(value, "complaints")} options={complaints?.complaints?.map(item => ({ value: item._id, label: item.name }))} placeholder="Shikoyat" />
-                      <Select onChange={(value) => handleChangeFilter(value, "diagnostics")} options={complaints?.diagnostics?.map(item => ({ value: item._id, label: item.name }))} placeholder="Diagnoz" />
+                      <Select isMulti onChange={(value) => handleChangeFilter(value, "complaints")} options={complaints?.complaints?.map(item => ({ value: item._id, label: item.name }))} placeholder="Shikoyat" />
+                      <Select isMulti onChange={(value) => handleChangeFilter(value, "diagnostics")} options={complaints?.diagnostics?.map(item => ({ value: item._id, label: item.name }))} placeholder="Diagnoz" />
                       {/* <span className="border border-black font-medium text-lg p-1">Diagnoz</span> */}
                     </div>
                     <div className="grid grid-cols-2 gap-x-3">
@@ -254,14 +276,14 @@ export const TableClients = ({
                         </FormLabel>
                         <RadioGroup >
                           <Stack direction='row'>
-                            <Radio value='uzbek'>O'zbek</Radio>
+                            <Radio value='uzb'>O'zbek</Radio>
                             <Radio value='foreigner'>Chet el fuqarosi</Radio>
                           </Stack>
                         </RadioGroup>
                       </FormControl>
                     </div>
                     <div className="grid grid-cols-2">
-                      <FormControl>
+                      {/* <FormControl>
                         <FormLabel>
                           {t("Operatsiya")}
                         </FormLabel>
@@ -271,7 +293,7 @@ export const TableClients = ({
                             <Radio value='other'>Bo'lmagan</Radio>
                           </Stack>
                         </RadioGroup>
-                      </FormControl>
+                      </FormControl> */}
                       <FormControl onChange={(e) => handleChangeFilter(e.target.value, "isDisability")}>
                         <FormLabel>
                           {t("Nogironligi")}
@@ -284,19 +306,19 @@ export const TableClients = ({
                         </RadioGroup>
                       </FormControl>
                     </div>
-                    <div className="grid grid-cols-2">
+                    {/* <div className="grid grid-cols-2">
                       <FormControl>
                         <FormLabel>
                           {t("Operatsiya turi")}
                         </FormLabel>
                         <input className="form-control" />
                       </FormControl>
-                    </div>
+                    </div> */}
                   </div>
                 </ModalBody>
                 <ModalFooter className=" gap-x-3">
                   <Button onClick={closeFilterModal} colorScheme='red'>{t("Bekor qilish")}</Button>
-                  <Button className=" !bg-alotrade py-1.5 text-white rounded-sm px-5 font-semibold text-base flex items-center justify-center" onClick={handleFilterClients}>{t("Qiridish")}</Button>
+                  <Button className=" !bg-alotrade py-1.5 text-white rounded-sm px-5 font-semibold text-base flex items-center justify-center" onClick={() => handleStartFilter(clientFilterData)}>{t("Qiridish")}</Button>
                 </ModalFooter>
               </ModalContent>
             </ChakraModal>
@@ -341,133 +363,133 @@ export const TableClients = ({
             </thead>
             <tbody>
               {clients.map((connector, key) => {
-                  return (
-                    <tr key={key}>
-                      <td
-                        className={`${isDebt(connector.payments)} border text-[16px] py-1 font-weight-bold text-right`}
-                        style={{ maxWidth: "30px !important" }}
-                        onClick={() => {
-                          const debt = connector.payments.reduce((prev, item) => prev + item.debt, 0)
-                          if (debt > 0) {
-                            setDebt(debt)
-                            setModal(true)
+                return (
+                  <tr key={key}>
+                    <td
+                      className={`${isDebt(connector.payments)} border text-[16px] py-1 font-weight-bold text-right`}
+                      style={{ maxWidth: "30px !important" }}
+                      onClick={() => {
+                        const debt = connector.payments.reduce((prev, item) => prev + item.debt, 0)
+                        if (debt > 0) {
+                          setDebt(debt)
+                          setModal(true)
+                        }
+                      }}
+                    >
+                      {currentPage * countPage + key + 1}
+                    </td>
+                    <td className="border text-[16px] py-1 font-weight-bold">
+                      {connector.client.firstname} {connector.client.lastname}
+                    </td>
+                    <td className="border text-[16px] py-1 text-right">
+                      {new Date(connector?.connector?.createdAt).toLocaleDateString('ru-RU')} {new Date([...connector?.services].filter(service => service.department._id === user.specialty._id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt).toLocaleTimeString('ru-RU')}
+                    </td>
+                    <td className="border text-[16px] py-1 text-right">
+                      {[...connector?.services].filter(service => service.department._id === user.specialty._id)[0].turn}
+                    </td>
+                    <td className="border text-[16px] py-1 text-right">
+                      {connector.client.id}
+                    </td>
+                    <td className="border text-[16px] py-1 text-right">
+                      {connector.client.phone}
+                    </td>
+                    <td className="border text-[16px] py-1 text-right">
+                      {new Date(connector.client.born).toLocaleDateString()}
+                    </td>
+                    {clientsType === 'statsionar' && <td className="border text-[16px] py-1 text-right">
+                      {new Date(connector?.connector?.createdAt).toLocaleDateString()} {new Date(connector?.connector?.createdAt).toLocaleTimeString().slice(0, 5)}
+                    </td>}
+                    {clientsType === 'statsionar' && <td className="border text-[16px] py-1 text-right">
+                      {connector?.connector?.room?.room?.type} {connector?.connector?.room?.room?.number} {connector?.connector?.room?.room?.place}
+                    </td>}
+                    <td className="border text-[16px] py-1 text-right">
+                      <div className="custom-control custom-checkbox text-center">
+                        <input checked={connector?.services?.filter(service => service.department._id === user?.specialty?._id && !service.department.probirka && service.accept).length > 0 ? true : false}
+                          type="checkbox"
+                          className="custom-control-input border border-dager"
+                          id={`product${key}`}
+                        />
+                        <label className="custom-control-label"
+                          htmlFor={`product${key}`}></label>
+                      </div>
+                    </td>
+                    <td className="border text-[16px] py-1 text-center flex gap-[4px] items-center">
+                      {loading ? (
+                        <button className="btn btn-success" disabled>
+                          <span className="spinner-border spinner-border-sm"></span>
+                          Loading...
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setClient(connector.client)
+                            setConnector(connector.connector)
+                            setVisible(true)
+                            setIsAddConnector(true)
+                            setSelectedServices(null)
+                            setNewServices([])
+                            setNewProducts([])
+                          }}
+                          className="btn btn-success bg-orange-500 border-orange-500 py-0"
+                        >
+                          <FontAwesomeIcon icon={faRotate} />
+                        </button>
+                      )}
+                      {loading ? (
+                        <button className="btn btn-success" disabled>
+                          <span className="spinner-border spinner-border-sm"></span>
+                          Loading...
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            history.push("/alo24/adoption", { ...connector, clientsType, user })
                           }
-                        }}
-                      >
-                        {currentPage * countPage + key + 1}
-                      </td>
-                      <td className="border text-[16px] py-1 font-weight-bold">
-                        {connector.client.firstname} {connector.client.lastname}
-                      </td>
-                      <td className="border text-[16px] py-1 text-right">
-                        {new Date(connector?.connector?.createdAt).toLocaleDateString('ru-RU')} {new Date([...connector?.services].filter(service => service.department._id === user.specialty._id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt).toLocaleTimeString('ru-RU')}
-                      </td>
-                      <td className="border text-[16px] py-1 text-right">
-                        {[...connector?.services].filter(service => service.department._id === user.specialty._id)[0].turn}
-                      </td>
-                      <td className="border text-[16px] py-1 text-right">
-                        {connector.client.id}
-                      </td>
-                      <td className="border text-[16px] py-1 text-right">
-                        {connector.client.phone}
-                      </td>
-                      <td className="border text-[16px] py-1 text-right">
-                        {new Date(connector.client.born).toLocaleDateString()}
-                      </td>
-                      {clientsType === 'statsionar' && <td className="border text-[16px] py-1 text-right">
-                        {new Date(connector?.connector?.createdAt).toLocaleDateString()} {new Date(connector?.connector?.createdAt).toLocaleTimeString().slice(0, 5)}
-                      </td>}
-                      {clientsType === 'statsionar' && <td className="border text-[16px] py-1 text-right">
-                        {connector?.connector?.room?.room?.type} {connector?.connector?.room?.room?.number} {connector?.connector?.room?.room?.place}
-                      </td>}
-                      <td className="border text-[16px] py-1 text-right">
-                        <div className="custom-control custom-checkbox text-center">
-                          <input checked={connector?.services?.filter(service => service.department._id === user?.specialty?._id && !service.department.probirka && service.accept).length > 0 ? true : false}
-                            type="checkbox"
-                            className="custom-control-input border border-dager"
-                            id={`product${key}`}
-                          />
-                          <label className="custom-control-label"
-                            htmlFor={`product${key}`}></label>
-                        </div>
-                      </td>
-                      <td className="border text-[16px] py-1 text-center flex gap-[4px] items-center">
-                        {loading ? (
-                          <button className="btn btn-success" disabled>
-                            <span className="spinner-border spinner-border-sm"></span>
-                            Loading...
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              setClient(connector.client)
-                              setConnector(connector.connector)
-                              setVisible(true)
-                              setIsAddConnector(true)
-                              setSelectedServices(null)
-                              setNewServices([])
-                              setNewProducts([])
-                            }}
-                            className="btn btn-success bg-orange-500 border-orange-500 py-0"
-                          >
-                            <FontAwesomeIcon icon={faRotate} />
-                          </button>
-                        )}
-                        {loading ? (
-                          <button className="btn btn-success" disabled>
-                            <span className="spinner-border spinner-border-sm"></span>
-                            Loading...
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() =>
-                              history.push("/alo24/adoption", { ...connector, clientsType, user })
-                            }
-                            className="btn btn-primary py-0"
-                          >
-                            <FontAwesomeIcon icon={faPenAlt} />
-                          </button>
-                        )}
-                        {loading ? (
-                          <button className="btn btn-success" disabled>
-                            <span className="spinner-border spinner-border-sm"></span>
-                            Loading...
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              setClient(connector.client)
-                              setConnector(connector.connector)
-                              setIsAddConnector(false)
-                              setVisible(true)
-                              setSelectedServices(null)
-                              setNewServices([])
-                              setNewProducts([])
-                            }}
-                            className="btn btn-success py-0"
-                          >
-                            <FontAwesomeIcon icon={faPlus} />
-                          </button>
-                        )}
-                        {loading ? (
-                          <button className="ml-2 btn btn-success" disabled>
-                            <span className="spinner-border spinner-border-sm"></span>
-                            Loading...
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() =>
-                              handlePrint(connector)
-                            }
-                            className="btn btn-success py-0"
-                          >
-                            <FontAwesomeIcon icon={faPrint} />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                          className="btn btn-primary py-0"
+                        >
+                          <FontAwesomeIcon icon={faPenAlt} />
+                        </button>
+                      )}
+                      {loading ? (
+                        <button className="btn btn-success" disabled>
+                          <span className="spinner-border spinner-border-sm"></span>
+                          Loading...
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setClient(connector.client)
+                            setConnector(connector.connector)
+                            setIsAddConnector(false)
+                            setVisible(true)
+                            setSelectedServices(null)
+                            setNewServices([])
+                            setNewProducts([])
+                          }}
+                          className="btn btn-success py-0"
+                        >
+                          <FontAwesomeIcon icon={faPlus} />
+                        </button>
+                      )}
+                      {loading ? (
+                        <button className="ml-2 btn btn-success" disabled>
+                          <span className="spinner-border spinner-border-sm"></span>
+                          Loading...
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            handlePrint(connector)
+                          }
+                          className="btn btn-success py-0"
+                        >
+                          <FontAwesomeIcon icon={faPrint} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

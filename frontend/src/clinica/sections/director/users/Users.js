@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { AuthContext } from '../../../context/AuthContext'
 import { useHttp } from '../../../hooks/http.hook'
 import { Pagination } from '../components/Pagination'
@@ -17,7 +17,7 @@ export const Users = () => {
   const [remove, setRemove] = useState()
   //====================================================================
   //====================================================================
-  const {t} = useTranslation()
+  const { t } = useTranslation()
   //====================================================================
   //====================================================================
   // RegisterPage
@@ -57,7 +57,7 @@ export const Users = () => {
         position: 'top-right',
       })
     },
-    [toast],
+    [],
   )
   //====================================================================
   //====================================================================
@@ -100,7 +100,68 @@ export const Users = () => {
   }, [request, auth, notify])
   //====================================================================
   //====================================================================
-
+  const [blankaImage, setBlankaImage] = useState(null);
+  const cropperRef = useRef(null);
+  const cmToPx = (cm) => Math.round(cm * 96 / 2.54);
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setBlankaImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  const handleCrop = async () => {
+    const cropper = cropperRef.current.cropper;
+    const croppedCanvas = cropper.getCroppedCanvas({
+      width: cmToPx(30),
+      height: cmToPx(3),
+    });
+    croppedCanvas.toBlob(async (blob) => {
+      const data = new FormData();
+      data.append("file", blob, "cropped_image.jpg");
+      setLoad(true);
+      try {
+        const res = await fetch("/api/upload", { method: "POST", body: data });
+        const result = await res.json();
+        setUser({ ...user, blanka: result.filename });
+        notify({
+          status: "success",
+          description: "",
+          title: "Surat muvaffaqqiyatli yuklandi",
+        });
+      } catch (error) {
+        notify({
+          status: "error",
+          description: "Fayl yuklash muvaffaqqiyatsiz tugadi",
+          title: "Xato",
+        });
+      } finally {
+        setLoad(false);
+        setBlankaImage(null)
+      }
+    });
+  };
+  const removeBlanka = async (filename) => {
+    try {
+      const data = await request(`/api/upload/del`, "POST", { filename });
+      setUser({ ...user, blanka: null });
+      document.getElementById("default-btn").value = null;
+      notify({
+        status: "success",
+        description: "",
+        title: data.accept,
+      });
+    } catch (error) {
+      notify({
+        status: "error",
+        description: "",
+        title: error,
+      });
+    }
+  };
   //====================================================================
   //====================================================================
   //SECTIONS
@@ -412,6 +473,13 @@ export const Users = () => {
       <div className={` ${visible ? '' : 'd-none'}`}>
         <RegistorUser
           auth={auth}
+          blankaImage={blankaImage}
+          setBlankaImage={setBlankaImage}
+          cropperRef={cropperRef}
+          cmToPx={cmToPx}
+          handleImageChange={handleImageChange}
+          handleCrop={handleCrop}
+          removeBlanka={removeBlanka}
           counteragents={counteragents}
           removeImage={removeImage}
           handleImage={handleImage}
@@ -545,9 +613,9 @@ export const Users = () => {
                               <button
                                 onClick={() => {
                                   if (user.type === 'Director') {
-                                    setUser({...user, clinica: user.clinica._id})
+                                    setUser({ ...user, clinica: user.clinica._id })
                                   } else {
-                                    setUser({...user})
+                                    setUser({ ...user })
                                   }
                                   setVisible(true)
                                 }}

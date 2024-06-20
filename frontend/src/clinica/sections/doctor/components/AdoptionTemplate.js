@@ -163,6 +163,7 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
           Authorization: `Bearer ${auth.token}`,
         }
       );
+
       notify({
         title: t(data.message),
         description: "",
@@ -339,11 +340,23 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
   }
   const changeUserMoreDetails = (value, type) => {
     if (type === "complaints" || type === "diagnostics") {
-      value = value.map(option => option.label)
+      value = value.map(option => option.value)
     }
     setClientMoreDetails(prev => ({ ...prev, [type]: value }))
   }
-
+  const formatCreateLabel = (inputValue) => `Yaratish "${inputValue}"`;
+  const customStyles = {
+    option: (provided, state) => {
+      if (state.data.__isNew__) {
+        return {
+          ...provided,
+          backgroundColor: 'green',
+          color: 'white',
+        };
+      }
+      return provided;
+    },
+  };
   return (
     <>
       <div className="container p-4 bg-white" style={{ fontFamily: "times" }}>
@@ -569,18 +582,18 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
         <div className="grid grid-cols-4  gap-x-3 p-3">
           <FormControl>
             <FormLabel htmlFor="complaint_select">{t("Shikoyati")}</FormLabel>
-            <CreatableSelect onChange={(value) => changeUserMoreDetails(value, "complaints")} isMulti isLoading={loading} onCreateOption={(newValue) => onCreateComplaint(newValue, "complaints")} placeholder={"Shikoyat tanlang"} id="complaint_select" isClearable options={complaints?.complaints?.map(item => ({ value: item._id, label: item.name }))} />
+            <CreatableSelect styles={customStyles} formatCreateLabel={formatCreateLabel} onChange={(value) => changeUserMoreDetails(value, "complaints")} isMulti isLoading={loading} onCreateOption={(newValue) => onCreateComplaint(newValue, "complaints")} placeholder={"Shikoyat tanlang"} id="complaint_select" isClearable options={complaints?.complaints?.map(item => ({ value: item._id, label: item.name }))} />
           </FormControl>
           <FormControl>
             <FormLabel htmlFor="diagnostics_select">{t("Diagnoz")}</FormLabel>
-            <CreatableSelect onChange={(value) => changeUserMoreDetails(value, "diagnostics")} isMulti isLoading={loading} onCreateOption={(newValue) => onCreateComplaint(newValue, "diagnostics")} placeholder={"Diagnoz tanlang"} id="diagnostics_select" isClearable options={complaints?.diagnostics?.map(item => ({ value: item._id, label: item.name }))} />
+            <CreatableSelect styles={customStyles} formatCreateLabel={formatCreateLabel} onChange={(value) => changeUserMoreDetails(value, "diagnostics")} isMulti isLoading={loading} onCreateOption={(newValue) => onCreateComplaint(newValue, "diagnostics")} placeholder={"Diagnoz tanlang"} id="diagnostics_select" isClearable options={complaints?.diagnostics?.map(item => ({ value: item._id, label: item.name }))} />
           </FormControl>
-          <FormControl>
+          {/* <FormControl>
             <FormLabel htmlFor="Operatsiya_select">{t("Operatsiya")}</FormLabel>
-            <CreatableSelect isLoading={loading} placeholder={"Operatsiya"} id="Operatsiya_select" isClearable
+            <CreatableSelect styles={customStyles} formatCreateLabel={formatCreateLabel} isLoading={loading} placeholder={"Operatsiya"} id="Operatsiya_select" isClearable
             // options={complaints?.diagnostics?.map(item => ({ value: item._id, label: item.name }))}
             />
-          </FormControl>
+          </FormControl> */}
           <FormControl >
             <FormLabel htmlFor="complaint_select">{t("Nogironligi")}</FormLabel>
             <div className="btn-group gap-x-3 ">
@@ -668,6 +681,9 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
                 </div>
               </div>
             ))}
+        </div>
+        <div className="py-2 w-full">
+          <img src={baseUrl + "/api/upload/file/" + auth?.user?.blanka} className="w-full h-[4cm]" />
         </div>
         <div className="row">
           <div className="col-12 text-center my-4">
@@ -1230,6 +1246,9 @@ const LabTemplate = ({ client, connector, services, baseUrl }) => {
                 </div>
               }
             })}
+        </div>
+        <div className="py-2 w-full">
+          <img src={baseUrl + "/api/upload/file/" + auth?.user?.blanka} className="w-full h-[4cm]" />
         </div>
         <div className="row">
           <div className="col-12 text-center my-4">

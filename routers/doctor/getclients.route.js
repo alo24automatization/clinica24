@@ -269,7 +269,200 @@ module.exports.getAll = async (req, res) => {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
+module.exports.getClientsByFilter = async (req, res) => {
+  const { clinica, beginDay, endDay, department } = req.body;
+  const { complaints, diagnostics, from_age, to_age, gender, national, isDisability } = req.body.clientFilterData;
 
+  try {
+    // Find clinic by ID
+    const clinic = await Clinica.findById(clinica);
+
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+
+
+    // Calculate the start and end birth dates from age range
+
+    let connectors = await OfflineConnector.find({
+      createdAt: {
+        $gte: beginDay,
+        $lte: endDay,
+      },
+      clinica,
+    })
+      .sort({ createdAt: -1 })
+      .select("-__v -updatedAt -isArchive")
+      .populate("clinica", "name phone1 image")
+      .populate("client", "lastname firstname born id phone address isDisability gender national")
+      .populate({
+        path: "services",
+        select:
+          "service clientMoreDetails createdAt serviceid reseption accept refuse column payment tables turn connector client files department",
+        populate: {
+          path: "service",
+          select: "price",
+        },
+      })
+      .populate({
+        path: "services",
+        select:
+          "service clientMoreDetails createdAt serviceid reseption accept refuse column payment tables turn connector client files department",
+        populate: {
+          path: "serviceid",
+          select: "servicetype",
+          populate: {
+            path: "servicetype",
+            select: "name",
+          },
+        },
+      })
+      .populate({
+        path: "services",
+        select:
+          "service clientMoreDetails createdAt serviceid reseption accept refuse payment column tables turn connector client files department",
+        populate: {
+          path: "templates",
+          select: "name template",
+        },
+      })
+      .populate({
+        path: "services",
+        select:
+          "service clientMoreDetails createdAt serviceid reseption accept payment refuse column tables turn connector client files department",
+        populate: {
+          path: "department",
+          select: "probirka",
+        },
+      })
+      .populate("payments")
+      .lean()
+      .then((connectors) =>
+        connectors.filter((connector) => {
+          return connector.services.some(
+            (service) =>
+              String(service?.department?._id) === String(department) &&
+              !service.refuse &&
+              service.payment
+          );
+        })
+      );
+    const clients = [];
+    if (connectors.length > 0) {
+      for (const connector of connectors) {
+        clients.push({
+          client: connector.client,
+          connector: {
+            clinica: connector.clinica,
+            accept: connector.accept,
+            createdAt: connector.createdAt,
+            probirka: connector.probirka,
+            _id: connector._id,
+          },
+          services: [...connector.services].filter(
+            (service) => service.refuse === false && service.payment
+          ),
+          payments: connector.payments,
+        });
+      }
+    }
+    const currentDate = new Date();
+    const startBirthDate = new Date(currentDate.getFullYear() - to_age, currentDate.getMonth(), currentDate.getDate());
+    const endBirthDate = new Date(currentDate.getFullYear() - from_age, currentDate.getMonth(), currentDate.getDate());
+    // Apply additional filters
+    let filteredClients = connectors.filter((connector) => {
+      let isMatch = true;
+      let { client, services } = connector;
+      // Check diagnostics
+      if (diagnostics !== undefined || complaints !== undefined) {
+        let hasDiagnos = services?.some(({ clientMoreDetails }) => clientMoreDetails?.diagnostics?.some(d => diagnostics?.some((diagnostic) => {
+          return diagnostic.value == d
+        })))
+        let hasComp = services?.some(({ clientMoreDetails }) => clientMoreDetails?.complaints?.some(d => complaints?.some((complaint) => {
+          return complaint.value == d
+        })))
+        isMatch = isMatch && hasDiagnos || hasComp;
+      }
+      // Check complaints
+
+      if (from_age && to_age) {
+        isMatch = isMatch && client.born >= startBirthDate && client.born <= endBirthDate;
+      }
+      if (gender) {
+        isMatch = isMatch && client.gender == gender;
+      }
+      if (national) {
+        isMatch = isMatch && client.national == national;
+      }
+      if (isDisability === "true" || isDisability === "false") {
+        if (typeof client?.isDisability === "boolean") {
+          const isDisabilityBoolean = isDisability === "true";
+          console.log(isDisabilityBoolean);
+          console.log(client?.isDisability);
+          isMatch = isMatch && client?.isDisability === isDisabilityBoolean;
+        }
+      }
+      return isMatch;
+    });
+    return res.status(200).json(filteredClients);
+
+  } catch (error) {
+    // Handle errors
+    console.log(error);
+    return res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// module.exports.getClientsByFilter = async (req, res) => {
+//   const { clinica, beginDay, endDay, department } = req.body;
+//   const { complaints, diagnostics, from_age, to_age, gender, national, isDisability } = req.body.clientFilterData;
+
+//   try {
+//     // Find clinic by ID
+//     const clinic = await Clinica.findById(clinica);
+
+//     if (!clinic) {
+//       return res.status(400).json({
+//         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+//       });
+//     }
+
+//     // Fetch clients by date range
+//     const clientsByDateRange = await OfflineClient.find({
+//       clinic: clinica,
+//       createdAt: { $gte: new Date(beginDay), $lte: new Date(endDay) },
+//     });
+
+//     // Calculate the start and end birth dates from age range
+//     const currentDate = new Date();
+//     const startBirthDate = new Date(currentDate.getFullYear() - to_age, currentDate.getMonth(), currentDate.getDate());
+//     const endBirthDate = new Date(currentDate.getFullYear() - from_age, currentDate.getMonth(), currentDate.getDate());
+//     // Apply additional filters
+//     let filteredClients = clientsByDateRange.filter(client => {
+//       let isMatch = true;
+//       if (from_age && to_age) {
+//         isMatch = isMatch && client.born >= startBirthDate && client.born <= endBirthDate;
+//       }
+//       if (gender) {
+//         isMatch = isMatch && client.gender == gender;
+//       }
+//       if (national) {
+//         isMatch = isMatch && client.national == national;
+//       }
+//       if (isDisability !== undefined) {
+//         isMatch = isMatch && client.isDisability == isDisability;
+//       }
+//       return isMatch;
+//     });
+//     return res.status(200).json(filteredClients);
+//   } catch (error) {
+//     // Handle errors
+//     console.log(error);
+//     return res.status(500).json({ message: "Server error", error });
+//   }
+// };
 module.exports.getStatsionarAll = async (req, res) => {
   try {
     const {
@@ -884,7 +1077,14 @@ module.exports.adoptClient = async (req, res) => {
       offlineService.templates = service.templates;
       offlineService.files = service.files;
       offlineService.accept = true;
-      offlineService.clientMoreDetails = service.clientMoreDetails
+      if (service.clientMoreDetails.diagnostics || service.clientMoreDetails.complaints) {
+        offlineService.clientMoreDetails = service.clientMoreDetails
+      }
+      if (service.clientMoreDetails.isDisability) {
+        const offlineClient = await OfflineClient.findById(service?.clientMoreDetails?._id)
+        offlineClient.isDisability = service.clientMoreDetails.isDisability
+        await offlineClient.save()
+      }
       if (service.tables && service.tables.length > 0) {
         offlineService.tables = service.tables;
       }
@@ -911,7 +1111,7 @@ module.exports.adoptStatsionarClient = async (req, res) => {
       statsionarservice.templates = service.templates;
       statsionarservice.files = service.files;
       statsionarservice.accept = true;
-      statsionarservice.clientMoreDetails=clientMoreDetails
+      statsionarservice.clientMoreDetails = clientMoreDetails
       if (service.tables && service.tables.length > 0) {
         statsionarservice.tables = service.tables;
       }

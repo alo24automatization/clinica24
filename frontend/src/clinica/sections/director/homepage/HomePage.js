@@ -30,7 +30,7 @@ export const HomePage = () => {
         position: 'top-right',
       })
     },
-    [toast],
+    [],
   )
 
   //=======================================

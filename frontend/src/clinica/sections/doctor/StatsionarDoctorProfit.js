@@ -63,7 +63,7 @@ const StatsionarDoctorProfit = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //======================================================

@@ -47,7 +47,7 @@ const VisitInfo = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
 

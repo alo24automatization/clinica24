@@ -23,7 +23,7 @@ export const Navbar = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
     const [activePage, setActivePage] = useState(window.location.pathname)
     //====================================================================

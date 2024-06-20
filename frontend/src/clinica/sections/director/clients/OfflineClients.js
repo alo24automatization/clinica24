@@ -45,7 +45,7 @@ const OfflineClients = () => {
                 position: 'top-right',
             })
         },
-        [toast],
+        [],
     )
 
     //=================================================

@@ -31,7 +31,7 @@ const TransferLabTables = () => {
                 position: 'top-right',
             })
         },
-        [toast],
+        [],
     )
 
     //=====================================================

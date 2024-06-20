@@ -62,6 +62,9 @@ router.post('/table/createall', auth, (req, res) => {
 router.post('/clients/getclients', auth, (req, res) => {
     require('./getclients.route').getAll(req, res)
 })
+router.post('/clients/getclients/filtr', auth, (req, res) => {
+    require('./getclients.route').getClientsByFilter(req, res)
+})
 
 router.post('/clients/statsionarclients/get', auth, (req, res) => {
     require('./getclients.route').getStatsionarAll(req, res)

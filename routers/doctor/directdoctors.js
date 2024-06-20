@@ -139,7 +139,6 @@ module.exports.updateAndCreateComplaint = async (req, res) => {
             message: "Diqqat! Doctor ma'lumotlari topilmadi.",
         });
     }
-
     try {
         const findedUser = await User.findOne(
             { clinica: clinica, _id: doctor },

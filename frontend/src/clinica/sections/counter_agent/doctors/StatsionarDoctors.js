@@ -40,7 +40,7 @@ const StatsionarDoctors = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //====================================================

@@ -91,7 +91,33 @@ export const DoctorClients = () => {
   const [doctorClients, setDoctorClients] = useState([]);
   const [searchStorage, setSearchStorage] = useState([]);
   const [currentDoctorClients, setCurrentDoctorClients] = useState([]);
-
+  const [updatedCliets, setUpdatesClients] = useState([])
+  const handleFilterClients = async (clientFilterData) => {
+    const { complaints, diagnostics, from_age, to_age, gender, national } = clientFilterData;
+    try {
+      const data = await request(
+        `/api/doctor/clients/getclients/filtr`,
+        "POST",
+        {
+          clinica: auth && auth.clinica._id,
+          beginDay,
+          endDay,
+          department: auth?.user?.specialty?._id,
+          clientFilterData
+        },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
+      setUpdatesClients(data)
+    } catch (error) {
+      notify({
+        title: t(error),
+        description: "",
+        status: "error",
+      });
+    }
+  };
   const getDoctorClients = useCallback(
     async (beginDay, endDay) => {
       try {
@@ -826,9 +852,6 @@ export const DoctorClients = () => {
       });
     }
   }
-  const handleFilterClients=()=>{
-    
-  }
   const changeAccept = (e) => {
 
     let searching = []
@@ -1084,6 +1107,7 @@ export const DoctorClients = () => {
             <TableClients
               sortData={sortData}
               changeAccept={changeAccept}
+              updatedCliets={updatedCliets}
               getClientsByName={getClientsByName}
               changeStart={changeStart}
               changeEnd={changeEnd}

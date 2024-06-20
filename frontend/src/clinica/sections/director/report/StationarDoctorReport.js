@@ -53,7 +53,7 @@ const StationarDoctorReport = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //======================================================

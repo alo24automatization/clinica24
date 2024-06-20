@@ -58,7 +58,7 @@ const StatsionarRoomDoctor = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //======================================================

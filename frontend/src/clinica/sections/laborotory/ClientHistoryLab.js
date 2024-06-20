@@ -404,7 +404,7 @@ const ClientHistoryLab = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     const [connector, setConnector] = useState({})

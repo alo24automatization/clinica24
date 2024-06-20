@@ -5,8 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRecycle } from "@fortawesome/free-solid-svg-icons";
 import { FileUploadBlanka } from "../../loginAndRegister/fileUpLoad/FileUploadBlanka";
 import { t } from "i18next";
-import Cropper from 'react-cropper';
-import 'cropperjs/dist/cropper.css';
+
 export const RegistorUser = ({
   auth,
   cmToPx,
@@ -131,78 +130,7 @@ export const RegistorUser = ({
                 </div>
               </div>
             </div>
-            {
-              (user.type && user.type === "Doctor") ||
-                (user.type && user.type === "Laborotory") ?
-                <div className="card-footer col-md-12">
-                  <FormControl className="w-full h-full">
-                    <FormLabel
-                      htmlFor="blanka_upload"
-                      style={{ color: "#38B2AC", marginTop: "1rem" }}
-                    >
-                      Blanka
-                    </FormLabel>
-                    <FileUploadBlanka
-                      removeImage={removeBlanka}
-                      handleImage={handleImageChange}
-                      load={load}
-                      img={user?.blanka}
-                      newAlt={"Blanka yuklang"}
-                      imgUrl={
-                        baseUrl &&
-                        user?.blanka &&
-                        `${baseUrl}/api/upload/file/${user?.blanka}`
-                      }
-                    />
-                  </FormControl>
-                  <Modal isOpen={!!blankaImage} onClose={() => setBlankaImage(null)}>
-                    <ModalOverlay />
-                    <ModalContent>
-                      <ModalHeader>
-                        {t("Suratni qirqish")}
-                      </ModalHeader>
-                      <ModalCloseButton />
-                      <ModalBody>
-                        {blankaImage && (
-                          <Cropper
-                            src={blankaImage}
-                            style={{ height: 400, width: '100%' }}
-                            initialAspectRatio={21 / 4}
-                            aspectRatio={21 / 4}
-                            viewMode={1} // restrict crop box to within the canvas
-                            dragMode="move" // only allow moving the image
-                            guides={false}
-                            cropBoxResizable={false} // disable resizing of the crop box
-                            cropBoxMovable={true} // allow moving the crop box
-                            autoCropArea={1} // set the crop box to cover the entire image initially
-                            ready={() => {
-                              const cropper = cropperRef.current.cropper;
-                              const requiredWidth = cmToPx(21);
-                              const requiredHeight = cmToPx(4);
-                              cropper.setCropBoxData({
-                                width: requiredWidth,
-                                height: requiredHeight,
-                                left: (cropper.getContainerData().width - requiredWidth) / 2,
-                                top: (cropper.getContainerData().height - requiredHeight) / 2,
-                              });
-                            }}
-                            ref={cropperRef}
-                          />
-                        )}
-                      </ModalBody>
-                      <ModalFooter>
-                        <Button
-                          colorScheme="teal"
-                          variant="solid"
-                          onClick={handleCrop}
-                        >
-                          {load ? 'Yuklanmoqda...' : 'Rasmni kesish va yuklash'}
-                        </Button>
-                      </ModalFooter>
-                    </ModalContent>
-                  </Modal>
-                </div> : null
-            }
+          
           </div>
         </div>
         <div className="col-xl-3 col-lg-3 col-md-12 col-sm-12">

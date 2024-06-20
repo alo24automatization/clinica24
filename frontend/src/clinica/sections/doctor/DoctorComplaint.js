@@ -29,7 +29,7 @@ const DoctorComplaint = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
     const getData = async () => {
         try {

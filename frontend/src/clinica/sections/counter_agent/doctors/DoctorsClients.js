@@ -39,7 +39,7 @@ const DoctorsClients = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //====================================================

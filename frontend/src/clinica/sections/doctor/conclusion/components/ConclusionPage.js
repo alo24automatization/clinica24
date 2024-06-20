@@ -35,7 +35,7 @@ const ConclusionPage = ({ connector, onChange, setConnector, clinica, baseUrl })
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //====================================================================

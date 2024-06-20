@@ -59,7 +59,7 @@ const StatsionarDoctor = () => {
                 position: "top-right",
             });
         },
-        [toast]
+        []
     );
 
     //======================================================
