@@ -2,7 +2,7 @@
   "PORT": 8080,
   "mongoUri": "mongodb://127.0.0.1:27017/clinika",
   "jwtSecret": "aloMed",
-  "baseUrl": "http://212.86.115.46",
+  "baseUrl": "https://unical-med.uz",
   "botToken": "6448433447:AAFR-suFV-wVfISyDtvb8LCIKX64SDAbfCg",
   "smsKey": "350fa2c20704462791918c0d3868068874700d02"
 }
