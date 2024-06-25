@@ -11,14 +11,14 @@ export const useHttp = () => {
   const request = useCallback(
     async (url, method = "GET", body = null, headers = {}) => {
       setLoading(true);
-      const baseUrl = "http://localhost:9900";
+      // const baseUrl = "http://localhost:9900";
       try {
         if (body) {
           body = JSON.stringify(body);
           headers["Content-Type"] = "application/json";
         }
 
-        const response = await fetch(`${baseUrl}${url}`, { // Use baseUrl
+        const response = await fetch(`${url}`, { // Use baseUrl
           method,
           body,
           headers,
