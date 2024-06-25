@@ -237,8 +237,9 @@ module.exports.getAll = async (req, res) => {
             return connector.services.some(
               (service) =>
                 String(service?.department?._id) === String(department) &&
-                !service.refuse &&
-                service.payment
+                !service.refuse 
+                // &&
+                // service.payment
             );
           })
         );
@@ -256,7 +257,7 @@ module.exports.getAll = async (req, res) => {
             _id: connector._id,
           },
           services: [...connector.services].filter(
-            (service) => service.refuse === false && service.payment
+            (service) => service.refuse === false
           ),
           payments: connector.payments,
         });

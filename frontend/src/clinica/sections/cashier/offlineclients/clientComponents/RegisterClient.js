@@ -19,7 +19,7 @@ export const RegisterClient = ({
   changeProduct,
   changeService,
   payments,
-  payment,                              
+  payment,
   client,
   index,
   services,
@@ -108,7 +108,7 @@ export const RegisterClient = ({
                         <th className="border py-1 bg-alotrade">
                           {t("To'lov")}
                         </th>
-                        {/* <th className="border py-1 bg-alotrade">{t("Izoh")}</th> */}
+                        <th className="border py-1 bg-alotrade">{t("Izoh")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -117,11 +117,10 @@ export const RegisterClient = ({
                           return (
                             <tr key={index}>
                               <td
-                                className={`${
-                                  service?.isPayment
+                                className={`${service?.isPayment
                                     ? "bg-green-400"
                                     : "bg-red-400"
-                                } py-1 border`}
+                                  } py-1 border`}
                               >
                                 {index + 1}
                               </td>
@@ -149,8 +148,8 @@ export const RegisterClient = ({
                                   ></label>
                                 </div>
                               </td>
-                              {/* <td className="text-right py-1 border">
-                                {service.refuse ? (
+                              <td className="text-right py-1 border">
+                                {/* {service.refuse ? (
                                   <input
                                     onChange={(e) => serviceComment(e, index)}
                                     defaultValue={service.comment}
@@ -160,10 +159,10 @@ export const RegisterClient = ({
                                     name="comment"
                                     placeholder={t("Izoh")}
                                   />
-                                ) : (
-                                  service?.addUser
-                                )}
-                              </td> */}
+                                ) : ( */}
+                                {service?.addUser}
+                                {/* )} */}
+                              </td>
                             </tr>
                           );
                         })}
@@ -432,9 +431,8 @@ export const RegisterClient = ({
                         });
                       }}
                       type="button"
-                      className={`btn btn-sm py-1 text-white  ${
-                        payment.type === "cash" ? "bg-amber-500" : "bg-alotrade"
-                      }`}
+                      className={`btn btn-sm py-1 text-white  ${payment.type === "cash" ? "bg-amber-500" : "bg-alotrade"
+                        }`}
                     >
                       {t("Naqt")}
                     </button>
@@ -458,9 +456,8 @@ export const RegisterClient = ({
                         });
                       }}
                       type="button"
-                      className={`btn btn-sm py-1 text-white ${
-                        payment.type === "card" ? "bg-amber-500" : "bg-alotrade"
-                      }`}
+                      className={`btn btn-sm py-1 text-white ${payment.type === "card" ? "bg-amber-500" : "bg-alotrade"
+                        }`}
                     >
                       {t("Plastik")}
                     </button>
@@ -484,11 +481,10 @@ export const RegisterClient = ({
                         });
                       }}
                       type="button"
-                      className={`btn btn-sm py-1 text-white ${
-                        payment.type === "transfer"
+                      className={`btn btn-sm py-1 text-white ${payment.type === "transfer"
                           ? "bg-amber-500"
                           : "bg-alotrade"
-                      }`}
+                        }`}
                     >
                       {t("O'tkazma")}
                     </button>
@@ -503,11 +499,10 @@ export const RegisterClient = ({
                         });
                       }}
                       type="button"
-                      className={`btn btn-sm py-1 text-white ${
-                        payment.type === "mixed"
+                      className={`btn btn-sm py-1 text-white ${payment.type === "mixed"
                           ? "bg-amber-500"
                           : "bg-alotrade"
-                      }`}
+                        }`}
                     >
                       {t("Aralash")}
                     </button>
@@ -556,26 +551,26 @@ export const RegisterClient = ({
                   )}
                   {(payment.type === "transfer" ||
                     payment.type === "mixed") && (
-                    <div className="input-group input-group-sm mb-3">
-                      <div className="input-group-prepend w-25">
-                        <span
-                          className="w-100 input-group-text bg-primary text-white font-weight-bold"
-                          id="inputGroup-sizing-sm"
-                          style={{ fontSize: "9pt" }}
-                        >
-                          {t("O'tkazma")}
-                        </span>
+                      <div className="input-group input-group-sm mb-3">
+                        <div className="input-group-prepend w-25">
+                          <span
+                            className="w-100 input-group-text bg-primary text-white font-weight-bold"
+                            id="inputGroup-sizing-sm"
+                            style={{ fontSize: "9pt" }}
+                          >
+                            {t("O'tkazma")}
+                          </span>
+                        </div>
+                        <input
+                          type="number"
+                          className="form-control"
+                          placeholder={t("O'tkazma to'lov")}
+                          value={payment.transfer || ""}
+                          name="transfer"
+                          onChange={inputPayment}
+                        />
                       </div>
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder={t("O'tkazma to'lov")}
-                        value={payment.transfer || ""}
-                        name="transfer"
-                        onChange={inputPayment}
-                      />
-                    </div>
-                  )}
+                    )}
                 </div>
               </div>
             </div>

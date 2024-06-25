@@ -32,7 +32,7 @@ export const TableServices = ({
   searchServiceType,
 }) => {
 
-  const {t} = useTranslation()
+  const { t } = useTranslation()
 
   const edit = (e, service) => {
     setService(service);
@@ -51,10 +51,10 @@ export const TableServices = ({
   return (
     <div className="border-0 table-container">
       <div className="border-0 table-container">
-        <div className="table-responsive">
-          <table className="table m-0">
-            <thead className="bg-white">
-              <tr>
+        <div className="table-responsive ">
+          <table className="table">
+            <thead>
+              <tr className="bg-white">
                 <th className="text-[16px]">
                   <select
                     className="form-control form-control-sm selectpicker"
@@ -103,7 +103,7 @@ export const TableServices = ({
                     placeholder={t("Xizmat nomini kiriting")}
                   />
                 </th>
-                <th colSpan={6} className="text-[16px]">
+                <th colSpan={4} className="text-[16px]">
                   <Pagination
                     setCurrentDatas={setCurrentServices}
                     datas={services}
@@ -154,8 +154,6 @@ export const TableServices = ({
                   </Tooltip>
                 </th>
               </tr>
-            </thead>
-            <thead>
               <tr>
                 <th className="border-right  text-[12px] bg-alotrade">№</th>
                 <th className="border-right  text-[12px] bg-alotrade">
@@ -167,22 +165,22 @@ export const TableServices = ({
                 <th className="border-right  text-[12px] bg-alotrade">
                   {t("Xizmat")}
                 </th>
-                <th className="border-right text-[12px] bg-alotrade">
+                {/* <th className="border-right text-[12px] bg-alotrade">
                   {t("Qisqartma nomi")}
-                </th>
-                <th className="border-right text-[12px] bg-alotrade">
+                </th> */}
+                {/* <th className="border-right text-[12px] bg-alotrade">
                   {t("Xizmat xonasi")}
-                </th>
+                </th> */}
                 <th className="border-right text-[12px] bg-alotrade">
                   {t("Narxi")}
                 </th>
-                <th className="border-right text-[12px] bg-alotrade">
+                <th className="border-right text-[12px] bg-alotrade ">
                   {t("Doktor ulushi")}
                 </th>
-                <th className="border-right text-[12px] bg-alotrade">
+                <th className="border-right text-[12px] bg-alotrade ">
                   {t("Kontragent ulushi")}
                 </th>
-                <th className="border-right text-[12px] bg-alotrade">
+                <th className="border-right text-[12px] bg-alotrade ">
                   {t("Kounterdoktor ulushi")}
                 </th>
                 <th className="border-right text-center text-[12px] bg-alotrade">{t("Tahrirlash")}</th>
@@ -193,7 +191,7 @@ export const TableServices = ({
               {currentServices.map((service, key) => {
                 return (
                   <tr key={key}>
-                    <td className="border-right text-[16px] font-weight-bold">
+                    <td className="border-right text-[16px] f ont-weight-bold">
                       {currentPage * countPage + key + 1}
                     </td>
                     <td className="border-right text-[16px]">{service.department.name}</td>
@@ -201,10 +199,10 @@ export const TableServices = ({
                       {service.servicetype && service.servicetype.name}
                     </td>
                     <td className="border-right text-[16px]">{service.name}</td>
-                    <td className="border-right text-[16px]">{service.shortname}</td>
-                    <td className="border-right text-[16px]">{service?.serviceroom}</td>
+                    {/* <td className="border-right text-[16px]">{service.shortname}</td> */}
+                    {/* <td className="border-right text-[16px]">{service?.serviceroom}</td> */}
                     <td className="border-right text-[16px]">{service.price}</td>
-                    <td className="border-right text-[16px]">{service.doctorProcient}</td>
+                    <td className="border-right text-[16px] ">{service.doctorProcient}</td>
                     <td className="border-right text-[16px]">
                       {service.counterAgentProcient}
                     </td>

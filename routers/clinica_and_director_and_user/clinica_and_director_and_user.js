@@ -92,6 +92,19 @@ router.post("/user/getall", (req, res) => {
   require("./user.route").getUsers(req, res);
 });
 
+router.get("/user/getUserById/:user_id", (req, res) => {
+  require("./user.route").getUserById(req, res);
+});
+
+
+router.put("/user/access/:user_id", (req, res) => {
+  require("./user.route").addAccess(req, res);
+});
+// router.put("/user/access/:user_id", (req, res) => {
+//   require("./user.route").addAccess(req, res);
+// });
+
+
 router.post("/user/remove", (req, res) => {
   require("./user.route").removeUser(req, res);
 });

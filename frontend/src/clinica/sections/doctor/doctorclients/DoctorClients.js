@@ -11,6 +11,8 @@ import makeAnimated from 'react-select/animated'
 import { checkClientData, checkProductsData, checkServicesData } from "../../reseption/offlineclients/checkData/checkData";
 import { Modal } from "../../reseption/components/Modal";
 import { useTranslation } from "react-i18next";
+import { RegisterClient } from "../../reseption/offlineclients/clientComponents/RegisterClient";
+import { useHistory } from "react-router-dom";
 
 const animatedComponents = makeAnimated()
 
@@ -118,6 +120,19 @@ export const DoctorClients = () => {
       });
     }
   };
+  const [doctorAccessDetails, setDoctorAccessDetails] = useState(null)
+  const getUserAccessDetails = async () => {
+    try {
+      const response = await request(`/api/user/getUserById/${auth?.user?._id}`, "GET");
+      setDoctorAccessDetails({ ...response })
+    } catch (error) {
+      notify({
+        title: t(error),
+        description: "",
+        status: "error",
+      });
+    }
+  }
   const getDoctorClients = useCallback(
     async (beginDay, endDay) => {
       try {
@@ -722,7 +737,7 @@ export const DoctorClients = () => {
   // useEffect
 
   const [s, setS] = useState(0);
-
+  const history = useHistory()
   useEffect(() => {
     if (auth.clinica && !s) {
       setS(1);
@@ -731,6 +746,7 @@ export const DoctorClients = () => {
       getBaseUrl()
       getProducts()
       getComplaints()
+      getUserAccessDetails()
     }
   }, [auth, beginDay, s, endDay, getDoctorClients, getDepartments, getProducts]);
 
@@ -890,7 +906,9 @@ export const DoctorClients = () => {
 
   //=====================================================================
   //=====================================================================
-
+  const navigateToCreateClient = () => {
+    history.push('/alo24/clients?from=doctor');
+  }
   return (
     <>
       <div className="d-none">
@@ -912,8 +930,19 @@ export const DoctorClients = () => {
       <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
         <div className="row gutters">
           <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-            <div className="row">
-              <div className="col-12 text-end">
+            <div className="flex">
+              {
+                doctorAccessDetails && doctorAccessDetails?.accessCreateClient ?
+                  <div className="col-6 text-end">
+                    <button
+                      className={`btn bg-alotrade text-white mb-2 w-100`}
+                      onClick={navigateToCreateClient}
+                    >
+                      {t("Registratsiya")}
+                    </button>
+                  </div> : null
+              }
+              <div className={`col-${doctorAccessDetails && doctorAccessDetails?.accessCreateClient ? "6" : "12"} text-end`}>
                 <button
                   className={`btn bg-alotrade text-white mb-2 w-100`}
                   onClick={() => setVisible(!visible)}
@@ -921,6 +950,47 @@ export const DoctorClients = () => {
                   {t("Malumot")}
                 </button>
               </div>
+            </div>
+            <div className={` ${visible ? "" : "d-none"}`}>
+              {/* <RegisterClient
+                lastCardNumber={0}
+                isNewClient={null}
+                requiredFields={requiredFields}
+                isAddService={isAddService}
+                newCounterDoctor={newCounterDoctor}
+                setNewCounterDoctor={setNewCounterDoctor}
+                handleNewCounterDoctorCreate={handleNewCounterDoctorCreate}
+                handleNewCounterDoctorInputChange={handleNewCounterDoctorInputChange}
+                selectedServices={selectedServices}
+                selectedProducts={selectedProducts}
+                showNewCounterDoctor={showNewCounterDoctor}
+                updateData={updateHandler}
+                checkData={checkData}
+                setNewProducts={setNewProducts}
+                setNewServices={setServices}
+                selectedCounterdoctor={selectedCounterdoctor}
+                newservices={services}
+                newproducts={newproducts}
+                changeProduct={changeProduct}
+                changeService={changeService}
+                changeAdver={changeAdver}
+                changeCounterDoctor={changeCounterDoctor}
+                client={client}
+                setClient={setClient}
+                changeClientData={changeClientData}
+                changeClientBorn={changeClientBorn}
+                departments={departments}
+                counterdoctors={counterdoctors}
+                advers={advers}
+                products={products}
+                isAddHandler={client._id && !isAddConnector}
+                isConnectorHandler={client._id && isAddConnector}
+                loading={loading}
+                clientDate={clientDate}
+                setClientDate={setClientDate}
+                setIsAddConnector={setIsAddConnector}
+                servicetypes={serviceTypes}
+              /> */}
             </div>
             <div className={` ${visible ? "bg-white" : "d-none"}`}>
               <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12">

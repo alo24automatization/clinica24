@@ -543,7 +543,7 @@ module.exports.addConnector = async (req, res) => {
 
     const currentClient = await OfflineClient.findById(client._id);
     currentClient.connectors.push(newconnector._id);
-    currentClient.card_number=client.card_number
+    currentClient.card_number = client.card_number
     await currentClient.save();
 
     //=========================================================
@@ -693,25 +693,25 @@ module.exports.addConnector = async (req, res) => {
 };
 module.exports.addCardNumberToLastClient = async (req, res) => {
   try {
-    const {clinica}=req.params;
-    const {card_number}=req.body;
+    const { clinica } = req.params;
+    const { card_number } = req.body;
     // Retrieve the clinica (assuming there's only one or we need the first one found)
     const findedClinica = await Clinica.findById(clinica);
-    
+
     if (!findedClinica) {
       return res.status(404).json({ error: "Clinica topilmadi!" });
     }
 
     // Find the last offlineClient
-    const lastOfflineClient = await OfflineClient.findOne({clinica}).sort({ _id: -1 });
-    
+    const lastOfflineClient = await OfflineClient.findOne({ clinica }).sort({ _id: -1 });
+
     if (!lastOfflineClient) {
-      return res.status(404).json({ error: "Last offline client not found" });
+      return res.status(404).json({ error: "Oxirgi klient topilmadi!" });
     }
 
     // Update the card_number of the last offlineClient
     lastOfflineClient.card_number = Number(card_number);
-    
+
     // Save the updated offlineClient
     await lastOfflineClient.save();
 
@@ -735,11 +735,13 @@ module.exports.getLastCardNumber = async (req, res) => {
     let lastCardNumber = null;
     let offset = 0;
 
-    while (!lastCardNumber) {
+    while (lastCardNumber === null) {
       lastOfflineClient = await OfflineClient.findOne({ clinica }).skip(offset).sort({ _id: -1 });
 
       if (!lastOfflineClient) {
-        return res.status(404).json({ error: "Last offline client not found" });
+        // No offline client found, default card number to 1
+        lastCardNumber = 1;
+        break;
       }
 
       if (lastOfflineClient.card_number !== null) {
@@ -904,9 +906,9 @@ module.exports.getAllReseption = async (req, res) => {
               new Date(
                 new Date(data.client.born).setUTCHours(0, 0, 0, 0)
               ).toISOString() ===
-                new Date(
-                  new Date(clientborn).setUTCHours(0, 0, 0, 0)
-                ).toISOString()
+              new Date(
+                new Date(clientborn).setUTCHours(0, 0, 0, 0)
+              ).toISOString()
             );
           });
         });

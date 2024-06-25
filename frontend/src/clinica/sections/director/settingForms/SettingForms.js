@@ -80,7 +80,7 @@ const SettingForms = () => {
       );
       setCardNumber(card_number);
     } catch (error) {
-      console.log("error :",error);
+      console.log("error :", error);
       // notify({
       //   title: t(`${error}`),
       //   description: "",
@@ -142,12 +142,12 @@ const SettingForms = () => {
   const cardNumberFunctionRef = useRef(null);
   const handleChangeCardNumber = (e) => {
     setCardNumber(e.target.value);
-    
+
     // Clear the previous timeout
     if (cardNumberFunctionRef.current) {
       clearTimeout(cardNumberFunctionRef.current);
     }
-    
+
     // Set a new timeout
     if (e.target.value !== "") {
       cardNumberFunctionRef.current = setTimeout(async () => {
@@ -167,7 +167,7 @@ const SettingForms = () => {
           Authorization: `Bearer ${auth.token}`,
         }
       );
-    getLastCardNumber() 
+      getLastCardNumber()
       console.log('Card number updated');
     } catch (error) {
       console.log(error);

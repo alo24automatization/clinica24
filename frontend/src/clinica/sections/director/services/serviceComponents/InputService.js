@@ -23,8 +23,8 @@ export const InputService = ({
               <th className="bg-alotrade text-[14px]">{t("Bo'lim nomi")}</th>
               <th className="bg-alotrade text-[14px]">{t("Xizmat turi")}</th>
               <th className="bg-alotrade text-[14px]">{t("Xizmat nomi")}</th>
-              <th className="bg-alotrade text-[14px]">{t("Qisqartma nomi")}</th>
-              <th className="bg-alotrade text-[14px]">{t("Xizmat xonasi")}</th>
+              {/* <th className="bg-alotrade text-[14px]">{t("Qisqartma nomi")}</th> */}
+              {/* <th className="bg-alotrade text-[14px]">{t("Xizmat xonasi")}</th> */}
               <th className="bg-alotrade text-[14px]">{t("Narxi")}</th>
               <th className="bg-alotrade text-[14px]">{t("Doktor ulushi")}</th>
               <th className="bg-alotrade text-[14px]">{t("Kounteragent ulushi")}</th>
@@ -112,7 +112,7 @@ export const InputService = ({
                   // placeholder={t("Xizmat nomini kiriting")}
                 />
               </td>
-              <td>
+              {/* <td>
                 <input
                   style={{ minWidth: "70px" }}
                   name="shortname"
@@ -137,7 +137,7 @@ export const InputService = ({
                   id="shortname"
                   // placeholder={t("Xizmat xonasini kiriting")}
                 />
-              </td>
+              </td> */}
               <td>
                 <input
                   style={{ minWidth: "70px" }}

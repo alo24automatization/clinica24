@@ -1,5 +1,5 @@
 {
-  "PORT": 80,
+  "PORT": 8080,
   "mongoUri": "mongodb://127.0.0.1:27017/clinika",
   "jwtSecret": "aloMed",
   "baseUrl": "http://212.86.115.46",

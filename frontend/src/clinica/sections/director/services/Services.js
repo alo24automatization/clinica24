@@ -15,7 +15,7 @@ export const Services = () => {
 
     const location = useLocation()
 
-    const {t} = useTranslation()
+    const { t } = useTranslation()
 
     //====================================================================
     //====================================================================
@@ -246,7 +246,7 @@ export const Services = () => {
             setSearchStrorage([...data])
             setService({
                 clinica: auth.clinica && auth.clinica._id,
-            }) 
+            })
             clearInputs()
             document.getElementsByTagName('select')[0].selectedIndex = 0
         } catch (error) {
@@ -257,7 +257,7 @@ export const Services = () => {
             })
         }
     }, [auth, request, getServices, service, notify, clearInputs])
-    
+
     const saveHandler = () => {
         if (checkService(service, t)) {
             return notify(checkService(service, t))

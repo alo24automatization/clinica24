@@ -685,7 +685,7 @@ const DoctorTemplate = ({ client, connector, services, clientsType, baseUrl }) =
         {auth?.user.blanka ? <div className="py-2 w-full">
           <img src={baseUrl + "/api/upload/file/" + auth?.user?.blanka} className="w-full h-[4cm]" />
         </div> : null}
-        <div className="row">
+        <div className="row"> 
           <div className="col-12 text-center my-4">
             <button className="btn btn-success px-4 mx-4" onClick={() => handleSave()} > {t("Tasdiqlash")}</button>
             <button className="btn btn-info px-5" onClick={() => setModal(true)} >{t("Chop etish")}</button>

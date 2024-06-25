@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/react'
+import { CloseButton, FormControl, FormLabel, ModalBody, ModalContent, ModalHeader, ModalOverlay, Switch, useToast } from '@chakra-ui/react'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { AuthContext } from '../../../context/AuthContext'
 import { useHttp } from '../../../hooks/http.hook'
@@ -8,8 +8,9 @@ import { checkUserData } from './checkData/checkData'
 import { Loader } from '../../../loader/Loader'
 import { RegistorUser } from './RegistorUser'
 import { Modal } from './modal/Modal'
+import { Modal as ChakraModal } from '@chakra-ui/react'
 import { useTranslation } from 'react-i18next'
-
+import { IoSettingsOutline } from "react-icons/io5";
 export const Users = () => {
   //====================================================================
   //====================================================================
@@ -448,7 +449,39 @@ export const Users = () => {
   }, [getSections, getUsers, getBaseUrl, getDepartments, s])
   //====================================================================
   //====================================================================
-
+  const [doctorSettingModalVisible, setDoctorSettingModalVisible] = useState(false)
+  const [isClickedDoctor, setIsClickedDoctor] = useState(null)
+  const toogleDoctorSettingModal = () => {
+    setDoctorSettingModalVisible(!doctorSettingModalVisible)
+  }
+  const handleDoctorSettingClick = (user) => {
+    toogleDoctorSettingModal()
+    setIsClickedDoctor(user)
+  }
+  const handleChangeDoctorSetting = (value, key) => {
+    if (key === "register_client") {
+      changeAccessCreateClient(value)
+    }
+  }
+  const changeAccessCreateClient = async (value) => {
+    try {
+      const response = await request(`/api/user/access/${isClickedDoctor?._id}`, "PUT", { accessCreateClient: value })
+      notify({
+        title: t(`${response?.message}`),
+        description: '',
+        status: 'success',
+      })
+      setIsClickedDoctor(null)
+      getUsers()
+      toogleDoctorSettingModal()
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: '',
+        status: 'error',
+      })
+    }
+  }
   if (loading) {
     return <Loader />
   }
@@ -470,6 +503,23 @@ export const Users = () => {
           </button>
         </div>
       </div>
+      <ChakraModal closeOnEsc isOpen={doctorSettingModalVisible} onClose={toogleDoctorSettingModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader className='flex items-center justify-between'>
+            Shifokor sozlamalari
+            <CloseButton onClick={toogleDoctorSettingModal} />
+          </ModalHeader>
+          <ModalBody>
+            <FormControl onChange={({ target }) => handleChangeDoctorSetting(target.checked, "register_client")} className='flex items-center gap-x-2'>
+              <FormLabel>
+                Mijoz qabul qila oladimi?
+              </FormLabel>
+              <Switch isChecked={isClickedDoctor?.accessCreateClient} />
+            </FormControl>
+          </ModalBody>
+        </ModalContent>
+      </ChakraModal>
       <div className={` ${visible ? '' : 'd-none'}`}>
         <RegistorUser
           auth={auth}
@@ -610,21 +660,32 @@ export const Users = () => {
                                 Loading...
                               </button>
                             ) : (
-                              <button
-                                onClick={() => {
-                                  if (user.type === 'Director') {
-                                    setUser({ ...user, clinica: user.clinica._id })
-                                  } else {
-                                    setUser({ ...user })
-                                  }
-                                  setVisible(true)
-                                }}
-                                type="button"
-                                className="bg-alotrade rounded text-white font-semibold py-1 px-2"
-                                style={{ fontSize: '75%' }}
-                              >
-                                {t("Tahrirlash")}
-                              </button>
+                              <div className='flex items-center justify-around gap-x-2'>
+                                {user?.type === "Doctor" ?
+                                  <button onClick={() => handleDoctorSettingClick(user)} type='button' role='button'
+                                    className="bg-gray-400 rounded text-white font-semibold py-1 px-2"
+                                    style={{ fontSize: '100%' }}
+                                  >
+                                    <IoSettingsOutline />
+                                  </button>
+                                  : null
+                                }
+                                <button
+                                  onClick={() => {
+                                    if (user.type === 'Director') {
+                                      setUser({ ...user, clinica: user.clinica._id })
+                                    } else {
+                                      setUser({ ...user })
+                                    }
+                                    setVisible(true)
+                                  }}
+                                  type="button"
+                                  className="bg-alotrade rounded text-white font-semibold py-1 px-2"
+                                  style={{ fontSize: '75%' }}
+                                >
+                                  {t("Tahrirlash")}
+                                </button>
+                              </div>
                             )}
                           </td>
                           <td className="text-center text-[16px]">

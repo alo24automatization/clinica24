@@ -18,6 +18,7 @@ const user = new Schema(
     statsionar_profit: { type: Number },
     isArchive: { type: Boolean, default: false },
     blanka: { type: String, default: null },
+    accessCreateClient: { type: Boolean, default: false },
     complaint: {
       type: {
         complaint: { type: [{ name: { type: String } }], default: [] },
@@ -48,6 +49,7 @@ function validateUser(user) {
     users: Joi.array(),
     user: Joi.string(),
     statsionar_profit: Joi.number().optional(),
+    accessCreateClient: Joi.boolean().optional(),
     _id: Joi.string(),
     complaint: Joi.object({
       complaint: Joi.array().items(Joi.object({

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useState, useRef, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { AuthContext } from "./../context/AuthContext";
 
@@ -18,7 +18,7 @@ export const useHttp = () => {
           headers["Content-Type"] = "application/json";
         }
 
-        const response = await fetch(`${url}`, {
+        const response = await fetch(`${baseUrl}${url}`, { // Use baseUrl
           method,
           body,
           headers,
@@ -30,7 +30,6 @@ export const useHttp = () => {
             auth.logout();
             history.push("/");
           }
-
           throw new Error(
             data.message || data.error || "Ko`zda tutilmagan xatolik yuzberdi"
           );

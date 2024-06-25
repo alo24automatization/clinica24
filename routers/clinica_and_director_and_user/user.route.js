@@ -198,9 +198,9 @@ module.exports.login = async (req, res) => {
 
     if (
       new Date().getFullYear() ===
-        new Date(user?.clinica?.close_date).getFullYear() &&
+      new Date(user?.clinica?.close_date).getFullYear() &&
       new Date().getMonth() ===
-        new Date(user?.clinica?.close_date).getMonth() &&
+      new Date(user?.clinica?.close_date).getMonth() &&
       new Date().getDate() === new Date(user?.clinica?.close_date).getDate()
     ) {
       user.clinica.isClose = true;
@@ -208,7 +208,7 @@ module.exports.login = async (req, res) => {
       clinica.isClose = true;
       await clinica.save();
     }
-   
+
     res.send({
       token,
       userId: user._id,
@@ -266,6 +266,19 @@ module.exports.getUserType = async (req, res) => {
   }
 };
 
+module.exports.getUserById = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const findedUser = await User.findById(user_id).select("accessCreateClient")
+    if (!findedUser) {
+      res.status(400).json({ message: "Shifokor topilmadi!" })
+    }
+    res.status(200).send(findedUser);
+  } catch (error) {
+    res.status(501).json({ error: error });
+  }
+}
+
 module.exports.getUsers = async (req, res) => {
   try {
     const { clinica } = req.body;
@@ -279,6 +292,21 @@ module.exports.getUsers = async (req, res) => {
       .sort({ _id: -1 });
 
     res.status(201).send(users);
+  } catch (error) {
+    res.status(501).json({ error: error });
+  }
+};
+module.exports.addAccess = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const { accessCreateClient } = req.body
+    const findedUser = await User.findById(user_id)
+    if (!findedUser) {
+      res.status(400).json({ message: "Shifokor topilmadi!" })
+    }
+    findedUser.accessCreateClient = accessCreateClient;
+    await findedUser.save()
+    res.status(200).send({ message: "Shifokor ma'lumotlari yangilandi." });
   } catch (error) {
     res.status(501).json({ error: error });
   }

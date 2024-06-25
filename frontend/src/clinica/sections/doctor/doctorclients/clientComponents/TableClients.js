@@ -364,7 +364,7 @@ export const TableClients = ({
             <tbody>
               {clients.map((connector, key) => {
                 return (
-                  <tr key={key}>
+                  <tr key={key} className={`${![...connector?.services].some(service => service.client === connector.client._id && service.payment) ? "!bg-gray-400" : ""}`}>
                     <td
                       className={`${isDebt(connector.payments)} border text-[16px] py-1 font-weight-bold text-right`}
                       style={{ maxWidth: "30px !important" }}
@@ -404,7 +404,9 @@ export const TableClients = ({
                     </td>}
                     <td className="border text-[16px] py-1 text-right">
                       <div className="custom-control custom-checkbox text-center">
-                        <input checked={connector?.services?.filter(service => service.department._id === user?.specialty?._id && !service.department.probirka && service.accept).length > 0 ? true : false}
+                        <input
+                          disabled={![...connector?.services].some(service => service.client === connector.client._id && service.payment)}
+                          checked={connector?.services?.filter(service => service.department._id === user?.specialty?._id && !service.department.probirka && service.accept).length > 0 ? true : false}
                           type="checkbox"
                           className="custom-control-input border border-dager"
                           id={`product${key}`}
@@ -421,6 +423,7 @@ export const TableClients = ({
                         </button>
                       ) : (
                         <button
+                          disabled={![...connector?.services].some(service => service.client === connector.client._id && service.payment)}
                           onClick={() => {
                             setClient(connector.client)
                             setConnector(connector.connector)
@@ -442,6 +445,7 @@ export const TableClients = ({
                         </button>
                       ) : (
                         <button
+                          disabled={![...connector?.services].some(service => service.client === connector.client._id && service.payment)}
                           onClick={() =>
                             history.push("/alo24/adoption", { ...connector, clientsType, user })
                           }
@@ -457,6 +461,8 @@ export const TableClients = ({
                         </button>
                       ) : (
                         <button
+                          disabled={![...connector?.services].some(service => service.client === connector.client._id && service.payment)}
+
                           onClick={() => {
                             setClient(connector.client)
                             setConnector(connector.connector)
@@ -478,6 +484,7 @@ export const TableClients = ({
                         </button>
                       ) : (
                         <button
+                          disabled={![...connector?.services].some(service => service.client === connector.client._id && service.payment)}
                           onClick={() =>
                             handlePrint(connector)
                           }

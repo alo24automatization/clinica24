@@ -378,7 +378,7 @@ export const OfflineClients = () => {
 
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
- 
+
   const changeService = (services) => {
     let s = [];
     services.map((service) => {
@@ -712,6 +712,17 @@ export const OfflineClients = () => {
       sessionStorage.setItem("payFromReseption", "payFromReseption");
     }
   };
+  const location = useLocation();
+
+  // Function to parse query string
+  const getQueryParams = (query) => {
+    return new URLSearchParams(query);
+  };
+
+  // Get the query parameters
+  const queryParams = getQueryParams(location.search);
+  const fromQuery = queryParams.get('from');
+
   const createHandler = useCallback(async () => {
     setIsActive(false);
     try {
@@ -748,6 +759,10 @@ export const OfflineClients = () => {
       setTimeout(() => {
         setIsActive(true);
       }, 5000);
+      if (fromQuery === "doctor")
+        setTimeout(() => {
+          history.push("/alo24")
+        }, 0);
     } catch (error) {
       notify({
         title: t(`${error}`),
