@@ -8,7 +8,7 @@ export const Reseption = () => {
 
   const auth = useContext(AuthContext)
 
-  if (!auth.user.clinica.isClose) {
+  if (auth.user.clinica.isClose) {
 
     setTimeout(() => {
       localStorage.removeItem('userData')

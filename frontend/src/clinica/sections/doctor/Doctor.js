@@ -9,7 +9,7 @@ export const Doctor = () => {
     const auth = useContext(AuthContext)
     console.log(auth)
 
-  if (!auth.user.clinica.isClose) {
+  if (auth.user.clinica.isClose) {
 
     setTimeout(() => {
       localStorage.removeItem('userData')
