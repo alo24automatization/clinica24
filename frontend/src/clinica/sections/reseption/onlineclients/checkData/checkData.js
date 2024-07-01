@@ -17,7 +17,7 @@ export const checkClientData = (client, t) => {
 
   if (!client.brondate) {
     return {
-      title: t("Diqqat! Mijozning tug'ilgan sanasi kiritilmagan."),
+      title: t("Diqqat! Mijozning kelgan vaqti kiritilmagan."),
       description: "",
       status: "error",
     };

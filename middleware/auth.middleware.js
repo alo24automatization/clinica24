@@ -14,6 +14,11 @@ module.exports = (req, res, next) => {
 
         const decoded = jwt.verify(token, config.get('jwtSecret'))
         req.user = decoded
+        console.log(`
+            ===================================================================
+            User: ${JSON.stringify(decoded)}
+            ===================================================================
+            `)
         next()
     } catch (e) {
         return res.status(401).json({ message: "Avtorizatsiyadan o'tilmagan" })

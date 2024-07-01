@@ -167,6 +167,11 @@ export const OnlineClients = () => {
     const [client, setClient] = useState({
         clinica: auth.clinica && auth.clinica._id,
         reseption: auth.user && auth.user._id,
+        department: auth?.user?.specialty?._id,
+        bronTime: null,
+        queue: null,
+        serviceType: null,
+        service: null
     });
 
     const changeClientData = (e) => {
@@ -206,7 +211,7 @@ export const OnlineClients = () => {
     //====================================================================
     // CreateHandler
 
-    const createHandler = useCallback(async () => {
+    const createHandler = useCallback(async (id) => {
         try {
             const data = await request(
                 `/api/onlineclient/client/register`,
@@ -367,7 +372,7 @@ export const OnlineClients = () => {
             <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
                 <div className="row gutters">
                     <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                        <div className="row">
+                        {/* <div className="row">
                             <div className="col-12 text-end">
                                 <button
                                     className={`btn bg-alotrade text-white mb-2 w-100 ${visible ? "d-none" : ""
@@ -398,7 +403,7 @@ export const OnlineClients = () => {
                                 setModal={setModal}
                                 clientDate={clientDate}
                             />
-                        </div>
+                        </div> */}
                         <TableClients
                             setVisible={setVisible}
                             modal1={modal1}

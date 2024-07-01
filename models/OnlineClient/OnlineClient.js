@@ -9,6 +9,8 @@ const client = new Schema(
         lastname: { type: String, required: true },
         fathername: { type: String },
         brondate: { type: Date, required: true },
+        bronTime: { type: String, required: false },
+        queue: { type: Number, required: false },
         phone: { type: String, required: true },
         department: {
             type: Schema.Types.ObjectId,
@@ -20,6 +22,8 @@ const client = new Schema(
             ref: "User",
             required: true,
         },
+        service: [{ type: Schema.Types.ObjectId, ref: "Service", required: true }],
+        serviceType: { type: Schema.Types.ObjectId, ref: "ServiceType", required: true },
     },
     {
         timestamps: true,
@@ -36,6 +40,10 @@ function validateClient(client) {
         phone: Joi.string(),
         department: Joi.string(),
         reseption: Joi.string(),
+        service: Joi.array(),
+        serviceType: Joi.string(),
+        bronTime: Joi.optional(),
+        queue: Joi.optional(),
     })
 
     return schema.validate(client)

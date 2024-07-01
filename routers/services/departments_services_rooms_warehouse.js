@@ -11,12 +11,17 @@ router.post('/department/register', auth, (req, res) => {
     require('./department').register(req, res)
 })
 
+
 router.post('/department/getall', (req, res) => {
     require('./department').getAll(req, res)
 })
 
 router.post('/department/reseption', auth, (req, res) => {
     require('./department').getAllReseption(req, res)
+})
+
+router.post('/department/reseptionbyid', auth, (req, res) => {
+    require('./department').getAllReseptionById(req, res)
 })
 
 router.get('/department', auth, (req, res) => {
@@ -77,6 +82,11 @@ router.post('/service/popular/get', auth, (req, res) => {
 // SERVICETYPE
 router.post('/servicetype/registerall', auth, (req, res) => {
     require('./servicetype').registerAll(req, res)
+})
+
+
+router.post('/servicetype/findById', auth, (req, res) => {
+    require('./servicetype').findById(req, res)
 })
 
 router.post('/servicetype/register', auth, (req, res) => {

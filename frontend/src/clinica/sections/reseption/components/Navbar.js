@@ -267,7 +267,7 @@ export const Navbar = () => {
                                                 src={
                                                     baseUrl && `${baseUrl}/api/upload/file/${user.image}`
                                                 }
-                                                alt={user.firstname + user.lastname}
+                                                // alt={user.firstname + user.lastname}
                                             />
                                         ) : (
                                             user.firstname + user.lastname

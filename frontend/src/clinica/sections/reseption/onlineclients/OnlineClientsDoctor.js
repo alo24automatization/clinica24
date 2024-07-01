@@ -114,7 +114,7 @@ export const OnlineClientsDoctor = () => {
           {
             clinica: auth && auth.clinica._id,
             department: doctor?.specialty?._id,
-            beginDay: new Date(),
+            beginDay: new Date().toISOString().slice(0, 10),
             type,
           },
           {
@@ -200,6 +200,7 @@ export const OnlineClientsDoctor = () => {
   const [client, setClient] = useState({
     clinica: auth.clinica && auth.clinica._id,
     reseption: auth.user && auth.user._id,
+    department: auth?.user?.specialty?._id,
   });
 
   const changeClientData = (e) => {
@@ -383,9 +384,9 @@ export const OnlineClientsDoctor = () => {
     const search = [...searchStorage].filter(
       (el) =>
         new Date(el.brondate).getTime() >
-          new Date(new Date(e).setHours(0, 0, 0, 0)).getTime() &&
+        new Date(new Date(e).setHours(0, 0, 0, 0)).getTime() &&
         new Date(el.brondate).getTime() <
-          new Date(new Date(e).setHours(23, 59, 59, 0)).getTime()
+        new Date(new Date(e).setHours(23, 59, 59, 0)).getTime()
     );
     setConnectors(search);
     setCurrentConnectors(search);
@@ -449,6 +450,8 @@ export const OnlineClientsDoctor = () => {
     }
   }, [getConnectors]);
 
+  console.log(currentConnectors)
+
   //====================================================================
   //====================================================================
   return (
@@ -459,17 +462,15 @@ export const OnlineClientsDoctor = () => {
             <div className="row">
               <div className="col-12 text-end">
                 <button
-                  className={`btn bg-alotrade text-white mb-2 w-100 ${
-                    visible ? "d-none" : ""
-                  }`}
+                  className={`btn bg-alotrade text-white mb-2 w-100 ${visible ? "d-none" : ""
+                    }`}
                   onClick={changeVisible}
                 >
                   {t("Registratsiya")}
                 </button>
                 <button
-                  className={`btn bg-alotrade text-white mb-2 w-100 ${
-                    visible ? "" : "d-none"
-                  }`}
+                  className={`btn bg-alotrade text-white mb-2 w-100 ${visible ? "" : "d-none"
+                    }`}
                   onClick={changeVisible}
                 >
                   {t("Registratsiya")}
@@ -594,12 +595,7 @@ export const OnlineClientsDoctor = () => {
                               +998{connector?.phone}
                             </td>
                             <td className="border py-1 text-right text-[16px]">
-                              {new Date(connector?.brondate).toLocaleDateString(
-                                "RU-ru"
-                              )}{" "}
-                              {new Date(connector?.brondate).toLocaleTimeString(
-                                "RU-ru"
-                              )}
+                              {new Date(connector?.brondate).toLocaleDateString('RU-ru')} {connector?.bronTime?.length > 0 ? connector.bronTime : `Navbat - ${connector?.queue}`}
                             </td>
                             <td className="border py-1 text-center">
                               {loading ? (

@@ -187,7 +187,7 @@ module.exports.getAllDepartment = async (req, res) => {
     const servicestype = await ServiceType.find({
       clinica,
       department,
-    });
+    }).populate("services").lean();
 
     res.send(servicestype);
   } catch (error) {
@@ -384,3 +384,15 @@ module.exports.deleteAll = async (req, res) => {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
+
+
+// Find by servicetype id
+module.exports.findById = async (req, res) => {
+  try {
+    const { department, _id } = req.body;
+    const serviceType = await ServiceType.findById(_id).select('services').populate('services').lean();
+    res.send(serviceType);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+}

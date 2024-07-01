@@ -7,6 +7,7 @@ import {DoctorRouter} from "./DoctorRouter";
 export const Doctor = () => {
 
     const auth = useContext(AuthContext)
+    console.log(auth)
 
   if (auth.user.clinica.isClose) {
 

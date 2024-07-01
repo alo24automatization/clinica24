@@ -156,6 +156,28 @@ module.exports.getAll = async (req, res) => {
     }
 }
 
+
+// Get All Reseption by department id
+module.exports.getAllReseptionById = async (req, res) => {
+    try {
+        const { clinica, _id } = req.body
+        const clinic = await Clinica.findById(clinica)
+
+        if (!clinic) {
+            return res.status(400).json({
+                message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+            })
+        }
+
+        const departments = await Department.findById(_id).populate('services').populate('servicetypes')
+
+        res.send(departments)
+    } catch (error) {
+        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+    }
+}
+
+
 module.exports.getAllReseption = async (req, res) => {
     try {
         const { clinica } = req.body

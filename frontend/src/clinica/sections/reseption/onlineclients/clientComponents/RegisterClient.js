@@ -1,14 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { DatePickers } from "./DatePickers";
 import "react-datepicker/dist/react-datepicker.css";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { useTranslation } from "react-i18next";
+import { useHttp } from "../../../../hooks/http.hook";
+import { AuthContext } from "../../../../context/AuthContext";
+import { useToast } from "@chakra-ui/react";
 const animatedComponents = makeAnimated();
 
 export const RegisterClient = ({
   checkData,
   client,
+  setClient,
   changeClientData,
   changeClientBorn,
   departments,
@@ -18,8 +22,14 @@ export const RegisterClient = ({
 }) => {
 
   const { t } = useTranslation()
+  const { request } = useHttp();
+  const auth = useContext(AuthContext);
 
   const [services, setServices] = useState([]);
+  const [serviceTypes, setServiceTypes] = useState([]);
+  const [time, setTime] = useState();
+    const [queue, setQueue] = useState();
+    const [disableds, setDisableds] = useState({ time: false, queue: false });
   const getServices = useCallback(
     (e) => {
       var s = [];
@@ -55,11 +65,86 @@ export const RegisterClient = ({
     [departments]
   );
 
+
+  const toast = useToast();
+
+  const notify = useCallback(
+    (data) => {
+      toast({
+        title: data.title && data.title,
+        description: data.description && data.description,
+        status: data.status && data.status,
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+    },
+    []
+  );
+
+  const getServiceType = async () => {
+    try {
+      const data = await request(
+        `/api/services/servicetype/getalldepartment`,
+        "POST",
+        { clinica: auth.clinica._id, department: auth?.user?.specialty?._id },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
+
+      console.log(data)
+      data?.map((item) => {
+        setServiceTypes((old) => [...old, { value: item._id, label: item.name }]);
+      })
+
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
+    }
+  }
+
+  const getService = async (id) => {
+    try {
+      const data = await request(
+        `/api/services/servicetype/findById`,
+        "POST",
+        { _id: id },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
+
+      console.log(data)
+      data && data?.services?.map((item) => {
+        setServices((old) => [...old, { value: item._id, label: item.name }]);
+      })
+
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
+    }
+  }
+
+  console.log(serviceTypes)
+
   useEffect(() => {
     if (departments) {
       getServices("all");
     }
   }, [departments, getServices]);
+
+  useEffect(() => {
+    getServiceType()
+  }, [])
+
+  console.log(client)
   return (
     <>
       {/* Row start */}
@@ -99,22 +184,60 @@ export const RegisterClient = ({
                     />
                   </div>
                 </div>
-                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                  <label htmlFor="education">{t("Kelish sanasi")}</label>
-                  {/* <DatePickers
-                    dateFormat="dd/MM/yyyy"
-                    changeDate={changeClientBorn}
-                  /> */}
-                  <input
-                    onChange={(e) => changeClientBorn(e)}
-                    type="datetime-local"
-                    name="born"
-                    className="form-control inp"
-                    placeholder=""
-                    style={{ color: '#999' }}
-                    value={clientDate}
-                  />
-                </div>
+                <>
+                  <div className="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                    <div className="form-group">
+                      <label htmlFor="education">{t("Kelish sanasi")}</label>
+                      <input
+                        onChange={(e) => {
+                          changeClientBorn(e)
+                        }}
+                        type="date"
+                        name="born"
+                        className="form-control inp"
+                        placeholder=""
+                        style={{ color: '#999' }}
+                        value={clientDate}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                    <div className="form-group">
+                      <label htmlFor="education">{t("Vaqt")}</label>
+                      <input
+                        onChange={(e) => {
+                          setClient({ ...client, bronTime: e.target.value })
+                          e.target.value.length > 0 ? setDisableds({ ...disableds, time: false, queue: true }) : setDisableds({ ...disableds, time: false, queue: false })
+                        }}
+                        value={time}
+                        type="time"
+                        name="born"
+                        disabled={disableds.time}
+                        className="form-control inp"
+                        placeholder=""
+                        style={{ color: '#999' }}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                    <div className="form-group">
+                      <label htmlFor="navbat">{t("Navbat")}</label>
+                      <input
+                        value={queue}
+                        onChange={(e) => {
+                          setClient({ ...client, queue: e.target.value })
+                          e.target.value.length > 0 ? setDisableds({ ...disableds, time: true, queue: false }) : setDisableds({ ...disableds, time: false, queue: false })
+                        }}
+                        type="text"
+                        disabled={disableds.queue}
+                        className="form-control form-control-sm"
+                        id="navbat"
+                        name="navbat"
+                      />
+                    </div>
+                  </div>
+                </>
+
                 <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                   <div className="form-group">
                     <label htmlFor="addreSs">{t("Telefon raqami")}</label>
@@ -137,27 +260,44 @@ export const RegisterClient = ({
                     </div>
                   </div>
                 </div>
-                <div className="col-12">
+                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                   <div className="form-group">
-                    <label htmlFor="fullName">{t("Bo'limlar")}</label>
-                    <select
-                      className="form-control form-control-sm selectpicker"
-                      placeholder="Reklamalarni tanlash"
-                      onChange={changeClientData}
-                      name="department"
-                      value={client?.department}
-                    >
-                      <option value="all"> {t("Barcha bo'limlar")}</option>
-                      {departments.map((department, index) => {
-                        return (
-                          <option key={index} value={department._id}>
-                            {department.name}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    <label htmlFor="addreSs">{t("Xizmat turi")}</label>
+                    <Select
+                      defaultValue={[serviceTypes[0]]}
+                      onChange={(e) => {
+                        getService(e.value)
+                        setClient({ ...client, serviceType: e.value })
+                      }}
+                      name="serivceType"
+                      options={serviceTypes}
+                      className="basic-multi-select"
+                      classNamePrefix="select"
+                    />
                   </div>
                 </div>
+                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                  <div className="form-group">
+                    <label htmlFor="addreSs">{t("Xizmatni tanlang")}</label>
+                    <Select
+                      defaultValue={[services[2]]}
+                      isMulti
+                      name="service"
+                      options={services}
+                      onChange={(e) => {
+                        let data = []
+                        e.map((item) => {
+                          data.push(item.value)
+                        })
+                        setClient({ ...client, service: data })
+                      }}
+                      className="basic-multi-select"
+                      classNamePrefix="select"
+                    />
+                  </div>
+                </div>
+
+
                 <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div className="text-right">
                     {loading ? (

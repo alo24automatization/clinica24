@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { faPenAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faL, faPenAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,16 +10,26 @@ import { checkClientData } from "../reseption/onlineclients/checkData/checkData"
 import { DatePickers } from "../reseption/onlineclients/clientComponents/DatePickers";
 import { RegisterClient } from "../reseption/onlineclients/clientComponents/RegisterClient";
 import { Modal, Modal as Modal2 } from "./components/Modal";
+import Select from 'react-select';
 
+const options = [
+    { value: 'chocolate', label: 'Chocolate' },
+    { value: 'strawberry', label: 'Strawberry' },
+    { value: 'vanilla', label: 'Vanilla' }
+]
 
 export const OnlineClients = () => {
     const [beginDay, setBeginDay] = useState(new Date());
     const [endDay, setEndDay] = useState(
         new Date(new Date().setDate(new Date().getDate() + 1))
     );
+    const [time, setTime] = useState();
+    const [queue, setQueue] = useState();
+    const [disableds, setDisableds] = useState({ time: false, queue: false });
     //====================================================================
     //====================================================================
-
+    const [serviceTypes, setServiceTypes] = useState([]);
+    const [service, setService] = useState([])
     //====================================================================
     //====================================================================
     // MODAL
@@ -85,14 +95,14 @@ export const OnlineClients = () => {
     // getConnectors
     const [connectors, setConnectors] = useState([]);
     const [searchStorage, setSearchStrorage] = useState([]);
-
     const getConnectors = useCallback(
         async (type) => {
+            console.log(auth)
             try {
                 const data = await request(
                     `/api/onlineclient/client/getall`,
                     "POST",
-                    { clinica: auth && auth.clinica._id, department: auth?.user?.specialty?._id, beginDay: new Date, type },
+                    { clinica: auth && auth.clinica._id, department: auth?.user?.specialty?._id, beginDay: new Date().toISOString().split("T")[0], endDay: new Date(endDay).toISOString(), type },
                     {
                         Authorization: `Bearer ${auth.token}`,
                     }
@@ -158,17 +168,23 @@ export const OnlineClients = () => {
     const [client, setClient] = useState({
         clinica: auth.clinica && auth.clinica._id,
         reseption: auth.user && auth.user._id,
-        department: auth?.user?.specialty?._id
+        department: auth?.user?.specialty?._id,
+        bronTime: null,
+        queue: null,
+        serviceType: null,
+        service: null
     });
 
+    console.log(client)
     const changeClientData = (e) => {
         setClient({ ...client, [e.target.name]: e.target.value });
     };
 
     const [clientDate, setClientDate] = useState(new Date().toISOString().slice(0, 10))
-
+    console.log(clientDate)
     const changeClientBorn = (e) => {
         setClientDate(e.target.value)
+        console.log(e.target.value)
         setClient({ ...client, brondate: new Date(e.target.value) });
     };
     //====================================================================
@@ -236,6 +252,56 @@ export const OnlineClients = () => {
         connectors,
         clearDatas,
     ]);
+
+    const getServiceType = async () => {
+        try {
+            const data = await request(
+                `/api/services/servicetype/getalldepartment`,
+                "POST",
+                { clinica: auth.clinica._id, department: auth?.user?.specialty?._id },
+                {
+                    Authorization: `Bearer ${auth.token}`,
+                }
+            );
+
+            console.log(data)
+            data?.map((item) => {
+                setServiceTypes((old) => [...old, { value: item._id, label: item.name }]);
+            })
+
+        } catch (error) {
+            notify({
+                title: t(`${error}`),
+                description: "",
+                status: "error",
+            });
+        }
+    }
+
+    const getService = async (id) => {
+        try {
+            const data = await request(
+                `/api/services/servicetype/findById`,
+                "POST",
+                { _id: id },
+                {
+                    Authorization: `Bearer ${auth.token}`,
+                }
+            );
+
+            console.log(data)
+            data && data?.services?.map((item) => {
+                setService((old) => [...old, { value: item._id, label: item.name }]);
+            })
+
+        } catch (error) {
+            notify({
+                title: t(`${error}`),
+                description: "",
+                status: "error",
+            });
+        }
+    }
 
     const updateHandler = useCallback(async () => {
         if (checkClientData(client)) {
@@ -364,6 +430,11 @@ export const OnlineClients = () => {
         getConnectors(type);
     }, [getConnectors])
 
+    useEffect(() => {
+        getServiceType()
+    }, [])
+
+
     //====================================================================
     //====================================================================
     return (
@@ -400,7 +471,7 @@ export const OnlineClients = () => {
                                             <div className="row gutters">
                                                 <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                     <div className="form-group">
-                                                        <label htmlFor="fullName">{t("Familiyasi")}</label>
+                                                        <label htmlFor="lastname">{t("Familiyasi")}</label>
                                                         <input
                                                             value={client?.lastname || ''}
                                                             onChange={changeClientData}
@@ -414,7 +485,7 @@ export const OnlineClients = () => {
                                                 </div>
                                                 <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                     <div className="form-group">
-                                                        <label htmlFor="inputEmail">{t("Ismi")}</label>
+                                                        <label htmlFor="firstname">{t("Ismi")}</label>
                                                         <input
                                                             value={client?.firstname || ''}
                                                             onChange={changeClientData}
@@ -426,29 +497,67 @@ export const OnlineClients = () => {
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                    <label htmlFor="education">{t("Kelish sanasi")}</label>
-                                                    <input
-                                                        onChange={(e) => changeClientBorn(e)}
-                                                        type="datetime-local"
-                                                        name="born"
-                                                        className="form-control inp"
-                                                        placeholder=""
-                                                        style={{ color: '#999' }}
-                                                        value={clientDate}
-                                                    />
-                                                </div>
+
+                                                <>
+                                                    <div className="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                                        <div className="form-group">
+                                                            <label htmlFor="education">{t("Kelish sanasi")}</label>
+                                                            <input
+                                                                onChange={(e) => {
+                                                                    changeClientBorn(e)
+                                                                }}
+                                                                type="date"
+                                                                name="born"
+                                                                className="form-control inp"
+                                                                placeholder=""
+                                                                style={{ color: '#999' }}
+                                                                value={clientDate}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                                        <div className="form-group">
+                                                            <label htmlFor="education">{t("Vaqt")}</label>
+                                                            <input
+                                                                onChange={(e) => {
+                                                                    setClient({...client, bronTime: e.target.value})
+                                                                    e.target.value.length > 0 ? setDisableds({ ...disableds, time: false, queue: true }) : setDisableds({ ...disableds, time: false, queue: false })
+                                                                }}
+                                                                value={time}
+                                                                type="time"
+                                                                name="born"
+                                                                disabled={disableds.time}
+                                                                className="form-control inp"
+                                                                placeholder=""
+                                                                style={{ color: '#999' }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                                                        <div className="form-group">
+                                                            <label htmlFor="navbat">{t("Navbat")}</label>
+                                                            <input
+                                                                value={queue}
+                                                                onChange={(e) => {
+                                                                   setClient({...client, queue: e.target.value})
+                                                                    e.target.value.length > 0 ? setDisableds({ ...disableds, time: true, queue: false }) : setDisableds({ ...disableds, time: false, queue: false })
+                                                                }}
+                                                                type="text"
+                                                                disabled={disableds.queue}
+                                                                className="form-control form-control-sm"
+                                                                id="navbat"
+                                                                name="navbat"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+
                                                 <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                     <div className="form-group">
                                                         <label htmlFor="addreSs">{t("Telefon raqami")}</label>
                                                         <div className="input-group input-group-sm mb-3">
                                                             <div className="input-group-prepend">
-                                                                <span
-                                                                    className="input-group-text"
-                                                                    id="inputGroup-sizing-sm"
-                                                                >
-                                                                    +998
-                                                                </span>
+                                                                <span className="input-group-text" id="inputGroup-sizing-sm">+998</span>
                                                             </div>
                                                             <input
                                                                 value={client?.phone || ''}
@@ -460,6 +569,45 @@ export const OnlineClients = () => {
                                                         </div>
                                                     </div>
                                                 </div>
+                                                {/* Selects */}
+                                                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                    <div className="form-group">
+                                                        <label htmlFor="addreSs">{t("Xizmat turi")}</label>
+                                                        <Select
+                                                            defaultValue={[serviceTypes[0]]}
+                                                            onChange={(e) => {
+                                                                getService(e.value)
+                                                                setClient({ ...client, serviceType: e.value })
+                                                            }}
+                                                            name="serivceType"
+                                                            options={serviceTypes}
+                                                            className="basic-multi-select"
+                                                            classNamePrefix="select"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                    <div className="form-group">
+                                                        <label htmlFor="addreSs">{t("Xizmatni tanlang")}</label>
+                                                        <Select
+                                                            defaultValue={[service[2]]}
+                                                            isMulti
+                                                            name="service"
+                                                            options={service}
+                                                            onChange={(e) => {
+                                                                let data = []
+                                                                e.map((item) => {
+                                                                    data.push(item.value)
+                                                                })
+                                                                setClient({ ...client, service: data })
+                                                            }}
+                                                            className="basic-multi-select"
+                                                            classNamePrefix="select"
+                                                        />
+                                                    </div>
+                                                </div>
+
+
                                                 <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                                                     <div className="text-right">
                                                         {loading ? (
@@ -468,7 +616,10 @@ export const OnlineClients = () => {
                                                                 Loading...
                                                             </button>
                                                         ) : (
-                                                            <button onClick={checkData} className="bg-alotrade rounded text-white py-2 px-3">
+                                                            <button onClick={() => {
+                                                                checkData()
+                                                                createHandler()
+                                                            }} className="bg-alotrade rounded text-white py-2 px-3">
                                                                 {t("Saqlash")}
                                                             </button>
                                                         )}
@@ -478,9 +629,10 @@ export const OnlineClients = () => {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
+
+
                         <div className="border-0 table-container">
                             <div className="border-0 table-container">
                                 <div className="table-responsive">
@@ -582,7 +734,7 @@ export const OnlineClients = () => {
                                                             +998{connector?.phone}
                                                         </td>
                                                         <td className="border py-1 text-right text-[16px]">
-                                                            {new Date(connector?.brondate).toLocaleDateString('RU-ru')} {new Date(connector?.brondate).toLocaleTimeString('RU-ru')}
+                                                            {new Date(connector?.brondate).toLocaleDateString('RU-ru')} {connector?.bronTime?.length > 0 ? connector.bronTime : `Navbat - ${connector?.queue}`}
                                                         </td>
                                                         <td className="border py-1 text-center">
                                                             {loading ? (
