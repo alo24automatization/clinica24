@@ -28,42 +28,43 @@ export const RegisterClient = ({
   const [services, setServices] = useState([]);
   const [serviceTypes, setServiceTypes] = useState([]);
   const [time, setTime] = useState();
-    const [queue, setQueue] = useState();
-    const [disableds, setDisableds] = useState({ time: false, queue: false });
-  const getServices = useCallback(
-    (e) => {
-      var s = [];
-      if (e === "all") {
-        departments.map((department) => {
-          return department.services.map((service) => {
-            return s.push({
-              label: service.name,
-              value: service._id,
-              service: service,
-              department: department,
-            });
-          });
-        });
-      } else {
-        departments.map((department) => {
-          if (e === department._id) {
-            department.services.map((service) => {
-              s.push({
-                label: service.name,
-                value: service._id,
-                service: service,
-                department: department,
-              });
-              return "";
-            });
-          }
-          return "";
-        });
-      }
-      setServices(s);
-    },
-    [departments]
-  );
+  const [queue, setQueue] = useState();
+  const [disableds, setDisableds] = useState({ time: false, queue: false });
+  const [serviceOptions, setServiceOptions] = useState([]);
+  // const getServices = useCallback(
+  //   (e) => {
+  //     var s = [];
+  //     if (e === "all") {
+  //       departments.map((department) => {
+  //         return department.services.map((service) => {
+  //           return s.push({
+  //             label: service.name,
+  //             value: service._id,
+  //             service: service,
+  //             department: department,
+  //           });
+  //         });
+  //       });
+  //     } else {
+  //       departments.map((department) => {
+  //         if (e === department._id) {
+  //           department.services.map((service) => {
+  //             s.push({
+  //               label: service.name,
+  //               value: service._id,
+  //               service: service,
+  //               department: department,
+  //             });
+  //             return "";
+  //           });
+  //         }
+  //         return "";
+  //       });
+  //     }
+  //     setServices(s);
+  //   },
+  //   [departments]
+  // );
 
 
   const toast = useToast();
@@ -134,11 +135,11 @@ export const RegisterClient = ({
 
   console.log(serviceTypes)
 
-  useEffect(() => {
-    if (departments) {
-      getServices("all");
-    }
-  }, [departments, getServices]);
+  // useEffect(() => {
+  //   if (departments) {
+  //     getServices("all");
+  //   }
+  // }, [departments, getServices]);
 
   useEffect(() => {
     getServiceType()
@@ -223,10 +224,10 @@ export const RegisterClient = ({
                     <div className="form-group">
                       <label htmlFor="navbat">{t("Navbat")}</label>
                       <input
-                        value={queue}
+                        value={client.queue || ''}
                         onChange={(e) => {
-                          setClient({ ...client, queue: e.target.value })
-                          e.target.value.length > 0 ? setDisableds({ ...disableds, time: true, queue: false }) : setDisableds({ ...disableds, time: false, queue: false })
+                          setClient({ ...client, queue: e.target.value });
+                          e.target.value.length > 0 ? setDisableds({ ...disableds, time: true, queue: false }) : setDisableds({ ...disableds, time: false, queue: false });
                         }}
                         type="text"
                         disabled={disableds.queue}
@@ -264,7 +265,6 @@ export const RegisterClient = ({
                   <div className="form-group">
                     <label htmlFor="addreSs">{t("Xizmat turi")}</label>
                     <Select
-                      defaultValue={[serviceTypes[0]]}
                       onChange={(e) => {
                         getService(e.value)
                         setClient({ ...client, serviceType: e.value })
@@ -280,7 +280,7 @@ export const RegisterClient = ({
                   <div className="form-group">
                     <label htmlFor="addreSs">{t("Xizmatni tanlang")}</label>
                     <Select
-                      defaultValue={[services[2]]}
+                      // defaultValue={[service]}
                       isMulti
                       name="service"
                       options={services}

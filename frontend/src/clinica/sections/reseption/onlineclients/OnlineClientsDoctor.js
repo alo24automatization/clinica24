@@ -22,6 +22,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { DatePickers } from "./clientComponents/DatePickers";
 import { Pagination } from "../components/Pagination";
+import Select from 'react-select';
+
 
 export const OnlineClientsDoctor = () => {
   const [beginDay, setBeginDay] = useState(new Date().toISOString());
@@ -50,6 +52,13 @@ export const OnlineClientsDoctor = () => {
   //====================================================================
   // RegisterPage
   const [visible, setVisible] = useState(false);
+
+  const [services, setService] = useState([]);
+  const [serviceTypes, setServiceTypes] = useState([]);
+  const [time, setTime] = useState();
+  const [queue, setQueue] = useState();
+  const [disableds, setDisableds] = useState({ time: false, queue: false });
+  const [serviceOptions, setServiceOptions] = useState([]);
 
   const changeVisible = () => setVisible(!visible);
 
@@ -201,15 +210,26 @@ export const OnlineClientsDoctor = () => {
     clinica: auth.clinica && auth.clinica._id,
     reseption: auth.user && auth.user._id,
     department: auth?.user?.specialty?._id,
+    bronTime: null,
+    queue: null,
+    serviceType: null,
+    service: null
   });
+  const initialClientState = {
+    clinica: auth.clinica && auth.clinica._id,
+    reseption: auth.user && auth.user._id,
+    department: auth?.user?.specialty?._id,
+    bronTime: null,
+    queue: null,
+    serviceType: null,
+    service: null
+  };
 
   const changeClientData = (e) => {
     setClient({ ...client, [e.target.name]: e.target.value });
   };
 
-  const [clientDate, setClientDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [clientDate, setClientDate] = useState();
 
   const changeClientBorn = (e) => {
     setClientDate(e.target.value);
@@ -244,7 +264,7 @@ export const OnlineClientsDoctor = () => {
 
   const createHandler = useCallback(async () => {
     try {
-      const data = await request(
+      await request(
         `/api/onlineclient/client/register`,
         "POST",
         {
@@ -254,12 +274,23 @@ export const OnlineClientsDoctor = () => {
           Authorization: `Bearer ${auth.token}`,
         }
       );
+      // setClient({ ...client, serviceType: null, service: null, queue: null, bronTime: null, })
+      // setDisableds({ time: false, queue: false })
+      // setService([])
+      // setServiceTypes([])
+      // Tozalash amallari
+      setClient(initialClientState);
+      setService([]);
+      setServiceTypes([]);
+      setServiceOptions([]);
+      setDisableds({ time: false, queue: false });
+      getServiceType()
       notify({
         title: t("Mijoz muvaffaqqiyatli yaratildi."),
         description: "",
         status: "success",
       });
-      getConnectors(type);
+      getConnectors(type)
       setModal(false);
       clearDatas();
       setVisible(false);
@@ -280,6 +311,70 @@ export const OnlineClientsDoctor = () => {
     connectors,
     clearDatas,
   ]);
+
+
+  const getServiceType = async () => {
+    try {
+      const data = await request(
+        `/api/services/servicetype/getalldepartment`,
+        "POST",
+        { clinica: auth.clinica._id, department: auth?.user?.specialty?._id },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
+
+      if (data) {
+        const options = data.map((item) => ({
+          value: item._id,
+          label: item.name
+        }));
+        setServiceTypes(options);
+      }
+
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
+    }
+  };
+
+
+  const getService = async (id) => {
+    try {
+      const data = await request(
+        `/api/services/servicetype/findById`,
+        "POST",
+        { _id: id },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
+
+      if (data?.services) {
+        const options = data.services.map((item) => ({
+          value: item._id,
+          label: item.name
+        }));
+
+        setServiceOptions(prevOptions => {
+          // Qo'shilayotgan yangi optionslardan faqatgina eski optionslar ichida yo'q bo'lganlarini qo'shamiz
+          const newOptions = options.filter(option => !prevOptions.some(prevOption => prevOption.value === option.value));
+          return [...prevOptions, ...newOptions];
+        });
+      }
+
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
+    }
+  };
+
 
   const updateHandler = useCallback(async () => {
     if (checkClientData(client)) {
@@ -369,6 +464,8 @@ export const OnlineClientsDoctor = () => {
   //====================================================================
   //====================================================================
 
+
+
   const changeType = (e) => {
     setType(e.target.value);
     getConnectors(e.target.value);
@@ -452,6 +549,84 @@ export const OnlineClientsDoctor = () => {
 
   console.log(currentConnectors)
 
+
+  const changeStatus = async (e) => {
+
+    const data = await request(
+      `/api/onlineclient/client/getall`,
+      "POST",
+      { clinica: auth && auth.clinica._id, department: auth?.user?.specialty?._id, beginDay: new Date().toISOString().split("T")[0], endDay: new Date(endDay).toISOString(), type },
+      {
+        Authorization: `Bearer ${auth.token}`,
+      }
+    );
+    setConnectors(data);
+    setSearchStrorage(data);
+
+    const newArr = data.slice(indexFirstConnector, indexLastConnector)
+    console.log(e.target.value)
+    switch (e.target.value) {
+      case "queue":
+        let arr = []
+        newArr.map((item) => {
+          if (item.queue) {
+            arr.push(item)
+          }
+        })
+        setCurrentConnectors(arr)
+        break;
+      case "time":
+        let arr2 = []
+        newArr.map((item) => {
+          if (!item.queue) {
+            arr2.push(item)
+          }
+        })
+        setCurrentConnectors(arr2)
+        break;
+      default:
+        setCurrentConnectors(newArr)
+    }
+  }
+
+  useEffect(() => {
+    getServiceType()
+  }, [])
+
+  const getOldData = useCallback(async (id) => {
+    try {
+      const data = await request(
+        `/api/onlineclient/client/findById`,
+        "POST",
+        { _id: id },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
+
+      if (data) {
+        const services = data.map(item => ({ value: item._id, label: item.name }));
+        const serviceIds = data.map(item => item._id);
+
+        setClient(prev => ({
+          ...prev,
+          service: serviceIds,
+        }));
+
+        setServiceOptions(prevOptions => {
+          // Qo'shilayotgan yangi optionslardan faqatgina eski optionslar ichida yo'q bo'lganlarini qo'shamiz
+          const newOptions = services.filter(option => !prevOptions.some(prevOption => prevOption.value === option.value));
+          return [...prevOptions, ...newOptions];
+        });
+      }
+
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: "",
+      });
+    }
+  }, [auth.token, t]);
   //====================================================================
   //====================================================================
   return (
@@ -478,7 +653,7 @@ export const OnlineClientsDoctor = () => {
               </div>
             </div>
             <div className={` ${visible ? "" : "d-none"}`}>
-              <RegisterClient
+              {/* <RegisterClient
                 updateData={updateHandler}
                 checkData={checkData}
                 client={client}
@@ -489,7 +664,184 @@ export const OnlineClientsDoctor = () => {
                 loading={loading}
                 setModal={setModal}
                 clientDate={clientDate}
-              />
+              /> */}
+              <>
+                {/* Row start */}
+                <div className="row gutters">
+                  <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                    <div className="card">
+                      <div className="card-header">
+                        <div className="card-title">{t("Mijozning shaxsiy ma'lumotlari")}</div>
+                      </div>
+                      <div className="card-body">
+                        <div className="row gutters">
+                          <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div className="form-group">
+                              <label htmlFor="fullName">{t("Familiyasi")}</label>
+                              <input
+                                value={client?.lastname || ''}
+                                onChange={changeClientData}
+                                type="text"
+                                className="form-control form-control-sm"
+                                id="lastname"
+                                name="lastname"
+                                placeholder={t("Familiyasi")}
+                              />
+                            </div>
+                          </div>
+                          <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div className="form-group">
+                              <label htmlFor="inputEmail">{t("Ismi")}</label>
+                              <input
+                                value={client?.firstname || ''}
+                                onChange={changeClientData}
+                                type="text"
+                                className="form-control form-control-sm"
+                                id="firstname"
+                                name="firstname"
+                                placeholder={t("Ismi")}
+                              />
+                            </div>
+                          </div>
+                          <>
+                            <div className="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                              <div className="form-group">
+                                <label htmlFor="education">{t("Kelish sanasi")}</label>
+                                <input
+                                  onChange={(e) => {
+                                    changeClientBorn(e)
+                                  }}
+                                  type="date"
+                                  name="born"
+                                  className="form-control inp"
+                                  placeholder=""
+                                  style={{ color: '#999' }}
+                                  value={clientDate}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                              <div className="form-group">
+                                <label htmlFor="education">{t("Vaqt")}</label>
+                                <input
+                                  onChange={(e) => {
+                                    setClient({ ...client, bronTime: e.target.value })
+                                    e.target.value.length > 0 ? setDisableds({ ...disableds, time: false, queue: true }) : setDisableds({ ...disableds, time: false, queue: false })
+                                  }}
+                                  value={time}
+                                  type="time"
+                                  name="born"
+                                  disabled={disableds.time}
+                                  className="form-control inp"
+                                  placeholder=""
+                                  style={{ color: '#999' }}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                              <div className="form-group">
+                                <label htmlFor="navbat">{t("Navbat")}</label>
+                                <input
+                                  value={client.queue || ''}
+                                  onChange={(e) => {
+                                    setClient({ ...client, queue: e.target.value });
+                                    e.target.value.length > 0 ? setDisableds({ ...disableds, time: true, queue: false }) : setDisableds({ ...disableds, time: false, queue: false });
+                                  }}
+                                  type="text"
+                                  disabled={disableds.queue}
+                                  className="form-control form-control-sm"
+                                  id="navbat"
+                                  name="navbat"
+                                />
+                              </div>
+                            </div>
+                          </>
+
+                          <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div className="form-group">
+                              <label htmlFor="addreSs">{t("Telefon raqami")}</label>
+                              <div className="input-group input-group-sm mb-3">
+                                <div className="input-group-prepend">
+                                  <span
+                                    className="input-group-text"
+                                    id="inputGroup-sizing-sm"
+                                  >
+                                    +998
+                                  </span>
+                                </div>
+                                <input
+                                  value={client?.phone || ''}
+                                  onChange={changeClientData}
+                                  type="number"
+                                  className="form-control"
+                                  name="phone"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div className="form-group">
+                              <label htmlFor="addreSs">{t("Xizmat turi")}</label>
+                              <Select
+                                onChange={(e) => {
+                                  getService(e.value);
+                                  setClient(prevClient => ({
+                                    ...prevClient,
+                                    serviceType: e.value
+                                  }));
+                                }}
+                                value={serviceTypes.find(option => option.value === client.serviceType) || null}
+                                name="serviceType"
+                                options={serviceTypes}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div className="form-group">
+                              <label htmlFor="addreSs">{t("Xizmatni tanlang")}</label>
+                              <Select
+                                isMulti
+                                name="service"
+                                options={serviceOptions}
+                                value={serviceOptions.filter(option => client.service?.includes(option.value))}
+                                onChange={(e) => {
+                                  const data = e.map(item => item.value);
+                                  setClient(prevClient => ({
+                                    ...prevClient,
+                                    service: data
+                                  }));
+                                }}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                              />
+                            </div>
+                          </div>
+
+
+                          <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div className="text-right">
+                              {loading ? (
+                                <button className="bg-alotrade rounded text-white py-2 px-3" disabled>
+                                  <span className="spinner-border spinner-border-sm"></span>
+                                  Loading...
+                                </button>
+                              ) : (
+                                <button onClick={checkData} className="bg-alotrade rounded text-white py-2 px-3">
+                                  {t("Saqlash")}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                {/* Row end */}
+              </>
             </div>
             <div className="border-0 table-container">
               <div className="border-0 table-container">
@@ -534,6 +886,17 @@ export const OnlineClientsDoctor = () => {
                       >
                         <option value={"today"}>Royxat</option>
                         <option value={"late"}>O'tganlar</option>
+                      </select>
+                    </div>
+                    <div>
+                      <select
+                        className="form-control form-control-sm selectpicker"
+                        // placeholder="Bo'limni tanlang"
+                        onChange={changeStatus}
+                      >
+                        <option value={'all'}>Hammasi</option>
+                        <option value={'queue'}>Navbat</option>
+                        <option value={'time'}>Vaqt</option>
                       </select>
                     </div>
                     <div className="text-center ml-auto">
@@ -626,11 +989,10 @@ export const OnlineClientsDoctor = () => {
                                 <button
                                   className="btn btn-success py-0"
                                   onClick={() => {
-                                    setClient({ ...client, ...connector });
-                                    setClientDate(
-                                      connector.brondate.slice(0, 16)
-                                    );
-                                    setVisible(true);
+                                    setClient({ ...client, ...connector })
+                                    setClientDate(connector.brondate.slice(0, 10))
+                                    getOldData(connector._id)
+                                    setVisible(true)
                                   }}
                                 >
                                   <FontAwesomeIcon icon={faPenAlt} />

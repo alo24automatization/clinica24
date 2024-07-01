@@ -22,6 +22,23 @@ const handleSend = async (smsKey, number, message) => {
     });
 };
 
+  async function isQueueNumberExists(queueNumber) {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existingClient = await OnlineClient.findOne({
+      queue: queueNumber,
+      brondate: { $gte: startOfDay, $lt: endOfDay }
+    }).exec();
+
+    console.log(existingClient)
+
+    return !!existingClient;
+  }
+
 // register
 module.exports.register = async (req, res) => {
   try {
@@ -35,6 +52,12 @@ module.exports.register = async (req, res) => {
       });
     }
 
+    const queueExists = await isQueueNumberExists(client.queue);
+    if (queueExists) {
+      return res.status(400).json({
+        error: "Bu navbatdagi mijoz mavjud!",
+      });
+    }
     //=========================================================
     // CreateClient
 
@@ -53,18 +76,14 @@ module.exports.register = async (req, res) => {
     await handleSend(
       clientData.clinica.smsKey,
       `998${clientData.phone}`,
-      `Huramtli ${clientData.firstname} ${
-        clientData.lastname
+      `Huramtli ${clientData.firstname} ${clientData.lastname
       }! Eslatib o'tamiz, siz ${new Date(bronDate).toLocaleDateString(
         "ru-RU"
-      )} kuni, soat ${new Date(bronDate).getHours()}:${
-        new Date(bronDate).getMinutes() < 10
-          ? "0" + new Date(bronDate).getMinutes()
-          : new Date(bronDate).getMinutes()
-      } da ${clientData.clinica.name} ning ${
-        clientData.department.name
-      } bo'limiga qabulga yozilgansiz! Iltimos kech qolmang! Ma'lumot uchun: ${
-        clientData.clinica.phone1
+      )} kuni, soat ${new Date(bronDate).getHours()}:${new Date(bronDate).getMinutes() < 10
+        ? "0" + new Date(bronDate).getMinutes()
+        : new Date(bronDate).getMinutes()
+      } da ${clientData.clinica.name} ning ${clientData.department.name
+      } bo'limiga qabulga yozilgansiz! Iltimos kech qolmang! Ma'lumot uchun: ${clientData.clinica.phone1
       }`
     );
 
@@ -85,6 +104,17 @@ module.exports.update = async (req, res) => {
     const response = await OnlineClient.findById(client._id);
 
     res.status(201).send(response);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+
+module.exports.findById = async (req, res) => {
+  try {
+    const { _id } = req.body;
+
+    const response = await OnlineClient.findById(_id).select("service").populate("service");
+    res.send(response.service);
   } catch (error) {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }

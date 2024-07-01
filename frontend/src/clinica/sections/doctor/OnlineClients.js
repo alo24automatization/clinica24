@@ -12,11 +12,6 @@ import { RegisterClient } from "../reseption/onlineclients/clientComponents/Regi
 import { Modal, Modal as Modal2 } from "./components/Modal";
 import Select from 'react-select';
 
-const options = [
-    { value: 'chocolate', label: 'Chocolate' },
-    { value: 'strawberry', label: 'Strawberry' },
-    { value: 'vanilla', label: 'Vanilla' }
-]
 
 export const OnlineClients = () => {
     const [beginDay, setBeginDay] = useState(new Date());
@@ -26,6 +21,7 @@ export const OnlineClients = () => {
     const [time, setTime] = useState();
     const [queue, setQueue] = useState();
     const [disableds, setDisableds] = useState({ time: false, queue: false });
+    const [serviceOptions, setServiceOptions] = useState([]);
     //====================================================================
     //====================================================================
     const [serviceTypes, setServiceTypes] = useState([]);
@@ -97,7 +93,6 @@ export const OnlineClients = () => {
     const [searchStorage, setSearchStrorage] = useState([]);
     const getConnectors = useCallback(
         async (type) => {
-            console.log(auth)
             try {
                 const data = await request(
                     `/api/onlineclient/client/getall`,
@@ -165,6 +160,8 @@ export const OnlineClients = () => {
     //====================================================================
     // CLIENT
 
+
+
     const [client, setClient] = useState({
         clinica: auth.clinica && auth.clinica._id,
         reseption: auth.user && auth.user._id,
@@ -174,17 +171,23 @@ export const OnlineClients = () => {
         serviceType: null,
         service: null
     });
+    const initialClientState = {
+        clinica: auth.clinica && auth.clinica._id,
+        reseption: auth.user && auth.user._id,
+        department: auth?.user?.specialty?._id,
+        bronTime: null,
+        queue: null,
+        serviceType: null,
+        service: null
+    };
 
-    console.log(client)
     const changeClientData = (e) => {
         setClient({ ...client, [e.target.name]: e.target.value });
     };
 
-    const [clientDate, setClientDate] = useState(new Date().toISOString().slice(0, 10))
-    console.log(clientDate)
+    const [clientDate, setClientDate] = useState()
     const changeClientBorn = (e) => {
         setClientDate(e.target.value)
-        console.log(e.target.value)
         setClient({ ...client, brondate: new Date(e.target.value) });
     };
     //====================================================================
@@ -216,7 +219,7 @@ export const OnlineClients = () => {
 
     const createHandler = useCallback(async () => {
         try {
-            const data = await request(
+            await request(
                 `/api/onlineclient/client/register`,
                 "POST",
                 {
@@ -226,6 +229,17 @@ export const OnlineClients = () => {
                     Authorization: `Bearer ${auth.token}`,
                 }
             );
+            // setClient({ ...client, serviceType: null, service: null, queue: null, bronTime: null, })
+            // setDisableds({ time: false, queue: false })
+            // setService([])
+            // setServiceTypes([])
+            // Tozalash amallari
+            setClient(initialClientState);
+            setService([]);
+            setServiceTypes([]);
+            setServiceOptions([]);
+            setDisableds({ time: false, queue: false });
+            getServiceType()
             notify({
                 title: t("Mijoz muvaffaqqiyatli yaratildi."),
                 description: "",
@@ -253,6 +267,7 @@ export const OnlineClients = () => {
         clearDatas,
     ]);
 
+
     const getServiceType = async () => {
         try {
             const data = await request(
@@ -264,10 +279,13 @@ export const OnlineClients = () => {
                 }
             );
 
-            console.log(data)
-            data?.map((item) => {
-                setServiceTypes((old) => [...old, { value: item._id, label: item.name }]);
-            })
+            if (data) {
+                const options = data.map((item) => ({
+                    value: item._id,
+                    label: item.name
+                }));
+                setServiceTypes(options);
+            }
 
         } catch (error) {
             notify({
@@ -276,7 +294,8 @@ export const OnlineClients = () => {
                 status: "error",
             });
         }
-    }
+    };
+
 
     const getService = async (id) => {
         try {
@@ -289,10 +308,18 @@ export const OnlineClients = () => {
                 }
             );
 
-            console.log(data)
-            data && data?.services?.map((item) => {
-                setService((old) => [...old, { value: item._id, label: item.name }]);
-            })
+            if (data) {
+                const options = data.services.map((item) => ({
+                    value: item._id,
+                    label: item.name
+                }));
+
+                setServiceOptions(prevOptions => {
+                    // Qo'shilayotgan yangi optionslardan faqatgina eski optionslar ichida yo'q bo'lganlarini qo'shamiz
+                    const newOptions = options.filter(option => !prevOptions.some(prevOption => prevOption.value === option.value));
+                    return [...prevOptions, ...newOptions];
+                });
+            }
 
         } catch (error) {
             notify({
@@ -301,7 +328,8 @@ export const OnlineClients = () => {
                 status: "error",
             });
         }
-    }
+    };
+
 
     const updateHandler = useCallback(async () => {
         if (checkClientData(client)) {
@@ -435,6 +463,82 @@ export const OnlineClients = () => {
     }, [])
 
 
+    // Get Old Data (ServiceTypes and Service)
+    const getOldData = useCallback(async (id) => {
+        try {
+            const data = await request(
+                `/api/onlineclient/client/findById`,
+                "POST",
+                { _id: id },
+                {
+                    Authorization: `Bearer ${auth.token}`,
+                }
+            );
+
+            if (data) {
+                const services = data.map(item => ({ value: item._id, label: item.name }));
+                const serviceIds = data.map(item => item._id);
+
+                setClient(prev => ({
+                    ...prev,
+                    service: serviceIds,
+                }));
+
+                setServiceOptions(prevOptions => {
+                    // Qo'shilayotgan yangi optionslardan faqatgina eski optionslar ichida yo'q bo'lganlarini qo'shamiz
+                    const newOptions = services.filter(option => !prevOptions.some(prevOption => prevOption.value === option.value));
+                    return [...prevOptions, ...newOptions];
+                });
+            }
+
+        } catch (error) {
+            notify({
+                title: t(`${error}`),
+                description: "",
+            });
+        }
+    }, [auth.token, t]);
+
+    const changeStatus = async (e) => {
+
+        const data = await request(
+            `/api/onlineclient/client/getall`,
+            "POST",
+            { clinica: auth && auth.clinica._id, department: auth?.user?.specialty?._id, beginDay: new Date().toISOString().split("T")[0], endDay: new Date(endDay).toISOString(), type },
+            {
+                Authorization: `Bearer ${auth.token}`,
+            }
+        );
+        setConnectors(data);
+        setSearchStrorage(data);
+
+        const newArr = data.slice(indexFirstConnector, indexLastConnector)
+        console.log(e.target.value)
+        switch (e.target.value) {
+            case "queue":
+                let arr = []
+                newArr.map((item) => {
+                    if (item.queue) {
+                        arr.push(item)
+                    }
+                })
+                setCurrentConnectors(arr)
+                break;
+            case "time":
+                let arr2 = []
+                newArr.map((item) => {
+                    if (!item.queue) {
+                        arr2.push(item)
+                    }
+                })
+                setCurrentConnectors(arr2)
+                break;
+            default:
+                setCurrentConnectors(newArr)
+        }
+
+    }
+
     //====================================================================
     //====================================================================
     return (
@@ -520,7 +624,7 @@ export const OnlineClients = () => {
                                                             <label htmlFor="education">{t("Vaqt")}</label>
                                                             <input
                                                                 onChange={(e) => {
-                                                                    setClient({...client, bronTime: e.target.value})
+                                                                    setClient({ ...client, bronTime: e.target.value })
                                                                     e.target.value.length > 0 ? setDisableds({ ...disableds, time: false, queue: true }) : setDisableds({ ...disableds, time: false, queue: false })
                                                                 }}
                                                                 value={time}
@@ -537,10 +641,10 @@ export const OnlineClients = () => {
                                                         <div className="form-group">
                                                             <label htmlFor="navbat">{t("Navbat")}</label>
                                                             <input
-                                                                value={queue}
+                                                                value={client.queue || ''}
                                                                 onChange={(e) => {
-                                                                   setClient({...client, queue: e.target.value})
-                                                                    e.target.value.length > 0 ? setDisableds({ ...disableds, time: true, queue: false }) : setDisableds({ ...disableds, time: false, queue: false })
+                                                                    setClient({ ...client, queue: e.target.value });
+                                                                    e.target.value.length > 0 ? setDisableds({ ...disableds, time: true, queue: false }) : setDisableds({ ...disableds, time: false, queue: false });
                                                                 }}
                                                                 type="text"
                                                                 disabled={disableds.queue}
@@ -574,12 +678,15 @@ export const OnlineClients = () => {
                                                     <div className="form-group">
                                                         <label htmlFor="addreSs">{t("Xizmat turi")}</label>
                                                         <Select
-                                                            defaultValue={[serviceTypes[0]]}
                                                             onChange={(e) => {
-                                                                getService(e.value)
-                                                                setClient({ ...client, serviceType: e.value })
+                                                                getService(e.value);
+                                                                setClient(prevClient => ({
+                                                                    ...prevClient,
+                                                                    serviceType: e.value
+                                                                }));
                                                             }}
-                                                            name="serivceType"
+                                                            value={serviceTypes.find(option => option.value === client.serviceType) || null}
+                                                            name="serviceType"
                                                             options={serviceTypes}
                                                             className="basic-multi-select"
                                                             classNamePrefix="select"
@@ -590,16 +697,16 @@ export const OnlineClients = () => {
                                                     <div className="form-group">
                                                         <label htmlFor="addreSs">{t("Xizmatni tanlang")}</label>
                                                         <Select
-                                                            defaultValue={[service[2]]}
                                                             isMulti
                                                             name="service"
-                                                            options={service}
+                                                            options={serviceOptions}
+                                                            value={serviceOptions.filter(option => client.service?.includes(option.value))}
                                                             onChange={(e) => {
-                                                                let data = []
-                                                                e.map((item) => {
-                                                                    data.push(item.value)
-                                                                })
-                                                                setClient({ ...client, service: data })
+                                                                const data = e.map(item => item.value);
+                                                                setClient(prevClient => ({
+                                                                    ...prevClient,
+                                                                    service: data
+                                                                }));
                                                             }}
                                                             className="basic-multi-select"
                                                             classNamePrefix="select"
@@ -618,7 +725,6 @@ export const OnlineClients = () => {
                                                         ) : (
                                                             <button onClick={() => {
                                                                 checkData()
-                                                                createHandler()
                                                             }} className="bg-alotrade rounded text-white py-2 px-3">
                                                                 {t("Saqlash")}
                                                             </button>
@@ -676,6 +782,17 @@ export const OnlineClients = () => {
                                             >
                                                 <option value={'today'}>Royxat</option>
                                                 <option value={'late'}>O'tganlar</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <select
+                                                className="form-control form-control-sm selectpicker"
+                                                // placeholder="Bo'limni tanlang"
+                                                onChange={changeStatus}
+                                            >
+                                                <option value={'all'}>Hammasi</option>
+                                                <option value={'queue'}>Navbat</option>
+                                                <option value={'time'}>Vaqt</option>
                                             </select>
                                         </div>
                                         <div className="text-center ml-auto">
@@ -747,7 +864,8 @@ export const OnlineClients = () => {
                                                                     className="btn btn-success py-0"
                                                                     onClick={() => {
                                                                         setClient({ ...client, ...connector })
-                                                                        setClientDate(connector.brondate.slice(0, 16))
+                                                                        setClientDate(connector.brondate.slice(0, 10))
+                                                                        getOldData(connector._id)
                                                                         setVisible(true)
                                                                     }}
                                                                 >
