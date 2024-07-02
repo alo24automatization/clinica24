@@ -213,9 +213,9 @@ module.exports.deleteClient = async (req, res) => {
     const { id } = req.body;
     //=========================================================
 
-    await OnlineClient.findByIdAndDelete(id);
+    const user = await OnlineClient.findByIdAndDelete(id);
 
-    res.status(201).send({ message: "Mijoz o'chirildi" });
+    res.status(201).send({ message: "Mijoz o'chirildi", lastname: user.lastname, firstname: user.firstname });
   } catch (error) {
     console.log(error);
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
