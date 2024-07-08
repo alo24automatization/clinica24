@@ -2,9 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const cron = require("node-cron");
-const morgan = require("morgan");
+// const morgan = require("morgan");
 const app = express();
-app.use(morgan('combined'))
+// app.use(morgan('combined'))
 // Middleware to enable CORS for localhost only
 const corsOptions = {
   origin: "http://localhost:3000",

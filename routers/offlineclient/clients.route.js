@@ -32,9 +32,48 @@ const { ServiceType } = require("../../models/Services/ServiceType");
 const { CounterDoctor } = require("../../models/CounterDoctor/CounterDoctor");
 const { Department } = require("../../models/Services/Department");
 const { checkMinimum } = require("../tgbot/bot_controller");
+const { OnlineClient } = require("../../models/OnlineClient/OnlineClient");
 require("../../models/Cashier/OfflinePayment");
 require("../../models/Users");
+async function findNextAvailableTurn(clinica, department, initialTurn) {
+  let turn = initialTurn;
+  let isTurnTaken = true;
+  const startOfDay = new Date();
+  startOfDay.setUTCHours(0, 0, 0, 0);
+  const endOfDay = new Date();
+  endOfDay.setUTCHours(23, 59, 59, 999);
+  while (isTurnTaken) {
+    // Check if the current turn is taken by any online client for today
+    const onlineClient = await OnlineClient.findOne({
+      clinica,
+      department,
+      brondate: {
+        $gte: startOfDay,
+        $lt: endOfDay,
+      },
+      queue: turn,
+    });
+    if (!onlineClient) {
+      // If not taken by online client, check offline clients
+      const offlineService = await OfflineService.findOne({
+        clinica,
+        department,
+        createdAt: { $gte: startOfDay },
+        turn,
+      });
 
+      if (!offlineService) {
+        isTurnTaken = false; // Found an available turn
+      } else {
+        turn++; // Increment the turn and check again
+      }
+    } else {
+      turn++; // Increment the turn and check again
+    }
+  }
+
+  return turn;
+}
 // register
 module.exports.register = async (req, res) => {
   try {
@@ -129,7 +168,7 @@ module.exports.register = async (req, res) => {
 
       //=========================================================
       // TURN
-      var turn = 0;
+      var turn = 1;
       const clientservice = await OfflineService.findOne({
         clinica: service.clinica,
         client: newclient._id,
@@ -142,29 +181,12 @@ module.exports.register = async (req, res) => {
       if (clientservice) {
         turn = clientservice.turn;
       } else {
-        let turns = await OfflineService.find({
-          clinica: service.clinica,
-          department: service.department,
-          createdAt: {
-            $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
-          },
-        })
-          .sort({ client: 1 })
-          .select("client");
-
-        turns.map((t, i) => {
-          if (i === 0) {
-            turn++;
-          } else {
-            if (turns[i - 1].client.toString() !== t.client.toString()) {
-              turn++;
-            }
-          }
-        });
-
-        turn++;
+        turn = await findNextAvailableTurn(
+          service.clinica,
+          service.department,
+          turn
+        );
       }
-
       //=========================================================
       // Create Service
       const serv = await Service.findById(service.serviceid)
@@ -543,7 +565,7 @@ module.exports.addConnector = async (req, res) => {
 
     const currentClient = await OfflineClient.findById(client._id);
     currentClient.connectors.push(newconnector._id);
-    currentClient.card_number = client.card_number
+    currentClient.card_number = client.card_number;
     await currentClient.save();
 
     //=========================================================
@@ -703,7 +725,9 @@ module.exports.addCardNumberToLastClient = async (req, res) => {
     }
 
     // Find the last offlineClient
-    const lastOfflineClient = await OfflineClient.findOne({ clinica }).sort({ _id: -1 });
+    const lastOfflineClient = await OfflineClient.findOne({ clinica }).sort({
+      _id: -1,
+    });
 
     if (!lastOfflineClient) {
       return res.status(404).json({ error: "Oxirgi klient topilmadi!" });
@@ -721,7 +745,7 @@ module.exports.addCardNumberToLastClient = async (req, res) => {
     console.error(error);
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
-}
+};
 module.exports.getLastCardNumber = async (req, res) => {
   try {
     const { clinica } = req.params;
@@ -736,7 +760,9 @@ module.exports.getLastCardNumber = async (req, res) => {
     let offset = 0;
 
     while (lastCardNumber === null) {
-      lastOfflineClient = await OfflineClient.findOne({ clinica }).skip(offset).sort({ _id: -1 });
+      lastOfflineClient = await OfflineClient.findOne({ clinica })
+        .skip(offset)
+        .sort({ _id: -1 });
 
       if (!lastOfflineClient) {
         // No offline client found, default card number to 1
@@ -756,7 +782,7 @@ module.exports.getLastCardNumber = async (req, res) => {
     console.error(error);
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
-}
+};
 //Clients getall
 module.exports.getAll = async (req, res) => {
   try {
@@ -906,9 +932,9 @@ module.exports.getAllReseption = async (req, res) => {
               new Date(
                 new Date(data.client.born).setUTCHours(0, 0, 0, 0)
               ).toISOString() ===
-              new Date(
-                new Date(clientborn).setUTCHours(0, 0, 0, 0)
-              ).toISOString()
+                new Date(
+                  new Date(clientborn).setUTCHours(0, 0, 0, 0)
+                ).toISOString()
             );
           });
         });

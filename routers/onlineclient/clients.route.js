@@ -14,30 +14,33 @@ const handleSend = async (smsKey, number, message) => {
     .get(
       `https://smsapp.uz/new/services/send.php?key=${smsKey}&number=${number}&message=${message}`
     )
-    .then((res) => {
-      console.log("ok");
+    .then(() => {
+      console.log("message sended!");
     })
     .catch((err) => {
       console.log("Error: ", err.message);
     });
 };
 
-  async function isQueueNumberExists(queueNumber) {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const existingClient = await OnlineClient.findOne({
+async function isQueueNumberExists(queueNumber, brondate, bronTime) {
+  const startOfDay = new Date(brondate);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(brondate);
+  endOfDay.setHours(23, 59, 59, 999);
+  let existingClient;
+  if (queueNumber) {
+    existingClient = await OnlineClient.findOne({
       queue: queueNumber,
       brondate: { $gte: startOfDay, $lt: endOfDay }
     }).exec();
-
-    console.log(existingClient)
-
-    return !!existingClient;
+  } else if (bronTime) {
+    existingClient = await OnlineClient.findOne({
+      bronTime: bronTime,
+      brondate: { $gte: startOfDay, $lt: endOfDay }
+    }).exec();
   }
+  return !!existingClient;
+}
 
 // register
 module.exports.register = async (req, res) => {
@@ -52,7 +55,7 @@ module.exports.register = async (req, res) => {
       });
     }
 
-    const queueExists = await isQueueNumberExists(client.queue);
+    const queueExists = await isQueueNumberExists(client.queue, client.brondate, client.bronTime);
     if (queueExists) {
       return res.status(400).json({
         error: "Bu navbatdagi mijoz mavjud!",

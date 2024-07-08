@@ -235,6 +235,7 @@ export const OnlineClients = () => {
             // setServiceTypes([])
             // Tozalash amallari
             setClient(initialClientState);
+            console.log(initialClientState);
             setService([]);
             setServiceTypes([]);
             setServiceOptions([]);

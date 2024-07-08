@@ -275,7 +275,6 @@ module.exports.register = async (req, res) => {
             // await newroom.save()
 
             const doct = await User.findById(connector.doctor)
-            console.log(doct);
             newroom.doctor_profit = doct.statsionar_profit || 0
             await newroom.save()
 
@@ -363,7 +362,9 @@ module.exports.register = async (req, res) => {
 
         res.status(201).send(response)
     } catch (error) {
+        console.log("-----");
         console.log(error);
+        console.log("-----");
         res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
     }
 }

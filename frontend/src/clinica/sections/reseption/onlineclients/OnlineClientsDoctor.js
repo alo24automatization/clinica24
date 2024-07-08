@@ -36,7 +36,7 @@ export const OnlineClientsDoctor = () => {
   const {
     state: { doctor },
   } = useLocation();
-
+console.log(doctor);
   const history = useHistory();
 
   //====================================================================
@@ -209,7 +209,7 @@ export const OnlineClientsDoctor = () => {
   const [client, setClient] = useState({
     clinica: auth.clinica && auth.clinica._id,
     reseption: auth.user && auth.user._id,
-    department: auth?.user?.specialty?._id,
+    department: doctor?.specialty?._id,
     bronTime: null,
     queue: null,
     serviceType: null,
@@ -218,7 +218,7 @@ export const OnlineClientsDoctor = () => {
   const initialClientState = {
     clinica: auth.clinica && auth.clinica._id,
     reseption: auth.user && auth.user._id,
-    department: auth?.user?.specialty?._id,
+    department: doctor?.specialty?._id,
     bronTime: null,
     queue: null,
     serviceType: null,
@@ -318,7 +318,7 @@ export const OnlineClientsDoctor = () => {
       const data = await request(
         `/api/services/servicetype/getalldepartment`,
         "POST",
-        { clinica: auth.clinica._id, department: auth?.user?.specialty?._id },
+        { clinica: auth.clinica._id, department: doctor?.specialty?._id },
         {
           Authorization: `Bearer ${auth.token}`,
         }
