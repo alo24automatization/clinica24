@@ -5,8 +5,20 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../../../context/AuthContext";
-import { Button, Checkbox, FormControl, FormLabel, Input, Switch } from "@chakra-ui/react";
-import { faClose, faPlus, faRotate, faSave } from "@fortawesome/free-solid-svg-icons";
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  FormLabel,
+  Input,
+  Switch,
+} from "@chakra-ui/react";
+import {
+  faClose,
+  faPlus,
+  faRotate,
+  faSave,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const animatedComponents = makeAnimated();
@@ -45,7 +57,9 @@ export const RegisterClient = ({
   lastCardNumber,
   newCounterDoctor,
   handleNewCounterDoctorInputChange,
-  handleNewCounterDoctorCreate
+  handleNewCounterDoctorCreate,
+  selectedDepartament,
+  setSelectedDepartament,
 }) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
@@ -62,7 +76,14 @@ export const RegisterClient = ({
         departments.map((department) => {
           return department.services.map((service) => {
             return s.push({
-              label: <div className="w-full flex justify-between items-center gap-x-2"><span>{service.name}</span><span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">{service.price} so'm</span></div>,
+              label: (
+                <div className="w-full flex justify-between items-center gap-x-2">
+                  <span>{service.name}</span>
+                  <span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">
+                    {service.price} so'm
+                  </span>
+                </div>
+              ),
               price: service.price,
               name: service.name,
               value: service._id,
@@ -76,7 +97,14 @@ export const RegisterClient = ({
           if (e === department._id) {
             department.services.map((service) => {
               s.push({
-                label: <div className="w-full flex justify-between  items-center gap-x-2"><span>{service.name}</span><span className="p-1 rounded-sm !bg-green-500 font-medium text-white">{service.price} so'm</span></div>,
+                label: (
+                  <div className="w-full flex justify-between  items-center gap-x-2">
+                    <span>{service.name}</span>
+                    <span className="p-1 rounded-sm !bg-green-500 font-medium text-white">
+                      {service.price} so'm
+                    </span>
+                  </div>
+                ),
                 value: service._id,
                 price: service.price,
                 name: service.name,
@@ -344,21 +372,30 @@ export const RegisterClient = ({
                 )}
 
                 <div className="col-sm-6 col-12">
-
                   <div className="form-group">
                     <label htmlFor="biO">{t("Yullanma")}</label>
                     <div className="flex items-center gap-x-3">
-                      <button disabled={
-                        auth.clinica?.connectorDoctor_client
-                          ? false
-                          : isAddHandler || isConnectorHandler
-                      } onClick={showNewCounterDoctor} type="button" className={`
-                    ${(isAddHandler || isConnectorHandler) ? "cursor-not-allowed" : ""}
-                    flex disabled:bg-green-700  justify-center items-center bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 w-[42px] h-[37px]   text-white font-semibold`}>
-                        {newCounterDoctor.visible ?
-                          <FontAwesomeIcon size="1xl" icon={faClose} />
-                          : <FontAwesomeIcon size="1xl" icon={faPlus} />
+                      <button
+                        disabled={
+                          auth.clinica?.connectorDoctor_client
+                            ? false
+                            : isAddHandler || isConnectorHandler
                         }
+                        onClick={showNewCounterDoctor}
+                        type="button"
+                        className={`
+                    ${
+                      isAddHandler || isConnectorHandler
+                        ? "cursor-not-allowed"
+                        : ""
+                    }
+                    flex disabled:bg-green-700  justify-center items-center bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 w-[42px] h-[37px]   text-white font-semibold`}
+                      >
+                        {newCounterDoctor.visible ? (
+                          <FontAwesomeIcon size="1xl" icon={faClose} />
+                        ) : (
+                          <FontAwesomeIcon size="1xl" icon={faPlus} />
+                        )}
                       </button>
                       <Select
                         className="w-full"
@@ -385,25 +422,29 @@ export const RegisterClient = ({
                         }}
                       />
                     </div>
-                    {
-                      newCounterDoctor.visible &&
+                    {newCounterDoctor.visible && (
                       <div className="mt-1">
                         <div className="form-group">
                           <label htmlFor="addreSs">{t("Familya  Ism")}</label>
                           <div className="input-group input-group-sm mb-3 gap-x-2">
                             <input
-                              onChange={handleNewCounterDoctorInputChange} value={newCounterDoctor.value}
+                              onChange={handleNewCounterDoctorInputChange}
+                              value={newCounterDoctor.value}
                               type="text"
                               className="form-control"
                               placeholder="Familya Ism"
                             />
-                            <button onClick={handleNewCounterDoctorCreate} type="button" className="bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 px-2 h-[30px]  flex  justify-center items-center  text-white font-semibold">
+                            <button
+                              onClick={handleNewCounterDoctorCreate}
+                              type="button"
+                              className="bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 px-2 h-[30px]  flex  justify-center items-center  text-white font-semibold"
+                            >
                               <FontAwesomeIcon icon={faSave} />
                             </button>
                           </div>
                         </div>
                       </div>
-                    }
+                    )}
                     {/* <select
                                             onChange={changeCounterDoctor}
                                             className="form-control form-control-sm selectpicker"
@@ -446,9 +487,7 @@ export const RegisterClient = ({
                   </div>
                 </div>
                 <div>
-                  <div
-                    className="flex items-center justify-between"
-                  >
+                  <div className="flex items-center justify-between">
                     <h4 className="font-semibold text-base mr-2">
                       {t("Ambulator karta raqami:")}
                     </h4>
@@ -457,18 +496,43 @@ export const RegisterClient = ({
                       disabled={!isNewClient && client.card_number}
                       onClick={(e) => {
                         if (client?.card_number === null && !isNewClient) {
-                          changeClientData({ ...e, target: { ...e.target, name: "card_number", value: +lastCardNumber + 1 } })
-                        } else if (client?.card_number === null && isNewClient) {
-                          changeClientData({ ...e, target: { ...e.target, name: "card_number", value: +lastCardNumber + 1 } })
+                          changeClientData({
+                            ...e,
+                            target: {
+                              ...e.target,
+                              name: "card_number",
+                              value: +lastCardNumber + 1,
+                            },
+                          });
+                        } else if (
+                          client?.card_number === null &&
+                          isNewClient
+                        ) {
+                          changeClientData({
+                            ...e,
+                            target: {
+                              ...e.target,
+                              name: "card_number",
+                              value: +lastCardNumber + 1,
+                            },
+                          });
                         } else {
-                          changeClientData({ ...e, target: { ...e.target, name: "card_number", value: null } })
+                          changeClientData({
+                            ...e,
+                            target: {
+                              ...e.target,
+                              name: "card_number",
+                              value: null,
+                            },
+                          });
                         }
                       }}
                     >
                       <FontAwesomeIcon icon={faRotate} />
                     </button>
                   </div>
-                  <h1 style={{ color: "green", fontSize: "22px" }}>{client?.card_number}
+                  <h1 style={{ color: "green", fontSize: "22px" }}>
+                    {client?.card_number}
                   </h1>
                 </div>
               </div>
@@ -496,7 +560,11 @@ export const RegisterClient = ({
                     <select
                       className="form-control form-control-sm selectpicker"
                       placeholder="Reklamalarni tanlash"
-                      onChange={(event) => getServices(event.target.value)}
+                      onChange={(event) => {
+                        getServices(event.target.value);
+                        setSelectedDepartament(event.target.value);
+                      }}
+                      value={selectedDepartament}
                     >
                       <option value="all">{t("Barcha bo'limlar")}</option>
                       {departments.map((department, index) => {
@@ -568,9 +636,9 @@ export const RegisterClient = ({
                           return (
                             <tr key={index}>
                               <td className="py-1">{index + 1}</td>
-                              <td className="py-1">{service.service.name}</td>
+                              <td className="py-1">{service?.service?.name}</td>
                               <td className="text-right py-1">
-                                {service.service.price * service.pieces}
+                                {service?.service?.price * service?.pieces}
                               </td>
                               <td className="text-right py-1">
                                 <input
@@ -587,7 +655,7 @@ export const RegisterClient = ({
                                   }
                                   className="text-right outline-none"
                                   style={{ maxWidth: "50px", outline: "none" }}
-                                  defaultValue={service.pieces}
+                                  defaultValue={service?.pieces}
                                   type="number"
                                 />
                               </td>

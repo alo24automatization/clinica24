@@ -298,6 +298,7 @@ export const TableClients = ({
                               if (connector.services[0]?.counterdoctor) {
                                 const { firstname, lastname } =
                                   connector.services[0].counterdoctor;
+                                  
                                 setSelectedCounterDoctor({
                                   value:
                                     connector.services[0].counterdoctor._id,
@@ -305,11 +306,13 @@ export const TableClients = ({
                                 });
                               }
                             }
+                   
                             setClientDate(connector.client?.born?.slice(0, 10));
                             setIsAddConnector(true);
                             setVisible(true);
-                            const hasCardNumber=connector.client.card_number===null
-                           setIsNewClient(hasCardNumber)
+                            const hasCardNumber =
+                              connector.client.card_number === null;
+                            setIsNewClient(hasCardNumber);
                           }}
                         >
                           <FontAwesomeIcon icon={faRotate} />
@@ -326,8 +329,9 @@ export const TableClients = ({
                         <button
                           className={`bg-green-500 border-green-500 hover:bg-green-400 btn btn-success py-0`}
                           onClick={() => {
-                            const hasCardNumber=connector.client.card_number===null
-                            setIsNewClient(hasCardNumber)
+                            const hasCardNumber =
+                              connector.client.card_number === null;
+                            setIsNewClient(hasCardNumber);
                             setClient({ ...connector.client });
                             setClientDate(
                               connector?.client?.born?.slice(0, 10)

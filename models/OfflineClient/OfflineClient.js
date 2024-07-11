@@ -22,6 +22,7 @@ const client = new Schema(
     national: { type: String },
     was_online: { type: Boolean, default: false },
     brondate: { type: Date, default: null },
+    bronTime: { type: String, default: null },
   },
   {
     timestamps: true,

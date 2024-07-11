@@ -32,18 +32,23 @@ export const SmallCheck = ({
             brondate: connector.client.was_online
               ? connector.client.brondate
               : null,
+            bronTime: connector.client.was_online
+              ? connector.client.bronTime
+              : null,
           });
         }
       }
       setDeparmtents(all);
     }
   }, [connector]);
+  console.log();
   const TimeDisplay = (time) => {
-    if (!time) return null;
+    console.log(time);
+    if (!time) return time;
     return new Date(time).toLocaleTimeString(navigator.language, {
       hour: "numeric",
       minute: "numeric",
-      hour12:true
+      hour12: true,
     });
   };
 
@@ -74,7 +79,7 @@ export const SmallCheck = ({
               fontFamily: "times",
             }}
           >
-            {connector.client && connector.client.card_number }
+            {connector.client && connector.client.card_number}
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -223,7 +228,7 @@ export const SmallCheck = ({
                   {d?.name}
                 </td>
                 <td className="border border-black-800 text-[20px] text-center font-bold">
-                  {d.brondate ? TimeDisplay(d.brondate) : d.turn}
+                  {d.bronTime ? d.bronTime : d.turn}
                 </td>
                 <td className="border border-black-800 text-[20px] text-center font-bold">
                   {d?.room}
@@ -593,7 +598,7 @@ export const SmallCheck = ({
                           {d?.name}
                         </td>
                         <td className="border border-black-800 text-[20px] text-center font-bold">
-                          {d.brondate ? TimeDisplay(d.brondate) : d.turn}
+                          {d.bronTime ? d.bronTime : d.turn}
                         </td>
                         <td className="border border-black-800 text-[20px] text-center font-bold">
                           {d?.room}

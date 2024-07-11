@@ -36,7 +36,11 @@ export const OfflineClients = () => {
   //====================================================================
 
   const [servicesBody, setServicesBody] = useState([]);
-  const [newCounterDoctor, setNewCounterDoctor] = useState({ value: "", visible: false })
+  const [selectedDepartament, setSelectedDepartament] = useState(null);
+  const [newCounterDoctor, setNewCounterDoctor] = useState({
+    value: "",
+    visible: false,
+  });
 
   //====================================================================
   //====================================================================
@@ -125,7 +129,7 @@ export const OfflineClients = () => {
   // getConnectors
   const [connectors, setConnectors] = useState([]);
   const [searchStorage, setSearchStrorage] = useState([]);
-  const [lastCardNumber, setLastCardNumber] = useState(0)
+  const [lastCardNumber, setLastCardNumber] = useState(0);
   const getConnectors = useCallback(
     async (beginDay, endDay) => {
       try {
@@ -162,7 +166,7 @@ export const OfflineClients = () => {
           Authorization: `Bearer ${auth.token}`,
         }
       );
-      setLastCardNumber(card_number)
+      setLastCardNumber(card_number);
     } catch (error) {
       notify({
         title: t(`${error}`),
@@ -170,7 +174,7 @@ export const OfflineClients = () => {
         status: "error",
       });
     }
-  }
+  };
   //====================================================================
   //====================================================================
 
@@ -254,7 +258,7 @@ export const OfflineClients = () => {
   //====================================================================
 
   const [phone, setPhone] = useState("");
-  const [isNewClient, setIsNewClient] = useState(false)
+  const [isNewClient, setIsNewClient] = useState(false);
   const getByClientPhone = async () => {
     try {
       const data = await request(
@@ -634,9 +638,9 @@ export const OfflineClients = () => {
   });
 
   const changeClientData = (e) => {
-    let key = e.target.name
-    let value = e.target.value
-    if (key === "lastname" && value.endsWith(' ')) {
+    let key = e.target.name;
+    let value = e.target.value;
+    if (key === "lastname" && value.endsWith(" ")) {
       document.querySelector('input[id="client_firstname"]').focus();
     }
     if (key === "firstname" || key === "lastname" || key === "fathername") {
@@ -672,6 +676,7 @@ export const OfflineClients = () => {
     setCounterDoctor(null);
     setNewProducts([]);
     setServices([]);
+    setSelectedDepartament(null);
     setSelectedProducts([]);
     setSelectedServices([]);
     setClientDate(new Date().toISOString().slice(0, 10));
@@ -721,7 +726,7 @@ export const OfflineClients = () => {
 
   // Get the query parameters
   const queryParams = getQueryParams(location.search);
-  const fromQuery = queryParams.get('from');
+  const fromQuery = queryParams.get("from");
 
   const createHandler = useCallback(async () => {
     setIsActive(false);
@@ -755,14 +760,18 @@ export const OfflineClients = () => {
       clearDatas();
       setVisible(false);
       getLastCardNumber();
-      localStorage.removeItem("newClient")
+      localStorage.removeItem("newClient");
       setTimeout(() => {
         setIsActive(true);
       }, 5000);
       if (fromQuery === "doctor")
         setTimeout(() => {
-          history.push("/alo24")
+          history.push("/alo24");
         }, 0);
+      history.replace({
+        pathname: history.location.pathname,
+        state: {},
+      });
     } catch (error) {
       notify({
         title: t(`${error}`),
@@ -949,14 +958,12 @@ export const OfflineClients = () => {
   };
   const handleNewCounterDoctorInputChange = (e) => {
     let value = e.target.value;
-    console.log(value);
-    setNewCounterDoctor({ ...newCounterDoctor, value })
-
+    setNewCounterDoctor({ ...newCounterDoctor, value });
   };
   const handleNewCounterDoctorCreate = async () => {
-    let nameParts = newCounterDoctor.value.split(' ');
+    let nameParts = newCounterDoctor.value.split(" ");
     let firstname = nameParts[0];
-    let lastname = nameParts.slice(1).join(' ');
+    let lastname = nameParts.slice(1).join(" ");
     try {
       const data = await request(
         `/api/counter_agent/doctor/create`,
@@ -964,22 +971,21 @@ export const OfflineClients = () => {
         {
           clinica: auth.clinica._id,
           firstname,
-          lastname
+          lastname,
         },
         {
           Authorization: `Bearer ${auth.token}`,
         }
       );
-      getCounterDoctors()
+      getCounterDoctors();
       setTimeout(() => {
         setCounterDoctor(data?._id);
         setSelectedCounterDoctor({
           value: data?._id,
           label: firstname + " " + lastname,
         });
-        showNewCounterDoctor()
+        showNewCounterDoctor();
       }, 0);
-
     } catch (error) {
       notify({
         title: t(`${error}`),
@@ -987,8 +993,9 @@ export const OfflineClients = () => {
         status: "error",
       });
     }
-  }
-  const showNewCounterDoctor = () => setNewCounterDoctor(prev => ({ value: "", visible: !prev.visible }))
+  };
+  const showNewCounterDoctor = () =>
+    setNewCounterDoctor((prev) => ({ value: "", visible: !prev.visible }));
   //====================================================================
   //====================================================================
   // useEffect
@@ -1000,7 +1007,7 @@ export const OfflineClients = () => {
       setS(1);
       getConnectors(beginDay, endDay);
       getDepartments();
-      getLastCardNumber()
+      getLastCardNumber();
       getCounterDoctors();
       getAdvers();
       getProducts();
@@ -1019,22 +1026,62 @@ export const OfflineClients = () => {
     beginDay,
     endDay,
   ]);
-
   useEffect(() => {
     if (state?.onlineclient) {
       let onlineclient = state?.onlineclient;
       setClient({
+        onlineClientId: onlineclient._id,
         clinica: auth.clinica && auth.clinica._id,
         reseption: auth.user && auth.user._id,
         firstname: onlineclient.firstname,
         lastname: onlineclient.lastname,
         phone: onlineclient.phone,
         brondate: onlineclient.brondate,
+        bronTime: onlineclient.bronTime,
       });
       setVisible(true);
+      setSelectedDepartament(onlineclient?.department);
+      let s = [];
+      onlineclient?.service?.map((service) => {
+        if (service?.department?.probirka) {
+          setConnector({
+            ...connector,
+            probirka: 1,
+            clinica: auth.clinica._id,
+          });
+        }
+        return s.push({
+          clinica: auth?.clinica?._id,
+          reseption: auth?.user._id,
+          serviceid: service._id,
+          service: service,
+          department: service?.department?._id,
+          addUser: "Qabulxona",
+          pieces: 1,
+        });
+      });
+      setServices(s);
+      setSelectedServices(
+        onlineclient.service.map((service) => ({
+          value: service._id,
+          label: (
+            <div className="w-full flex justify-between items-center gap-x-2">
+              <span>{service.name}</span>
+              <span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">
+                {service.price} so'm
+              </span>
+            </div>
+          ),
+          price: service.price,
+          name: service.name,
+          value: service._id,
+          service: service,
+          department: onlineclient.department,
+        }))
+      );
     }
   }, [state?.onlineclient]);
-  //====================================================================
+  //=================================================== =================
   //====================================================================
   return (
     <div className="min-h-full">
@@ -1046,17 +1093,16 @@ export const OfflineClients = () => {
                 <button
                   className={`btn bg-alotrade text-white mb-2 w-100 `}
                   onClick={() => {
-                    changeVisible()
+                    changeVisible();
                     if (visible === false) {
-                      setIsNewClient(true)
+                      setIsNewClient(true);
                     } else {
-                      setIsNewClient(false)
+                      setIsNewClient(false);
                     }
                   }}
                 >
                   {t("Registratsiya")}
                 </button>
-
               </div>
             </div>
             <div className={` ${visible ? "" : "d-none"}`}>
@@ -1068,7 +1114,9 @@ export const OfflineClients = () => {
                 newCounterDoctor={newCounterDoctor}
                 setNewCounterDoctor={setNewCounterDoctor}
                 handleNewCounterDoctorCreate={handleNewCounterDoctorCreate}
-                handleNewCounterDoctorInputChange={handleNewCounterDoctorInputChange}
+                handleNewCounterDoctorInputChange={
+                  handleNewCounterDoctorInputChange
+                }
                 selectedServices={selectedServices}
                 selectedProducts={selectedProducts}
                 showNewCounterDoctor={showNewCounterDoctor}
@@ -1082,6 +1130,8 @@ export const OfflineClients = () => {
                 changeProduct={changeProduct}
                 changeService={changeService}
                 changeAdver={changeAdver}
+                selectedDepartament={selectedDepartament}
+                setSelectedDepartament={setSelectedDepartament}
                 changeCounterDoctor={changeCounterDoctor}
                 client={client}
                 setClient={setClient}
@@ -1101,6 +1151,8 @@ export const OfflineClients = () => {
               />
             </div>
             <TableClients
+              selectedDepartament={selectedDepartament}
+              setSelectedDepartament={setSelectedDepartament}
               setIsAddService={setIsAddService}
               setVisible={setVisible}
               modal1={modal1}
@@ -1182,8 +1234,8 @@ export const OfflineClients = () => {
           client._id && !isAddConnector
             ? isActive && addHandler
             : client._id && isAddConnector
-              ? isActive && addConnectorHandler
-              : isActive && createHandler
+            ? isActive && addConnectorHandler
+            : isActive && createHandler
         }
         basic={client.lastname + " " + client.firstname}
       />

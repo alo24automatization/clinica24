@@ -61,7 +61,6 @@ async function findNextAvailableTurn(clinica, department, initialTurn) {
         createdAt: { $gte: startOfDay },
         turn,
       });
-
       if (!offlineService) {
         isTurnTaken = false; // Found an available turn
       } else {
@@ -102,7 +101,14 @@ module.exports.register = async (req, res) => {
         error: error.message,
       });
     }
-
+    const findOnlineClient = await OnlineClient.findById(
+      client?.onlineClientId
+    );
+    if (!findOnlineClient) {
+      return res.status(400).json({
+        message: "Diqqat! Mijoz ma'lumotlari topilmadi.",
+      });
+    }
     //=========================================================
     // CreateClient
     // const id =
@@ -122,6 +128,7 @@ module.exports.register = async (req, res) => {
       fullname,
       was_online: !!client?.brondate,
       brondate: client.brondate || null,
+      bronTime: client?.bronTime || null,
     });
     await newclient.save();
 
@@ -292,6 +299,8 @@ module.exports.register = async (req, res) => {
       await newadver.save();
     }
 
+    // Delete the online client instead of archiving
+    await OnlineClient.findByIdAndDelete(client?.onlineClientId);
     const response = await OfflineConnector.findById(newconnector._id)
       .populate("client")
       .populate("services")
@@ -317,7 +326,6 @@ module.exports.add = async (req, res) => {
     const updateOfflineConnector = await OfflineConnector.findById(
       connector._id
     );
-
     //=========================================================
     // CreateOfflineConnector
     let probirka = 0;
@@ -390,7 +398,6 @@ module.exports.add = async (req, res) => {
 
         turn++;
       }
-
       //=========================================================
       //=========================================================
       // Create Service
@@ -513,6 +520,7 @@ module.exports.add = async (req, res) => {
     updateOfflineConnector.totalprice =
       updateOfflineConnector.totalprice + totalprice;
     await updateOfflineConnector.save();
+
     const response = await OfflineConnector.findById(updateOfflineConnector._id)
       .populate("client")
       .populate("services")
