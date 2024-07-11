@@ -179,7 +179,7 @@ module.exports.register = async (req, res) => {
 
             //=========================================================
             // TURN
-            var turn = 1;
+            var turn = 0;
             const clientservice = await OfflineService.findOne({
                 clinica: service.clinica,
                 client: newclient._id,
