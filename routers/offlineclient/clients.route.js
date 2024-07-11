@@ -112,6 +112,8 @@ module.exports.register = async (req, res) => {
                     message: "Diqqat! Mijoz ma'lumotlari topilmadi.",
                 });
             }
+            // Delete the online client instead of archiving
+            await OnlineClient.findByIdAndDelete(client?.onlineClientId);
         }
         //=========================================================
         // CreateClient
@@ -303,10 +305,7 @@ module.exports.register = async (req, res) => {
             await newadver.save();
         }
 
-        // Delete the online client instead of archiving
-        if (client?.onlineClientId && findOnlineClient) {
-            await OnlineClient.findByIdAndDelete(client?.onlineClientId);
-        }
+
         const response = await OfflineConnector.findById(newconnector._id)
             .populate("client")
             .populate("services")
