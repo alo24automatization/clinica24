@@ -10,9 +10,7 @@ export const Clinica = () => {
   const userRouter = ClinicaRoutes(isAuthenticated, user);
 
   return (
-    <AuthContext.Provider
-      value={{ login, token, logout, userId, user, clinica, isAuthenticated }}
-    >
+    <AuthContext.Provider  value={{ login, token, logout, userId, user, clinica, isAuthenticated }}>
       <Router>{userRouter}</Router>
     </AuthContext.Provider>
   );
