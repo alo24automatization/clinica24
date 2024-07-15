@@ -183,7 +183,7 @@ export const OnlineClientsDoctor = () => {
         serviceType: null,
         service: null
     });
-    const initialClientState = {
+    let initialClientState = {
         clinica: auth.clinica && auth.clinica._id,
         reseption: auth.user && auth.user._id,
         department: doctor?.specialty?._id,
@@ -232,7 +232,11 @@ export const OnlineClientsDoctor = () => {
     const createHandler = useCallback(async () => {
         try {
             await request(`/api/onlineclient/client/register`, "POST", {
-                client: {...client, clinica: auth.clinica._id},
+                client: {
+                    ...client, clinica: auth.clinica && auth.clinica._id,
+                    reseption: auth.user && auth.user._id,
+                    department: doctor?.specialty?._id,
+                },
             }, {
                 Authorization: `Bearer ${auth.token}`,
             });
@@ -240,7 +244,7 @@ export const OnlineClientsDoctor = () => {
             // setDisableds({ time: false, queue: false })
             // setService([])
             // setServiceTypes([])
-            // Tozalash amallari
+
             setClient(initialClientState);
             setService([]);
             setServiceTypes([]);
@@ -425,7 +429,6 @@ export const OnlineClientsDoctor = () => {
             getBaseUrl();
         }
     }, [auth, s, getDepartments, getBaseUrl, beginDay, endDay]);
-    console.log(type)
     useEffect(() => {
         if (doctor) {
             getConnectors();

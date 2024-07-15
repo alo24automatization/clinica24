@@ -15,8 +15,11 @@ import { CheckModal } from "../components/ModalCheck";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import socketIOClient from "socket.io-client";
+import {ENDPOINT} from "../../turns/pages/DepartmentsTurns";
 
 export const OfflineClients = () => {
+  const socket = socketIOClient(ENDPOINT);
   const [beginDay, setBeginDay] = useState(
     new Date(new Date().setUTCHours(0, 0, 0, 0))
   );
@@ -752,6 +755,7 @@ export const OfflineClients = () => {
       localStorage.setItem("data", data);
       setModal(false);
       setVisible(false);
+      socket.emit('getDepartments', {clinicaId: auth?.clinica?._id, departments_ids:[services[0].department?._id]});
       notify({
         title: t("To'lov muvaffaqqiyatli amalga oshirildi."),
         description: "",
@@ -785,7 +789,6 @@ export const OfflineClients = () => {
       setIsActive(true);
     }
   };
-
   //====================================================================
   //====================================================================
 

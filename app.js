@@ -3,11 +3,16 @@ const cors = require("cors");
 const path = require("path");
 const cron = require("node-cron");
 const morgan = require("morgan");
+const http = require('http');
+const config=require("config")
 const app = express();
-app.use(morgan('combined'))
+const server = http.createServer(app);
+
+// app.use(morgan('combined'));
+
 // Middleware to enable CORS for localhost only
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: ["http://localhost", "https://unical-med.uz"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
@@ -37,3 +42,14 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.resolve(__dirname, "./frontend", "build", "index.html"));
   });
 }
+
+// Initialize Socket.IO
+const initializeSocket = require('./socket');
+initializeSocket(server);
+
+
+const PORT = config.get("PORT");
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

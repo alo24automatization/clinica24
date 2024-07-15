@@ -418,7 +418,6 @@ const Users = () => {
             </div>
             <div className={` ${visible ? '' : 'd-none'}`}>
                 <RegistorUser
-                  
                     counteragents={counteragents}
                     removeImage={removeImage}
                     handleImage={handleImage}

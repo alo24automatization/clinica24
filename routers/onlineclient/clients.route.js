@@ -5,15 +5,14 @@ const {Clinica} = require("../../models/DirectorAndClinica/Clinica");
 require("../../models/Services/Department");
 const {User} = require("../../models/Users");
 const {
-    OnlineClient,
-    validateOnlineClient,
+    OnlineClient, validateOnlineClient,
 } = require("../../models/OnlineClient/OnlineClient");
+const {OfflineService} = require("../../models/OfflineClient/OfflineService");
+const {OfflineClient} = require("../../models/OfflineClient/OfflineClient");
 
 const handleSend = async (smsKey, number, message) => {
     await axios
-        .get(
-            `https://smsapp.uz/new/services/send.php?key=${smsKey}&number=${number}&message=${message}`
-        )
+        .get(`https://smsapp.uz/new/services/send.php?key=${smsKey}&number=${number}&message=${message}`)
         .then(() => {
             console.log("message sended!");
         })
@@ -30,13 +29,15 @@ async function isQueueNumberExists(queueNumber, brondate, bronTime) {
     let existingClient;
     if (queueNumber) {
         existingClient = await OnlineClient.findOne({
-            queue: queueNumber,
-            brondate: {$gte: startOfDay, $lt: endOfDay},
+            queue: queueNumber, brondate: {$gte: startOfDay, $lt: endOfDay},
+        }).exec() || await OfflineService.findOne({
+            turn: queueNumber, bronday: {$gte: startOfDay, $lt: endOfDay}
         }).exec();
     } else if (bronTime) {
         existingClient = await OnlineClient.findOne({
-            bronTime: bronTime,
-            brondate: {$gte: startOfDay, $lt: endOfDay},
+            bronTime: bronTime, brondate: {$gte: startOfDay, $lt: endOfDay},
+        }).exec() || await OfflineClient.findOne({
+            bronTime: bronTime, brondate: {$gte: startOfDay, $lt: endOfDay},
         }).exec();
     }
     return !!existingClient;
@@ -55,11 +56,7 @@ module.exports.register = async (req, res) => {
             });
         }
 
-        const queueExists = await isQueueNumberExists(
-            client.queue,
-            client.brondate,
-            client.bronTime
-        );
+        const queueExists = await isQueueNumberExists(client.queue, client.brondate, client.bronTime);
         if (queueExists) {
             return res.status(400).json({
                 error: "Bu navbatdagi mijoz mavjud!",
@@ -80,23 +77,7 @@ module.exports.register = async (req, res) => {
         const bronDate = new Date(clientData.brondate);
         bronDate.setHours(bronDate.getHours() + 3);
 
-        await handleSend(
-            clientData.clinica.smsKey,
-            `998${clientData.phone}`,
-            `Huramtli ${clientData.firstname} ${
-                clientData.lastname
-            }! Eslatib o'tamiz, siz ${new Date(bronDate).toLocaleDateString(
-                "ru-RU"
-            )} kuni, soat ${new Date(bronDate).getHours()}:${
-                new Date(bronDate).getMinutes() < 10
-                    ? "0" + new Date(bronDate).getMinutes()
-                    : new Date(bronDate).getMinutes()
-            } da ${clientData.clinica.name} ning ${
-                clientData.department.name
-            } bo'limiga qabulga yozilgansiz! Iltimos kech qolmang! Ma'lumot uchun: ${
-                clientData.clinica.phone1
-            }`
-        );
+        await handleSend(clientData.clinica.smsKey, `998${clientData.phone}`, `Huramtli ${clientData.firstname} ${clientData.lastname}! Eslatib o'tamiz, siz ${new Date(bronDate).toLocaleDateString("ru-RU")} kuni, soat ${new Date(bronDate).getHours()}:${new Date(bronDate).getMinutes() < 10 ? "0" + new Date(bronDate).getMinutes() : new Date(bronDate).getMinutes()} da ${clientData.clinica.name} ning ${clientData.department.name} bo'limiga qabulga yozilgansiz! Iltimos kech qolmang! Ma'lumot uchun: ${clientData.clinica.phone1}`);
 
         res.status(201).send(response);
     } catch (error) {
@@ -116,11 +97,7 @@ module.exports.update = async (req, res) => {
         //=========================================================
         const foundClient = await OnlineClient.findById(client._id);
         if (Number(foundClient.get("queue")) !== Number(client.queue) || foundClient.get("bronTime") !== client.bronTime) {
-            const queueExists = await isQueueNumberExists(
-                client.queue,
-                client.brondate,
-                client.bronTime
-            );
+            const queueExists = await isQueueNumberExists(client.queue, client.brondate, client.bronTime);
             if (queueExists) {
                 return res.status(400).json({
                     error: "Bu navbatdagi mijoz mavjud!",
@@ -168,21 +145,16 @@ module.exports.getDoctors = async (req, res) => {
             .select("firstname lastname specialty type")
             .populate("specialty", "name")
             .lean()
-            .then((doctors) =>
-                doctors.filter((doctor) => {
-                    if (doctor.type === "Laborotory" || doctor.type === "Doctor") {
-                        return doctor.specialty;
-                    }
-                })
-            );
+            .then((doctors) => doctors.filter((doctor) => {
+                if (doctor.type === "Laborotory" || doctor.type === "Doctor") {
+                    return doctor.specialty;
+                }
+            }));
 
         for (const doctor of doctors) {
             const clients = await OnlineClient.find({
-                clinica,
-                department: doctor.specialty._id,
-                brondate: {
-                    $gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                    $lt: new Date(new Date().setHours(23, 59, 59, 0)),
+                clinica, department: doctor.specialty._id, brondate: {
+                    $gte: new Date(new Date().setHours(0, 0, 0, 0)), $lt: new Date(new Date().setHours(23, 59, 59, 0)),
                 },
             });
             doctor.clients = clients.length;
@@ -211,9 +183,7 @@ module.exports.getClients = async (req, res) => {
 
         if (type === "late") {
             clients = await OnlineClient.find({
-                clinica,
-                department,
-                brondate: {
+                clinica, department, brondate: {
                     $lte: beginDay,
                 },
             })
@@ -221,16 +191,13 @@ module.exports.getClients = async (req, res) => {
                 .lean();
         } else {
             clients = await OnlineClient.find({
-                clinica,
-                department,
-                brondate: {
+                clinica, department, brondate: {
                     $gte: beginDay,
                 },
             })
                 .select("-__v -updatedAt -isArchive")
                 .populate({
-                    path: "service",
-                    populate: "department",
+                    path: "service", populate: "department",
                 })
                 .populate("serviceType")
                 .lean();
@@ -250,9 +217,7 @@ module.exports.deleteClient = async (req, res) => {
         const user = await OnlineClient.findByIdAndDelete(id);
 
         res.status(201).send({
-            message: "Mijoz o'chirildi",
-            lastname: user.lastname,
-            firstname: user.firstname,
+            message: "Mijoz o'chirildi", lastname: user.lastname, firstname: user.firstname,
         });
     } catch (error) {
         console.log(error);

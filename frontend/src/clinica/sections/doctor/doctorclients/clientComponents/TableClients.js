@@ -385,7 +385,7 @@ export const TableClients = ({
                       {new Date(connector?.connector?.createdAt).toLocaleDateString('ru-RU')} {new Date([...connector?.services].filter(service => service.department._id === user.specialty._id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt).toLocaleTimeString('ru-RU')}
                     </td>
                     <td className="border text-[16px] py-1 text-right">
-                      {[...connector?.services].filter(service => service.department._id === user.specialty._id)[0].turn}
+                      {connector.client.bronTime?connector.client.bronTime:[...connector?.services].filter(service => service.department._id === user.specialty._id)[0].turn}
                     </td>
                     <td className="border text-[16px] py-1 text-right">
                       {connector.client.id}

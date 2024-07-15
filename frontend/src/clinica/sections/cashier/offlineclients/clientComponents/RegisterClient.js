@@ -583,7 +583,7 @@ export const RegisterClient = ({
                   </button>
                 ) : (
                   <button
-                    onClick={checkPayment}
+                      onClick={checkPayment}
                     className="btn btn-warning w-100"
                   >
                     {t("Qabul qilish")}

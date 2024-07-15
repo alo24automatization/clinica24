@@ -1,5 +1,6 @@
 {
   "PORT": 9900,
+  "WS_PORT":8081,
   "mongoUri": "mongodb://127.0.0.1:27017/new_clinica",
   "jwtSecret": "alo24",
   "baseUrl": "http://localhost:9900",

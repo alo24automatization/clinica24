@@ -37,14 +37,14 @@ require("../../models/Cashier/OfflinePayment");
 require("../../models/Users");
 
 async function findNextAvailableTurn(clinica, department, initialTurn) {
-    let turn = initialTurn;
+    let turn = initialTurn === 0 ? 1 : initialTurn;
     let isTurnTaken = true;
     const startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
     const endOfDay = new Date();
     endOfDay.setUTCHours(23, 59, 59, 999);
+
     while (isTurnTaken) {
-        // Check if the current turn is taken by any online client for today
         const onlineClient = await OnlineClient.findOne({
             clinica,
             department,
@@ -52,23 +52,24 @@ async function findNextAvailableTurn(clinica, department, initialTurn) {
                 $gte: startOfDay,
                 $lt: endOfDay,
             },
-            queue: turn,
+            queue: turn
         });
+
         if (!onlineClient) {
-            // If not taken by online client, check offline clients
             const offlineService = await OfflineService.findOne({
                 clinica,
                 department,
                 createdAt: {$gte: startOfDay},
                 turn,
             });
+
             if (!offlineService) {
-                isTurnTaken = false; // Found an available turn
+                isTurnTaken = false;
             } else {
-                turn++; // Increment the turn and check again
+                turn++;
             }
         } else {
-            turn++; // Increment the turn and check again
+            turn++;
         }
     }
 
@@ -181,7 +182,7 @@ module.exports.register = async (req, res) => {
 
             //=========================================================
             // TURN
-            var turn = 1;
+            let turn = await findNextAvailableTurn(service.clinica, service.department, 1);
             const clientservice = await OfflineService.findOne({
                 clinica: service.clinica,
                 client: newclient._id,
@@ -193,12 +194,6 @@ module.exports.register = async (req, res) => {
 
             if (clientservice) {
                 turn = clientservice.turn;
-            } else {
-                turn = await findNextAvailableTurn(
-                    service.clinica,
-                    service.department,
-                    turn
-                );
             }
             //=========================================================
             // Create Service
@@ -368,7 +363,7 @@ module.exports.add = async (req, res) => {
 
             //=========================================================
             // TURN
-            var turn = 0;
+            let turn = 0
             const clientservice = await OfflineService.findOne({
                 clinica: service.clinica,
                 client: client._id,
@@ -1314,18 +1309,16 @@ module.exports.getCounterDoctors = async (req, res) => {
 module.exports.getTurns = async (req, res) => {
     try {
         const {clinica} = req.body;
-
         const clinic = await Clinica.findById(clinica);
         if (!clinic) {
             return res.status(400).json({
                 message: "Diqqat! Klinika ma'lumotlari topilmadi.",
             });
         }
-
         const departments = await Department.find({
             clinica,
         })
-            .select("name room probirka")
+            .select("name room probirka letter floor")
             .populate("doctor", "firstname lastname")
             .lean();
 
@@ -1339,7 +1332,6 @@ module.exports.getTurns = async (req, res) => {
                         $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
                     },
                 }).lean();
-
                 department.turn = connectors.length + 1;
             } else {
                 const services = await OfflineService.find({
@@ -1360,6 +1352,54 @@ module.exports.getTurns = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(501).json({error: "Serverda xatolik yuz berdi..."});
+    }
+};
+module.exports.getDepartments = async (clinicaId, departments_ids) => {
+    try {
+        const clinic = await Clinica.findById(clinicaId);
+        if (!clinic) {
+            throw new Error("Diqqat! Klinika ma'lumotlari topilmadi.");
+        }
+        const departments = await Department.find({
+            clinica: clinicaId,
+            _id: {$in: departments_ids},
+        })
+            .select("name room probirka letter floor")
+            .populate("doctor", "firstname lastname")
+            .lean();
+
+        for (const department of departments) {
+            if (department.probirka) {
+                const connectors = await OfflineConnector.find({
+                    clinica: clinicaId,
+                    department: department._id,
+                    accept: true,
+                    createdAt: {
+                        $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+                    },
+                }).lean();
+                department.turn = connectors.length + 1;
+            } else {
+                const services = await OfflineService.find({
+                    clinica: clinicaId,
+                    department: department?._id,
+                    accept: false,
+                    payment:true,
+                    createdAt: {
+                        $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+                    }
+                })
+                    .sort({turn: -1})
+                    .lean();
+                const index = services.length - 1 !== -1
+                if (services[index ? services.length-1 : 0] && services[index ? services.length-1 : 0]?.turn) {
+                    department.turn = services[index ? services.length-1 : 0].turn;
+                }
+            }
+        }
+        return departments?.filter((item) => item.turn);
+    } catch (error) {
+        throw new Error(error.message);
     }
 };
 

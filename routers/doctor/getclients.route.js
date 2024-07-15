@@ -54,7 +54,7 @@ module.exports.getAll = async (req, res) => {
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
         .populate("clinica", "name phone1 image ")
-        .populate("client", "lastname firstname born id phone address isDisability clientMoreDetails")
+        .populate("client", "lastname bronTime firstname born id phone address isDisability clientMoreDetails")
         .populate({
           path: "services",
           select:
@@ -121,7 +121,7 @@ module.exports.getAll = async (req, res) => {
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
         .populate("clinica", "name phone1 image")
-        .populate("client", "lastname firstname born id phone address fullname isDisability clientMoreDetails")
+        .populate("client", "lastname bronTime firstname born id phone address fullname isDisability clientMoreDetails")
         .populate({
           path: "services",
           select:
@@ -189,7 +189,7 @@ module.exports.getAll = async (req, res) => {
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
         .populate("clinica", "name phone1 image")
-        .populate("client", "lastname firstname born id phone address isDisability clientMoreDetails")
+        .populate("client", "lastname bronTime firstname born id phone address isDisability clientMoreDetails")
         .populate({
           path: "services",
           select:

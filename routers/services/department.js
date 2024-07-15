@@ -2,9 +2,9 @@ const {
     Department,
     validateDepartment,
 } = require('../../models/Services/Department')
-const { Clinica } = require('../../models/DirectorAndClinica/Clinica')
-const { Service } = require('../../models/Services/Service')
-const { ServiceType } = require('../../models/Services/ServiceType')
+const {Clinica} = require('../../models/DirectorAndClinica/Clinica')
+const {Service} = require('../../models/Services/Service')
+const {ServiceType} = require('../../models/Services/ServiceType')
 
 //Department register
 module.exports.registerAll = async (req, res) => {
@@ -12,16 +12,16 @@ module.exports.registerAll = async (req, res) => {
         const departments = req.body
         const all = []
         for (const d of departments) {
-            const { error } = validateDepartment(d)
+            const {error} = validateDepartment(d)
             if (error) {
                 return res.status(400).json({
                     error: error.message,
                 })
             }
 
-            const { name, probirka, clinica } = d
+            const {name, probirka, clinica} = d
 
-            const clinic = await Clinica.findOne({ name: clinica })
+            const clinic = await Clinica.findOne({name: clinica})
 
             if (!clinic) {
                 return res.status(400).json({
@@ -51,21 +51,21 @@ module.exports.registerAll = async (req, res) => {
 
         res.send(all)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
 //Department register
 module.exports.register = async (req, res) => {
     try {
-        const { error } = validateDepartment(req.body)
+        const {error} = validateDepartment(req.body)
         if (error) {
             return res.status(400).json({
                 error: error.message,
             })
         }
 
-        const { name, probirka, clinica, room } = req.body
+        const {name, probirka, floor, letter, clinica, room} = req.body
 
         const department = await Department.findOne({
             clinica,
@@ -90,20 +90,25 @@ module.exports.register = async (req, res) => {
             name,
             probirka,
             clinica,
-            room
+            room,
+            floor,
+            letter
         })
         await newDepartment.save()
 
         res.send(newDepartment)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
 //Department update
 module.exports.update = async (req, res) => {
     try {
-        const { name, probirka, clinica, room } = req.body
+        const {
+            name, floor,
+            letter, probirka, clinica, room
+        } = req.body
 
         const department = await Department.findById(req.body._id)
 
@@ -124,18 +129,20 @@ module.exports.update = async (req, res) => {
         department.name = name
         department.probirka = probirka;
         department.room = room;
+        department.floor = floor;
+        department.letter = letter;
         await department.save()
 
         res.send(department)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
 //Department getall
 module.exports.getAll = async (req, res) => {
     try {
-        const { clinica } = req.body
+        const {clinica} = req.body
         const clinic = await Clinica.findById(clinica)
 
         if (!clinic) {
@@ -152,7 +159,7 @@ module.exports.getAll = async (req, res) => {
 
         res.send(departments)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
@@ -160,7 +167,7 @@ module.exports.getAll = async (req, res) => {
 // Get All Reseption by department id
 module.exports.getAllReseptionById = async (req, res) => {
     try {
-        const { clinica, _id } = req.body
+        const {clinica, _id} = req.body
         const clinic = await Clinica.findById(clinica)
 
         if (!clinic) {
@@ -173,14 +180,14 @@ module.exports.getAllReseptionById = async (req, res) => {
 
         res.send(departments)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
 
 module.exports.getAllReseption = async (req, res) => {
     try {
-        const { clinica } = req.body
+        const {clinica} = req.body
         const clinic = await Clinica.findById(clinica)
 
         if (!clinic) {
@@ -195,14 +202,14 @@ module.exports.getAllReseption = async (req, res) => {
             .populate('services', 'name price')
         res.send(departments)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
 //Department get
 module.exports.get = async (req, res) => {
     try {
-        const { clinica, _id } = req.body
+        const {clinica, _id} = req.body
 
         const clinic = await Clinica.findById(clinica)
 
@@ -222,14 +229,14 @@ module.exports.get = async (req, res) => {
 
         res.send(department)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
 //Department delete
 module.exports.delete = async (req, res) => {
     try {
-        const { _id, clinica } = req.body
+        const {_id, clinica} = req.body
 
         const clinic = await Clinica.findById(clinica)
 
@@ -249,14 +256,14 @@ module.exports.delete = async (req, res) => {
         }
         res.send(department)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
 //Department deleteall
 module.exports.deleteAll = async (req, res) => {
     try {
-        const { clinica } = req.body
+        const {clinica} = req.body
 
         const clinic = await Clinica.findById(clinica)
 
@@ -283,6 +290,6 @@ module.exports.deleteAll = async (req, res) => {
 
         res.send(departments)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
