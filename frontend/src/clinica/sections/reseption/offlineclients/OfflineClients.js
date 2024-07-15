@@ -1038,6 +1038,7 @@ export const OfflineClients = () => {
         phone: onlineclient.phone,
         brondate: onlineclient.brondate,
         bronTime: onlineclient.bronTime,
+        queue:onlineclient.queue
       });
       setVisible(true);
       setSelectedDepartament(onlineclient?.department);

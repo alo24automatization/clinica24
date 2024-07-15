@@ -29,7 +29,6 @@ import ModalPrint from "./ModalPrint";
 import ReactHtmlParser from "react-html-parser";
 import CreatableSelect from "react-select/creatable";
 import socketIOClient from "socket.io-client";
-import { ENDPOINT } from "../../turns/pages/DepartmentsTurns";
 
 const CustomMenuWithInput = ({
   selectProps: { onHover, onChange, outHover },
@@ -55,8 +54,13 @@ const DoctorTemplate = ({
   clientsType,
   baseUrl,
 }) => {
-  const { t } = useTranslation();
-  const socket = socketIOClient(ENDPOINT);
+  const ENDPOINT =
+      process.env.REACT_APP_API_ENDPOINT;
+   const { t } = useTranslation();
+  const socket = socketIOClient(ENDPOINT, {
+    path: '/ws',
+    withCredentials: true
+  })
   const { request, loading } = useHttp();
   const auth = useContext(AuthContext);
   const [modal, setModal] = useState(false);

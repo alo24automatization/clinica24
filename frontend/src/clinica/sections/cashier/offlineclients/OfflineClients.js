@@ -16,10 +16,14 @@ import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import socketIOClient from "socket.io-client";
-import {ENDPOINT} from "../../turns/pages/DepartmentsTurns";
 
 export const OfflineClients = () => {
-  const socket = socketIOClient(ENDPOINT);
+  const ENDPOINT =
+      process.env.REACT_APP_API_ENDPOINT;
+  const socket = socketIOClient(ENDPOINT, {
+    path: '/ws',
+    withCredentials: true
+  })
   const [beginDay, setBeginDay] = useState(
     new Date(new Date().setUTCHours(0, 0, 0, 0))
   );

@@ -4,13 +4,14 @@ const {getDepartments} = require("./routers/offlineclient/clients.route");
 
 const initializeSocket = (server) => {
     const io = socketIo(server,{
+        path: '/ws',
         cors: {
-            origin: "*",
+            origin: ["http://localhost:3000", "https://unical-med.uz"],
             methods: ["GET", "POST"],
             allowedHeaders: ["Content-Type", "Authorization"],
+            credentials: true
         }
     });
-
     io.on('connection', (socket) => {
         socket.on('getDepartments', async (data) => {
             const { clinicaId, departments_ids } = data;

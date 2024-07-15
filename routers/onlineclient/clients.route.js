@@ -31,7 +31,7 @@ async function isQueueNumberExists(queueNumber, brondate, bronTime) {
         existingClient = await OnlineClient.findOne({
             queue: queueNumber, brondate: {$gte: startOfDay, $lt: endOfDay},
         }).exec() || await OfflineService.findOne({
-            turn: queueNumber, bronday: {$gte: startOfDay, $lt: endOfDay}
+            turn: queueNumber, createdAt: {$gte: startOfDay, $lt: endOfDay}
         }).exec();
     } else if (bronTime) {
         existingClient = await OnlineClient.findOne({

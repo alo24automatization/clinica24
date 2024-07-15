@@ -35,8 +35,38 @@ const {checkMinimum} = require("../tgbot/bot_controller");
 const {OnlineClient} = require("../../models/OnlineClient/OnlineClient");
 require("../../models/Cashier/OfflinePayment");
 require("../../models/Users");
+const findNextAvailableTurn = async (clinica, department, initialTurn, clientTurn) => {
+    // If clientTurn is provided, check if it is available
+    if (clientTurn) {
+        const startOfDay = new Date();
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        const endOfDay = new Date();
+        endOfDay.setUTCHours(23, 59, 59, 999);
 
-async function findNextAvailableTurn(clinica, department, initialTurn) {
+        const onlineClient = await OnlineClient.findOne({
+            clinica,
+            department,
+            brondate: {
+                $gte: startOfDay,
+                $lt: endOfDay,
+            },
+            queue: clientTurn,
+        });
+
+        const offlineService = await OfflineService.findOne({
+            clinica,
+            department,
+            createdAt: { $gte: startOfDay },
+            turn: clientTurn,
+        });
+
+        // If clientTurn is not taken, return it
+        if (!onlineClient && !offlineService) {
+            return clientTurn;
+        }
+    }
+
+    // If clientTurn is not provided or is taken, find the next available turn
     let turn = initialTurn === 0 ? 1 : initialTurn;
     let isTurnTaken = true;
     const startOfDay = new Date();
@@ -52,14 +82,14 @@ async function findNextAvailableTurn(clinica, department, initialTurn) {
                 $gte: startOfDay,
                 $lt: endOfDay,
             },
-            queue: turn
+            queue: turn,
         });
 
         if (!onlineClient) {
             const offlineService = await OfflineService.findOne({
                 clinica,
                 department,
-                createdAt: {$gte: startOfDay},
+                createdAt: { $gte: startOfDay },
                 turn,
             });
 
@@ -74,8 +104,7 @@ async function findNextAvailableTurn(clinica, department, initialTurn) {
     }
 
     return turn;
-}
-
+};
 // register
 module.exports.register = async (req, res) => {
     try {
@@ -182,7 +211,7 @@ module.exports.register = async (req, res) => {
 
             //=========================================================
             // TURN
-            let turn = await findNextAvailableTurn(service.clinica, service.department, 1);
+            let turn = await findNextAvailableTurn(service.clinica, service.department, 1,client.queue);
             const clientservice = await OfflineService.findOne({
                 clinica: service.clinica,
                 client: newclient._id,
