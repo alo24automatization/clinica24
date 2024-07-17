@@ -108,12 +108,13 @@ const Departments = () => {
             history.push(`/alo24/turns`);
         }
     }
+    const groupedDepartments=departments.filter((item, index, self) => index === self.findIndex((t) => t.floor === item.floor));
     return (<>
         <>
             <Navbar/>
             <div className="bg-white">
-                <div className={"grid grid-cols-2  w-full h-[calc(100vh-65px)] gap-2"}>
-                    {departments.filter((item, index, self) => index === self.findIndex((t) => t.floor === item.floor)).map((department, ind) => {
+                <div className={`grid grid-cols-${groupedDepartments.length>1?"2":"1"} w-full h-[calc(100vh-65px)] gap-2`}>
+                    {groupedDepartments.map((department, ind) => {
                         return (<div
                             key={department?._id}
                             onClick={() => handleClickTurnCard(department.floor)}

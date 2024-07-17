@@ -199,7 +199,7 @@ module.exports.getAllReseption = async (req, res) => {
             clinica,
         })
             .select('name probirka services')
-            .populate('services', 'name price')
+            .populate('services', 'name price servicetype')
         res.send(departments)
     } catch (error) {
         res.status(501).json({error: 'Serverda xatolik yuz berdi...'})

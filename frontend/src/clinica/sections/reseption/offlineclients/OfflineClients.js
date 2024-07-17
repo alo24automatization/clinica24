@@ -1064,7 +1064,6 @@ export const OfflineClients = () => {
       setServices(s);
       setSelectedServices(
         onlineclient.service.map((service) => ({
-          value: service._id,
           label: (
             <div className="w-full flex justify-between items-center gap-x-2">
               <span>{service.name}</span>

@@ -21,7 +21,7 @@ const handleSend = async (smsKey, number, message) => {
         });
 };
 
-async function isQueueNumberExists(queueNumber, brondate, bronTime) {
+async function isQueueNumberExists(queueNumber, brondate, bronTime, department) {
     const startOfDay = new Date(brondate);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(brondate);
@@ -29,14 +29,21 @@ async function isQueueNumberExists(queueNumber, brondate, bronTime) {
     let existingClient;
     if (queueNumber) {
         existingClient = await OnlineClient.findOne({
+            department,
             queue: queueNumber, brondate: {$gte: startOfDay, $lt: endOfDay},
         }).exec() || await OfflineService.findOne({
+            department,
             turn: queueNumber, createdAt: {$gte: startOfDay, $lt: endOfDay}
         }).exec();
     } else if (bronTime) {
+        console.log("---------------")
+        console.log(department)
+        console.log("---------------")
         existingClient = await OnlineClient.findOne({
+            department,
             bronTime: bronTime, brondate: {$gte: startOfDay, $lt: endOfDay},
         }).exec() || await OfflineClient.findOne({
+            department,
             bronTime: bronTime, brondate: {$gte: startOfDay, $lt: endOfDay},
         }).exec();
     }
@@ -56,7 +63,7 @@ module.exports.register = async (req, res) => {
             });
         }
 
-        const queueExists = await isQueueNumberExists(client.queue, client.brondate, client.bronTime);
+        const queueExists = await isQueueNumberExists(client.queue, client.brondate, client.bronTime, client.department);
         if (queueExists) {
             return res.status(400).json({
                 error: "Bu navbatdagi mijoz mavjud!",
@@ -73,7 +80,6 @@ module.exports.register = async (req, res) => {
         const clientData = await OnlineClient.findById(newclient._id)
             .populate("clinica")
             .populate("department", "name");
-
         const bronDate = new Date(clientData.brondate);
         bronDate.setHours(bronDate.getHours() + 3);
 

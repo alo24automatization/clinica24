@@ -42,7 +42,6 @@ const findNextAvailableTurn = async (clinica, department, initialTurn, clientTur
         startOfDay.setUTCHours(0, 0, 0, 0);
         const endOfDay = new Date();
         endOfDay.setUTCHours(23, 59, 59, 999);
-
         const onlineClient = await OnlineClient.findOne({
             clinica,
             department,
@@ -56,7 +55,7 @@ const findNextAvailableTurn = async (clinica, department, initialTurn, clientTur
         const offlineService = await OfflineService.findOne({
             clinica,
             department,
-            createdAt: { $gte: startOfDay },
+            createdAt: {$gte: startOfDay},
             turn: clientTurn,
         });
 
@@ -89,7 +88,7 @@ const findNextAvailableTurn = async (clinica, department, initialTurn, clientTur
             const offlineService = await OfflineService.findOne({
                 clinica,
                 department,
-                createdAt: { $gte: startOfDay },
+                createdAt: {$gte: startOfDay},
                 turn,
             });
 
@@ -162,6 +161,7 @@ module.exports.register = async (req, res) => {
             ...client,
             id,
             fullname,
+            department: services[0]?.department,
             was_online: !!client?.brondate,
             brondate: client.brondate || null,
             bronTime: client?.bronTime || null,
@@ -211,7 +211,7 @@ module.exports.register = async (req, res) => {
 
             //=========================================================
             // TURN
-            let turn = await findNextAvailableTurn(service.clinica, service.department, 1,client.queue);
+            let turn = await findNextAvailableTurn(service.clinica, service.department, 1, client.queue);
             const clientservice = await OfflineService.findOne({
                 clinica: service.clinica,
                 client: newclient._id,
@@ -244,6 +244,7 @@ module.exports.register = async (req, res) => {
                 client: newclient._id,
                 connector: newconnector._id,
                 turn,
+
                 column: {...serv.column},
                 tables: [...JSON.parse(JSON.stringify(serv.tables))],
             });
@@ -1383,8 +1384,9 @@ module.exports.getTurns = async (req, res) => {
         res.status(501).json({error: "Serverda xatolik yuz berdi..."});
     }
 };
-module.exports.getDepartments = async (clinicaId, departments_ids) => {
+module.exports.getDepartments = async (clinicaId, departments_ids, next, clientId) => {
     try {
+        console.log(clinicaId, departments_ids, next, clientId)
         const clinic = await Clinica.findById(clinicaId);
         if (!clinic) {
             throw new Error("Diqqat! Klinika ma'lumotlari topilmadi.");
@@ -1396,7 +1398,6 @@ module.exports.getDepartments = async (clinicaId, departments_ids) => {
             .select("name room probirka letter floor")
             .populate("doctor", "firstname lastname")
             .lean();
-
         for (const department of departments) {
             if (department.probirka) {
                 const connectors = await OfflineConnector.find({
@@ -1408,37 +1409,73 @@ module.exports.getDepartments = async (clinicaId, departments_ids) => {
                     },
                 }).lean();
                 department.turn = connectors.length + 1;
+                department.waiting = connectors.length; // Waiting clients without current turn
             } else {
-                const services = await OfflineService.find({
+                const allServices = await OfflineService.find({
                     clinica: clinicaId,
-                    department: department?._id,
+                    department: department._id,
                     accept: false,
-                    payment:true,
+                    payment: true,
                     createdAt: {
                         $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
                     }
                 })
                     .sort({turn: -1})
                     .lean();
-                const index = services.length - 1 !== -1
-                if (services[index ? services.length-1 : 0] && services[index ? services.length-1 : 0]?.turn) {
-                    department.turn = services[index ? services.length-1 : 0].turn;
+                if (!next && clientId) {
+                    department.turn = allServices.find(service => service?.client.toString() === clientId)?.turn;
+                    department.waiting = allServices.length - 1;
+                } else {
+                    const index = allServices?.length - 1 !== -1;
+                    if (allServices[index ? allServices?.length - 1 : 0] && allServices[index ? allServices?.length - 1 : 0]?.turn) {
+                        department.turn = allServices[index ? allServices?.length - 1 : 0].turn;
+                        department.waiting = allServices.length - 1;
+                    }
                 }
             }
         }
         return departments?.filter((item) => item.turn);
     } catch (error) {
-        throw new Error(error.message);
+        console.log(error.message);
+        throw new Error("Serverda xatolik yuz berdi...");
     }
 };
-
+module.exports.getDepartmentsOnline = async (clinicaId, departmentId) => {
+    try {
+        const clinic = await Clinica.findById(clinicaId);
+        if (!clinic) {
+            throw new Error("Diqqat! Klinika ma'lumotlari topilmadi.");
+        }
+        const department = await Department.findOne({
+            clinica: clinicaId,
+            _id: departmentId,
+        })
+            .select("name room probirka letter floor")
+            .populate("doctor", "firstname lastname")
+            .lean();
+        const startOfDay = new Date();
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        const endOfDay = new Date();
+        endOfDay.setUTCHours(23, 59, 59, 999);
+        const clients = await OnlineClient.find({
+            department: department?._id,
+            brondate: {
+                $gte: startOfDay,
+                $lt: endOfDay,
+            }
+        })
+        return clients
+    } catch (error) {
+        console.log(error.message);
+        throw new Error("Serverda xatolik yuz berdi...");
+    }
+}
 module.exports.registerOnline = async (req, res) => {
     try {
         const connector = req.body;
         const client = {...connector.client};
         const services = [...connector.services];
         const products = [...connector.products];
-
         delete connector._id;
         delete connector.client;
         delete connector.services;

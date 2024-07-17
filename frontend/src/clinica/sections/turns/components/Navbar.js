@@ -38,9 +38,10 @@ const Navbar = ({hasHead}) => {
                 <BackIcon color={hasHead?"#3b82f6":"#000"}/>
             </Button>
         </div>
-        {hasHead ? <div className={"grid grid-cols-2 w-full font-semibold"}>
-            <h1 className={"text-5xl text-white text-center !mr-[100px]"}>{t("Navbat")}</h1>
-            <h1 className={"text-5xl text-white text-center"}>{t("Xona")}</h1>
+        {hasHead ? <div className={"grid grid-cols-3 w-full font-semibold pr-3"}>
+            <h1 className={"text-5xl text-white text-center !mr-[60px] "}>{t("Navbat")}</h1>
+            <h1 className={"text-5xl text-white text-center  !mr-[20px]"}>{t("Xona")}</h1>
+            <h1 className={"text-5xl text-white text-center  !mr-[20px]"}>{t("Kutmoqda")}</h1>
         </div> : null}
     </div>
 }

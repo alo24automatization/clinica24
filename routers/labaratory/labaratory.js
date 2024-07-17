@@ -29,8 +29,6 @@ module.exports.approve = async (req, res) => {
             statsionarconnector.accept = true;
             statsionarconnector.save()
         }
-
-
         res.status(200).json({ message: 'Mijoz qon oldi!' })
     } catch (error) {
         console.log(error);
