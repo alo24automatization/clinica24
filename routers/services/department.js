@@ -132,13 +132,31 @@ module.exports.update = async (req, res) => {
         department.floor = floor;
         department.letter = letter;
         await department.save()
-
         res.send(department)
     } catch (error) {
         res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
+module.exports.switchTurn = async (req, res) => {
+    try {
+        const {id, active, clinica} = req.body;
+        const clinic = await Clinica.findById(clinica)
 
+        if (!clinic) {
+            return res.status(400).json({
+                message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+            })
+        }
+       await Department.findByIdAndUpdate(
+            id, {stopTurn: active}
+        )
+        const message=active?"Navbat to'xtatildi!":"Navbat ochildi!";
+        res.status(201).json({message})
+    } catch (error) {
+        console.log(error.message)
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
+    }
+}
 //Department getall
 module.exports.getAll = async (req, res) => {
     try {

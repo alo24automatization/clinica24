@@ -21,6 +21,10 @@ const DepartmentsTurns = () => {
             withCredentials: true
         });
         socket.on("departmentsData", (data) => {
+            if (data.length === 0) {
+                localStorage.removeItem("spoken");
+                setTurns([])
+            }
             setTurns((prevTurns) => {
                 // Create a map for easy lookup of updated departments
                 const dataMap = new Map(data.map(dep => [dep._id, dep]));
@@ -28,21 +32,17 @@ const DepartmentsTurns = () => {
                 const updatedTurns = prevTurns.map(dep => dataMap.get(dep._id) || dep).concat(
                     data.filter(dep => !prevTurns.some(prevDep => prevDep._id === dep._id))
                 );
-
                 // If `id` is defined, filter the turns to only include the one matching this `id`
                 const id = queryParams.get('_id');
                 if (id) {
                     return updatedTurns.filter(dep => dep._id === id);
                 }
-
+                if (localStorage.getItem("spoken") !== updatedTurns[0]?.turn + updatedTurns[0]?.letter + updatedTurns[0]?.room) {
+                    speakTurn(updatedTurns[0]?.turn, updatedTurns[0]?.room, updatedTurns[0]?.letter);
+                }
                 return updatedTurns;
             });
-            if (data.length === 0) {
-                localStorage.removeItem("spoken");
-            }
-            if (localStorage.getItem("spoken") !== data[0]?.turn + data[0]?.letter + data[0]?.room) {
-                speakTurn(data[0]?.turn, data[0]?.room, data[0]?.letter);
-            }
+
         });
         if (id) {
             socket.on("departmentsOnlineClientsData", (data) => {
@@ -84,13 +84,13 @@ const DepartmentsTurns = () => {
             localStorage.setItem("spoken", String(turn + letter + room));
         }
     };
-
+    const lastTurn = turns[0];
     return (
         <div className="bg-white flex h-screen">
             <div className="w-[55%] h-screen overflow-y-auto border-r-2">
                 <Navbar hasHead/>
                 <ul>
-                    {turns.length>0?turns?.map((item, index) => (
+                    {turns.length > 0 ? turns?.map((item, index) => (
                         <li
                             key={index}
                             className={`border-2 border-r-0 ${
@@ -107,7 +107,7 @@ const DepartmentsTurns = () => {
                                 {item?.waiting}
                             </span>
                         </li>
-                    )):<li className={"text-xl text-center font-semibold p-2"}>{t("Mijozlar mavjud emas")}</li>}
+                    )) : <li className={"text-xl text-center font-semibold p-2"}>{t("Mijozlar mavjud emas")}</li>}
                 </ul>
                 {
                     id ?
@@ -126,9 +126,10 @@ const DepartmentsTurns = () => {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {onlineClients.length==0?<tr className={"text-xl text-center text-black font-semibold p-2"}>
-                                    <td colSpan={3}>{t("Mijozlar mavjud emas")}</td>
-                                </tr>:null }
+                                {onlineClients.length == 0 ?
+                                    <tr className={"text-xl text-center text-black font-semibold p-2"}>
+                                        <td colSpan={3}>{t("Mijozlar mavjud emas")}</td>
+                                    </tr> : null}
                                 {onlineClients?.map(client => <tr key={client?._id} className={"text-xl font-semibold"}>
                                     <td className={"border"}>{client?.firstname + " " + client?.lastname}</td>
                                     <td className={"border"}>{client?.queue}</td>
@@ -145,11 +146,11 @@ const DepartmentsTurns = () => {
                 <div className="w-[45%] flex flex-col justify-center gap-y-3 items-center">
                     <div className="border-4 border-blue-500 w-[340px] py-2">
                         <h1 className="text-9xl font-semibold text-center text-blue-500">
-                            {turns[0]?.letter + "-" + turns[0]?.turn}
+                            {lastTurn?.letter + "-" + lastTurn?.turn}
                         </h1>
                     </div>
                     <h1 className="text-7xl font-semibold text-orange-500">
-                        Xona-{turns[0]?.room}
+                        Xona-{lastTurn?.room}
                     </h1>
                 </div>
             ) : null}

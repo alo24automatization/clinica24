@@ -187,11 +187,39 @@ const DoctorTemplate = ({
             callNextClient()
         }
     };
-    const callNextClient = () => {
-        fetchDepartmentsTurns(true, undefined)
+    const callNextClient = async () => {
+        if(nextTurn){
+            await switchTurn(false)
+        }
+        setTimeout(()=>{
+            fetchDepartmentsTurns(true, undefined)
+        },100)
     }
-    const waitingAllClient = () => {
-        fetchDepartmentsTurns(false, undefined)
+    const waitingAllClient = async () => {
+       await switchTurn(true)
+    }
+    const switchTurn=async (active)=>{
+        try {
+            const data = await request(
+                `/api/services/department/switchTurn`,
+                'PATCH',
+                { clinica: auth?.clinica?._id,id:services[0]?.department?._id,active },
+                {
+                    Authorization: `Bearer ${auth.token}`,
+                }
+            )
+            notify({
+                title: data.message,
+                description: '',
+                status: 'success',
+            })
+        } catch (error) {
+            notify({
+                title: error,
+                description: '',
+                status: 'error',
+            })
+        }
     }
     const saveService = async () => {
         try {

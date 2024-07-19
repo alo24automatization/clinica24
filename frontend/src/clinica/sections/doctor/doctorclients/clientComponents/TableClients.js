@@ -458,7 +458,7 @@ export const TableClients = ({
                                             </button>
                                         ) : (
                                             <button
-                                                disabled={![...connector?.services].some(service => service.client === connector.client._id && service.payment)}
+                                                disabled={![...connector?.services].some(service => service.client === connector.client._id && service.payment&&!service.accept)}
                                                 onClick={() =>
                                                     callClient(connector?.client?._id,connector?.services[0]?.department._id)
                                                 }

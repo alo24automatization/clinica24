@@ -1386,7 +1386,6 @@ module.exports.getTurns = async (req, res) => {
 };
 module.exports.getDepartments = async (clinicaId, departments_ids, next, clientId) => {
     try {
-        console.log(clinicaId, departments_ids, next, clientId)
         const clinic = await Clinica.findById(clinicaId);
         if (!clinic) {
             throw new Error("Diqqat! Klinika ma'lumotlari topilmadi.");
@@ -1395,7 +1394,7 @@ module.exports.getDepartments = async (clinicaId, departments_ids, next, clientI
             clinica: clinicaId,
             _id: {$in: departments_ids},
         })
-            .select("name room probirka letter floor")
+            .select("name room probirka  letter floor")
             .populate("doctor", "firstname lastname")
             .lean();
         for (const department of departments) {
@@ -1403,13 +1402,22 @@ module.exports.getDepartments = async (clinicaId, departments_ids, next, clientI
                 const connectors = await OfflineConnector.find({
                     clinica: clinicaId,
                     department: department._id,
-                    accept: true,
+                    accept: false,
+                    payment:true,
                     createdAt: {
                         $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
                     },
-                }).lean();
-                department.turn = connectors.length + 1;
-                department.waiting = connectors.length; // Waiting clients without current turn
+                }).populate("services","turn").populate("client").lean();
+                department.turn=0;
+                if (!next && clientId) {
+                    department.turn = connectors.find((connector) => connector?.client?._id.toString() === clientId)?.services[0].turn;
+                    department.waiting = connectors.length - 1;
+                } else {
+                    if (connectors[0] && connectors[0]?.services[0].turn) {
+                        department.turn = connectors[0].services[0].turn;
+                        department.waiting = connectors.length - 1;
+                    }
+                }
             } else {
                 const allServices = await OfflineService.find({
                     clinica: clinicaId,

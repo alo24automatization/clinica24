@@ -7,9 +7,11 @@ import { useHttp } from "../../../hooks/http.hook";
 import { Modal } from "../components/Modal";
 import Print from "../components/Print";
 import BloodTestTables from "./BloodTestTables";
+import socketIOClient from "socket.io-client";
 // import { TableClients } from "./clientComponents/TableClients";
 
 export const BloodTest = () => {
+    const ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
     const [beginDay, setBeginDay] = useState(
         new Date(new Date().setUTCHours(0, 0, 0, 0))
     );
@@ -185,7 +187,6 @@ export const BloodTest = () => {
         }
     }, [auth, beginDay, s, endDay, getDoctorClients]);
 
-
     const approveLab = async () => {
         try {
             const data = await request(
@@ -202,6 +203,33 @@ export const BloodTest = () => {
                 title: data.message,
                 description: "",
                 status: "success",
+            });
+            const socket = socketIOClient(ENDPOINT, {
+                path: '/ws',
+                withCredentials: true
+            });
+            console.log(doctorClients[0].services[0].department?._id)
+            socket.on('connect', () => {
+                console.log('Socket connected!');
+                socket.emit('getDepartments', {
+                    clinicaId: auth?.clinica?._id,
+                    next: true,
+                    clientId: undefined,
+                    departments_ids: [doctorClients[0].services[0].department?._id]
+                }, (response) => {
+                    console.log('Socket response:', response);
+                    socket.disconnect();
+                    console.log('Socket disconnected!');
+                });
+            });
+
+            socket.on('connect_error', (err) => {
+                console.error('Connection error:', err);
+                notify({
+                    title: t("Socket connection error."),
+                    description: "",
+                    status: "error",
+                });
             });
             setModal(false);
             getDoctorClients(beginDay, endDay);

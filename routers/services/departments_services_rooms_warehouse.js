@@ -10,8 +10,9 @@ router.post('/department/registerall', auth, (req, res) => {
 router.post('/department/register', auth, (req, res) => {
     require('./department').register(req, res)
 })
-
-
+router.patch('/department/switchTurn', auth, (req, res) => {
+    require('./department').switchTurn(req, res)
+})
 router.post('/department/getall', (req, res) => {
     require('./department').getAll(req, res)
 })
