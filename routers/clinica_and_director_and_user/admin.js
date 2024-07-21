@@ -28,7 +28,7 @@ module.exports.register = async (req, res) => {
             if (isMatch) {
                 return res.status(400).json({
                     message:
-                        "Diqqat! Prol tizimda xavfsiz bo'lmagan deb topildi. Iltimos boshqa parol yarating.",
+                        "Diqqat! Parol tizimda xavfsiz bo'lmagan deb topildi. Iltimos boshqa parol yarating.",
                 });
             }
         }

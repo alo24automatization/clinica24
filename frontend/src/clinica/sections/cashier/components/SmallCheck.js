@@ -41,16 +41,6 @@ export const SmallCheck = ({
       setDeparmtents(all);
     }
   }, [connector]);
-  console.log();
-  const TimeDisplay = (time) => {
-    console.log(time);
-    if (!time) return time;
-    return new Date(time).toLocaleTimeString(navigator.language, {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    });
-  };
 
   return (
     <>

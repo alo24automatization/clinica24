@@ -203,7 +203,7 @@ module.exports.getAll = async (req, res) => {
                     select: "-__v -updatedAt -isArchive",
                     populate: {
                         path: "department",
-                        select: "room name"
+                        select: "room name floor letter"
                     }
                 })
                 .populate("products")
@@ -230,7 +230,7 @@ module.exports.getAll = async (req, res) => {
                     select: "-__v -updatedAt -isArchive",
                     populate: {
                         path: "department",
-                        select: "room name probirka"
+                        select: "room name probirka letter floor"
                     }
                 })
                 .populate("products")

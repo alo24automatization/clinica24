@@ -17,7 +17,7 @@ const user = new Schema(
     signature: { type: String },
     statsionar_profit: { type: Number },
     isArchive: { type: Boolean, default: false },
-    blanka: { type: String, default: null },
+    blanka: { type: String ,required:false,default:null},
     accessCreateClient: { type: Boolean, default: false },
     complaint: {
       type: {
@@ -37,7 +37,7 @@ function validateUser(user) {
     firstname: Joi.string().required(),
     lastname: Joi.string().required(),
     fathername: Joi.string(),
-    blanka: Joi.string().optional(),
+    blanka: Joi.string().allow(null).optional(),
     image: Joi.string(),
     phone: Joi.string(),
     signature: Joi.string().optional(),
@@ -52,6 +52,7 @@ function validateUser(user) {
     accessCreateClient: Joi.boolean().optional(),
     _id: Joi.string(),
     complaint: Joi.object({
+        _id: Joi.string().optional(),
       complaint: Joi.array().items(Joi.object({
         name: Joi.string().required()
       }).optional()).optional(),

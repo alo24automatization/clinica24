@@ -7,6 +7,7 @@ const SettingForms = () => {
   const auth = useContext(AuthContext);
   const [requiredFields, setRequiredFieds] = useState(null);
   const [cashNavigate, setCashNavigate] = useState(false);
+  const [turnCheck, setTurnCheck] = useState(false);
   const [connectorDoctor_client, setConnectorDoctor_client] = useState(false);
   const [cardNumber, setCardNumber] = useState('');
   const { request, loading } = useHttp();
@@ -15,6 +16,7 @@ const SettingForms = () => {
     getConnectorDoctor();
     getReseptionPayAccess();
     getLastCardNumber()
+    getReseptionCheckVisible()
   }, []);
   //====================================================================
   //====================================================================
@@ -44,6 +46,22 @@ const SettingForms = () => {
         null
       );
       setCashNavigate(reseption_and_pay);
+    } catch (error) {
+      // notify({
+      //   title: t(`${error}`),
+      //   description: "",
+      //   status: "error",
+      // });
+    }
+  });
+  const getReseptionCheckVisible= useCallback(async () => {
+    try {
+      const { turnCheckVisible } = await request(
+          `/api/clinica/reseption_check/${auth.clinica._id}`,
+          "GET",
+          null
+      );
+      setTurnCheck(turnCheckVisible);
     } catch (error) {
       // notify({
       //   title: t(`${error}`),
@@ -120,6 +138,21 @@ const SettingForms = () => {
       // });
     }
   };
+  const handleChangeReceptionCheckSwitch=async (value)=>{
+    try {
+      await request(`/api/clinica/reseption_check/${auth.clinica._id}`, "PATCH", {
+        turnCheckVisible: value,
+      });
+      getReseptionCheckVisible();
+    } catch (error) {
+      console.log(error);
+      // notify({
+      //   title: t(`${error}`),
+      //   description: "",
+      //   status: "error",
+      // });
+    }
+  }
   const handleChangeReceptionConnectorDoctorHasSwitch = async (value) => {
     try {
       await request(
@@ -185,7 +218,7 @@ const SettingForms = () => {
 
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid flex">
       <div className="pb-6 pt-4 col-xl-4 border-r borer-4">
         <h1 className="text-center font-semibold text-lg mb-3">
           Qabulxona sozlamalari
@@ -195,50 +228,50 @@ const SettingForms = () => {
         </span>
         <ul className="my-2 ml-2">
           {receptionSettingForm.map((item) => (
-            <li key={item.key} className="border-b py-1">
-              <FormControl
-                display="flex"
-                alignItems="center"
-                justifyContent={"space-between"}
-                onChange={({ target }) =>
-                  handleChangeReceptionFormSwitch(
-                    item.input_name,
-                    target.checked
-                  )
-                }
-              >
-                <FormLabel htmlFor="email-alerts" mb="0">
-                  {item.name}
-                </FormLabel>
-                <Switch
-                  disabled={loading}
-                  isChecked={
-                    !requiredFields ? true : requiredFields[item.input_name]
-                  }
-                  id={item.input_name}
-                />
-              </FormControl>
-            </li>
+              <li key={item.key} className="border-b py-1">
+                <FormControl
+                    display="flex"
+                    alignItems="center"
+                    justifyContent={"space-between"}
+                    onChange={({target}) =>
+                        handleChangeReceptionFormSwitch(
+                            item.input_name,
+                            target.checked
+                        )
+                    }
+                >
+                  <FormLabel htmlFor="email-alerts" mb="0">
+                    {item.name}
+                  </FormLabel>
+                  <Switch
+                      disabled={loading}
+                      isChecked={
+                        !requiredFields ? true : requiredFields[item.input_name]
+                      }
+                      id={item.input_name}
+                  />
+                </FormControl>
+              </li>
           ))}
         </ul>
         <span className="font-medium">Qabulda kassaga yo'naltirish</span>
         <ul className="my-2 ml-2">
           <li className="border-b py-1">
             <FormControl
-              display="flex"
-              alignItems="center"
-              justifyContent={"space-between"}
-              onChange={({ target }) =>
-                handleChangeReceptionPaySwitch(target.checked)
-              }
+                display="flex"
+                alignItems="center"
+                justifyContent={"space-between"}
+                onChange={({target}) =>
+                    handleChangeReceptionPaySwitch(target.checked)
+                }
             >
               <FormLabel htmlFor="email-alerts" mb="0">
                 Yo'naltirish
               </FormLabel>
               <Switch
-                disabled={loading}
-                isChecked={cashNavigate}
-                id={"cashNavigate"}
+                  disabled={loading}
+                  isChecked={cashNavigate}
+                  id={"cashNavigate"}
               />
             </FormControl>
           </li>
@@ -247,20 +280,20 @@ const SettingForms = () => {
         <ul className="my-2 ml-2">
           <li className="border-b py-1">
             <FormControl
-              display="flex"
-              alignItems="center"
-              justifyContent={"space-between"}
-              onChange={({ target }) =>
-                handleChangeReceptionConnectorDoctorHasSwitch(target.checked)
-              }
+                display="flex"
+                alignItems="center"
+                justifyContent={"space-between"}
+                onChange={({target}) =>
+                    handleChangeReceptionConnectorDoctorHasSwitch(target.checked)
+                }
             >
               <FormLabel htmlFor="email-alerts" mb="0">
                 Ochish
               </FormLabel>
               <Switch
-                disabled={loading}
-                isChecked={connectorDoctor_client}
-                id={"connectorDoctor_client"}
+                  disabled={loading}
+                  isChecked={connectorDoctor_client}
+                  id={"connectorDoctor_client"}
               />
             </FormControl>
           </li>
@@ -269,24 +302,51 @@ const SettingForms = () => {
         <ul className="mt-2 ml-2">
           <li className="border-b py-1">
             <FormControl
-              display="block"
-              onChange={handleChangeCardNumber}
+                display="block"
+                onChange={handleChangeCardNumber}
             >
               <Input
-                id="card_number"
-                className="is-valid"
-                placeholder="Karta raqam"
-                size="sm"
-                value={cardNumber}
-                type="number"
-                style={
-                  {
-                    borderColor: "#eee",
-                    boxShadow: "none",
+                  id="card_number"
+                  className="is-valid"
+                  placeholder="Karta raqam"
+                  size="sm"
+                  value={cardNumber}
+                  type="number"
+                  style={
+                    {
+                      borderColor: "#eee",
+                      boxShadow: "none",
+                    }
                   }
-                }
 
-                name="card_number"
+                  name="card_number"
+              />
+            </FormControl>
+          </li>
+        </ul>
+      </div>
+      <div className={'pb-6 pt-4 col-xl-4 border-r borer-4'}>
+        <h1 className="text-center font-semibold text-lg mb-3">
+          Kassa sozlamalari
+        </h1>
+        <span className="font-medium">Navbat cheki</span>
+        <ul className="my-2 ml-2">
+          <li className="border-b py-1">
+            <FormControl
+                display="flex"
+                alignItems="center"
+                justifyContent={"space-between"}
+                onChange={({target}) =>
+                    handleChangeReceptionCheckSwitch(target.checked)
+                }
+            >
+              <FormLabel htmlFor="email-alerts" mb="0">
+                Ochish
+              </FormLabel>
+              <Switch
+                  disabled={loading}
+                  isChecked={turnCheck}
+                  id={"cashNavigate"}
               />
             </FormControl>
           </li>

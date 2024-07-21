@@ -345,6 +345,29 @@ module.exports.getreseption_payAccess = async (req, res) => {
     });
   }
 };
+module.exports.getreseption_turnCheck=async (req,res)=>{
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("turnCheckVisible");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    res.status(200).json({
+      turnCheckVisible: clinica.turnCheckVisible,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+}
 module.exports.updateRequiredFields = async (req, res) => {
   const { id } = req.params;
   const { requiredFields } = req.body;
@@ -372,6 +395,7 @@ module.exports.updateRequiredFields = async (req, res) => {
     });
   }
 };
+
 module.exports.updateReseptionPayAccess = async (req, res) => {
   const { id } = req.params;
   const { reseption_and_pay } = req.body;
@@ -388,6 +412,31 @@ module.exports.updateReseptionPayAccess = async (req, res) => {
       });
     }
     clinica.reseption_and_pay = reseption_and_pay;
+    await clinica.save();
+    res.status(201).json({ message: "Ma'lumot saqlandi!" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+};
+
+module.exports.updateReseptionTurnCheckVisible = async (req, res) => {
+  const { id } = req.params;
+  const { turnCheckVisible } = req.body;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("turnCheckVisible");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    clinica.turnCheckVisible = turnCheckVisible;
     await clinica.save();
     res.status(201).json({ message: "Ma'lumot saqlandi!" });
   } catch (error) {

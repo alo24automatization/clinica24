@@ -804,7 +804,7 @@ export const OfflineClients = () => {
             setCheck(data);
             if (auth.clinica?.reseption_and_pay) {
                 setOpenSmallCheck(IsPayFromReseption);
-                sessionStorage.clear();
+                sessionStorage.removeItem('payFromReseption');
                 setSmallCheckType("done");
                 if (IsPayFromReseption) {
                     history.push("/alo24");
@@ -827,11 +827,6 @@ export const OfflineClients = () => {
             setIsActive(true);
         }
     };
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
     // useEffect
 
     const [s, setS] = useState(0);
@@ -843,7 +838,7 @@ export const OfflineClients = () => {
             getBaseUrl();
         }
     }, [auth, getConnectors, getBaseUrl, s, beginDay, endDay]);
-
+    const [turnCheckData, setTurnCheckData] = useState(null)
     //====================================================================
     //====================================================================
     return (
@@ -897,6 +892,8 @@ export const OfflineClients = () => {
                             />
                         </div>
                         <TableClients
+                            turnCheckData={turnCheckData}
+                            setTurnCheckData={setTurnCheckData}
                             setVisible={setVisible}
                             modal1={modal1}
                             setModal1={setModal1}
@@ -930,6 +927,7 @@ export const OfflineClients = () => {
             </div>
 
             <CheckModal
+                turnCheckData={turnCheckData}
                 baseUrl={baseUrl}
                 openSmallCheck={openSmallCheck}
                 connector={check}

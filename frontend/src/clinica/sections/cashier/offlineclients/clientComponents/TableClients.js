@@ -20,6 +20,7 @@ export const TableClients = ({
   setModal1,
   modal,
   changeStart,
+                               setTurnCheckData,
   changeEnd,
   searchPhone,
   setClient,
@@ -305,6 +306,7 @@ export const TableClients = ({
                             changeClient(connector, key);
                             setVisible(true);
                             setCheck(connector);
+                            setTurnCheckData(connector)
                             window.scrollTo({
                               top: 0,
                               behavior: "smooth",
@@ -326,6 +328,7 @@ export const TableClients = ({
                           className="btn btn-primary py-0"
                           onClick={() => {
                             setCheck(connector);
+                            setTurnCheckData(connector)
                             setModal1(true);
                           }}
                         >

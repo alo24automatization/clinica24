@@ -20,11 +20,17 @@ router.get("/clinica/connector_doctor_has/:id", (req, res) => {
 router.get("/clinica/reseption_pay/:id", (req, res) => {
   require("./clinica.route").getreseption_payAccess(req, res);
 });
+router.get("/clinica/reseption_check/:id", (req, res) => {
+  require("./clinica.route").getreseption_turnCheck(req, res);
+});
 router.put("/clinica/update", (req, res) => {
   require("./clinica.route").update(req, res);
 });
 router.patch("/clinica/reseption_pay/:id", (req, res) => {
   require("./clinica.route").updateReseptionPayAccess(req, res);
+});
+router.patch("/clinica/reseption_check/:id", (req, res) => {
+  require("./clinica.route").updateReseptionTurnCheckVisible(req, res);
 });
 router.patch("/clinica/connector_doctor_has/:id", (req, res) => {
   require("./clinica.route").updateConnectorDoctorHas(req, res);
