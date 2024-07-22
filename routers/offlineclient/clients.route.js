@@ -1450,7 +1450,6 @@ module.exports.getDepartments = async (clinicaId, departments_ids, next, clientI
                     latestServices.set(service.client.toString(), service);
                 });
 
-// Convert the Map back to an array
                 const uniqueServices = Array.from(latestServices.values());
 
                 if (!next && clientId) {
