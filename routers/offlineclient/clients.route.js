@@ -1397,25 +1397,29 @@ module.exports.getDepartments = async (clinicaId, departments_ids, next, clientI
             .select("name room probirka  letter floor")
             .populate("doctor", "firstname lastname")
             .lean();
+
         for (const department of departments) {
             if (department.probirka) {
                 const connectors = await OfflineConnector.find({
                     clinica: clinicaId,
                     department: department._id,
-                    accept: false,
-                    payment:true,
+                    accept:false,
                     createdAt: {
                         $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
                     },
-                }).populate("services","turn").populate("client").lean();
-                department.turn=0;
+                })
+                    .populate("services", "turn")
+                    .populate("client")
+                    .lean();
+
+                const filteredConnectors = connectors.filter(connector =>connector.payments && connector.payments.length > 0);
                 if (!next && clientId) {
-                    department.turn = connectors.find((connector) => connector?.client?._id.toString() === clientId)?.services[0].turn;
-                    department.waiting = connectors.length - 1;
+                    department.turn = filteredConnectors.find((connector) => connector?.client?._id.toString() === clientId)?.services[0].turn;
+                    department.waiting = filteredConnectors.length - 1;
                 } else {
-                    if (connectors[0] && connectors[0]?.services[0].turn) {
-                        department.turn = connectors[0].services[0].turn;
-                        department.waiting = connectors.length - 1;
+                    if (filteredConnectors[0] && filteredConnectors[0]?.services[0].turn) {
+                        department.turn = filteredConnectors[0].services[0].turn;
+                        department.waiting = filteredConnectors.length - 1;
                     }
                 }
             } else {
@@ -1430,21 +1434,44 @@ module.exports.getDepartments = async (clinicaId, departments_ids, next, clientI
                 })
                     .sort({turn: -1})
                     .lean();
+                // if (!next && clientId) {
+                //     department.turn = allServices.find(service => service?.client.toString() === clientId)?.turn;
+                //     department.waiting = allServices.length - 1;
+                // } else {
+                //     const index = allServices?.length - 1 !== -1;
+                //     if (allServices[index ? allServices?.length - 1 : 0] && allServices[index ? allServices?.length - 1 : 0]?.turn) {
+                //         department.turn = allServices[index ? allServices?.length - 1 : 0].turn;
+                //         department.waiting = allServices.;
+                //     }
+                // }
+                const latestServices = new Map();
+
+                allServices.forEach(service => {
+                    latestServices.set(service.client.toString(), service);
+                });
+
+// Convert the Map back to an array
+                const uniqueServices = Array.from(latestServices.values());
+
                 if (!next && clientId) {
-                    department.turn = allServices.find(service => service?.client.toString() === clientId)?.turn;
-                    department.waiting = allServices.length - 1;
+                    const clientService = uniqueServices.find(service => service.client.toString() === clientId);
+
+                    if (clientService && clientService.turn) {
+                        department.turn = clientService.turn;
+                        department.waiting = uniqueServices.length - 1;
+                    }
                 } else {
-                    const index = allServices?.length - 1 !== -1;
-                    if (allServices[index ? allServices?.length - 1 : 0] && allServices[index ? allServices?.length - 1 : 0]?.turn) {
-                        department.turn = allServices[index ? allServices?.length - 1 : 0].turn;
-                        department.waiting = allServices.length - 1;
+                    const lastService = uniqueServices[uniqueServices.length - 1];
+
+                    if (lastService && lastService.turn) {
+                        department.turn = lastService.turn;
+                        department.waiting = uniqueServices.length - 1;
                     }
                 }
             }
         }
         return departments?.filter((item) => item.turn);
     } catch (error) {
-        console.log(error.message);
         throw new Error("Serverda xatolik yuz berdi...");
     }
 };

@@ -21,7 +21,7 @@ const TurnCheck = (props) => {
                         turn: service?.turn,
                         letter: service?.department?.letter,
                         room: service?.department?.room,
-                        floor: service?.department?.room,
+                        floor: service?.department?.floor,
                         probirka: service?.department?.probirka,
                         brondate: connector.client.was_online
                             ? connector.client.brondate
@@ -54,7 +54,7 @@ const TurnCheck = (props) => {
                                                         </span>
                 <div className={"grid grid-cols-2 mt-1"}>
                    <span
-                       className={"border-r-2  px-2 border-black text-3xl font-semibold text-right mr-1"}>{item['floor']}</span>
+                       className={"border-r-2  px-2 border-black text-3xl font-semibold text-right mr-1"}>{item?.floor}</span>
                     <span
                         className={" text-3xl px-2 font-semibold"}>{item?.room}-Xona</span>
                 </div>

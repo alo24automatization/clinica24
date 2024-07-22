@@ -38,6 +38,7 @@ const DepartmentsTurns = () => {
                     return updatedTurns.filter(dep => dep._id === id);
                 }
                 if (localStorage.getItem("spoken") !== updatedTurns[0]?.turn + updatedTurns[0]?.letter + updatedTurns[0]?.room) {
+                    console.log("a")
                     speakTurn(updatedTurns[0]?.turn, updatedTurns[0]?.room, updatedTurns[0]?.letter);
                 }
                 return updatedTurns;
