@@ -750,7 +750,7 @@ export const OfflineClients = () => {
     const createHandler = async () => {
         setIsActive(false);
         try {
-            const data = await request(
+           await request(
                 `/api/cashier/offline/payment`,
                 "POST",
                 {
@@ -762,62 +762,64 @@ export const OfflineClients = () => {
                 {
                     Authorization: `Bearer ${auth.token}`,
                 }
-            );
-            localStorage.setItem("data", data);
-            setModal(false);
-            setVisible(false);
-            const socket = socketIOClient(ENDPOINT, {
-                path: '/ws',
-                withCredentials: true
-            });
-            socket.on('connect', () => {
-                console.log('Socket connected!');
-                socket.emit('getDepartments', {
-                    clinicaId: auth?.clinica?._id,
-                    next: true,
-                    clientId: undefined,
-                    departments_ids: [services[0].department?._id]
-                }, (response) => {
-                    console.log('Socket response:', response);
-                    // Disconnect the socket after the operation
-                    socket.disconnect();
-                    console.log('Socket disconnected!');
+            ).then(data=>{
+                localStorage.setItem("data", data);
+                setModal(false);
+                setVisible(false);
+                const socket = socketIOClient(ENDPOINT, {
+                    path: '/ws',
+                    withCredentials: true
                 });
-            });
-
-            socket.on('connect_error', (err) => {
-                console.error('Connection error:', err);
+                socket.on('connect', () => {
+                    console.log('Socket connected!');
+                    socket.emit('getDepartments', {
+                        clinicaId: auth?.clinica?._id,
+                        next: true,
+                        clientId: undefined,
+                        departments_ids: [services[0].department?._id]
+                    }, (response) => {
+                        console.log('Socket response:', response);
+                        // Disconnect the socket after the operation
+                        socket.disconnect();
+                        console.log('Socket disconnected!');
+                    });
+                });
+    
+                socket.on('connect_error', (err) => {
+                    console.error('Connection error:', err);
+                    notify({
+                        title: t("Socket connection error."),
+                        description: "",
+                        status: "error",
+                    });
+                    setIsActive(true);
+                });
+    
                 notify({
-                    title: t("Socket connection error."),
+                    title: t("To'lov muvaffaqqiyatli amalga oshirildi."),
                     description: "",
-                    status: "error",
+                    status: "success",
                 });
-                setIsActive(true);
-            });
-
-            notify({
-                title: t("To'lov muvaffaqqiyatli amalga oshirildi."),
-                description: "",
-                status: "success",
-            });
-            setAll();
-            setCheck(data);
-            if (auth.clinica?.reseption_and_pay) {
-                setOpenSmallCheck(IsPayFromReseption);
-                sessionStorage.removeItem('payFromReseption');
-                setSmallCheckType("done");
-                if (IsPayFromReseption) {
-                    history.push("/alo24");
+                setAll();
+                setCheck(data);
+                if (auth.clinica?.reseption_and_pay) {
+                    setOpenSmallCheck(IsPayFromReseption);
+                    sessionStorage.removeItem('payFromReseption');
+                    setSmallCheckType("done");
+                    if (IsPayFromReseption) {
+                        history.push("/alo24");
+                    }
                 }
-            }
-            getConnectors(beginDay, endDay);
-            setTimeout(() => {
-                setIsActive(true);
-            }, 1000);
-            setOpenSmallCheck(true)
-            setTimeout(() => {
-                setOpenSmallCheck(false)
-            }, 1000);
+                getConnectors(beginDay, endDay);
+                setTimeout(() => {
+                    setIsActive(true);
+                }, 1000);
+                setOpenSmallCheck(true)
+                setTimeout(() => {
+                    setOpenSmallCheck(false)
+                }, 1000);
+            })
+            
         } catch (error) {
             notify({
                 title: t(`${error}`),

@@ -395,6 +395,67 @@ module.exports.updateRequiredFields = async (req, res) => {
     });
   }
 };
+module.exports.getAd=async (req,res)=>{
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("ad");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    res.status(200).json({
+      ad: clinica.ad,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+}
+module.exports.updateAd = async (req, res) => {
+  const { id } = req.params;
+  const { ad } = req.body;
+
+  // Check if the ID and ad fields are provided
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID ko'rsatilmagan.",
+    });
+  }
+
+  try {
+    // Find the document by ID and update the 'ad' field
+    const clinica = await Clinica.findById(id);
+    
+    if (!clinica) {
+      return res.status(404).json({
+        message: "Diqqat! Clinica ID si topilmadi.",
+      });
+    }
+    
+    // Update the 'ad' field
+    clinica.ad = ad;
+    
+    // Save the updated document
+    await clinica.save();
+    
+    console.log(clinica);
+    res.status(200).json({ message: "Ma'lumot saqlandi!" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+};
+
+
 
 module.exports.updateReseptionPayAccess = async (req, res) => {
   const { id } = req.params;

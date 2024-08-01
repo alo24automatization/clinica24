@@ -213,7 +213,7 @@ export const OnlineClients = () => {
 
     const createHandler = useCallback(async (id) => {
         try {
-            const data = await request(
+             await request(
                 `/api/onlineclient/client/register`,
                 "POST",
                 {
@@ -249,7 +249,7 @@ export const OnlineClients = () => {
         connectors,
         clearDatas,
     ]);
-
+    
     const updateHandler = useCallback(async () => {
         if (checkClientData(client)) {
             return notify(checkClientData(client));

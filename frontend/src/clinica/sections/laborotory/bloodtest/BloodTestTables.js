@@ -21,9 +21,7 @@ const BloodTestTables = ({
     loading,
     handleApprove
 }) => {
-
     const {t} = useTranslation()
-
     return (
         <div className="shadow-lg border-alotrade table-container">
             <div className="table-responsive">

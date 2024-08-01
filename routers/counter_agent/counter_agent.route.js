@@ -10,9 +10,6 @@ router.post('/counter_agent/doctors_services/get', auth, (req, res) => {
     require('./counter_agent').get(req, res);
 })
 
-
-
-
 router.post('/counter_agent/statsionar/get', auth, (req, res) => {
     require('./counter_agent').getStatsionarProfit(req, res);
 })

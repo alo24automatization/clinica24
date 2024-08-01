@@ -8,6 +8,7 @@ const clinica = new Schema(
         site: {type: String},
         organitionName: {type: String},
         image: {type: String, required: true},
+        ad: {type: String, required: false,default:null},
         blanka: {type: String, required: false},
         phone1: {type: String, required: true},
         phone2: {type: String},
@@ -59,6 +60,7 @@ function validateClinica(clinica) {
         name2: Joi.string(),
         organitionName: Joi.string(),
         image: Joi.string().required(),
+        ad:Joi.string().optional().allow(null).default(null),
         blanka: Joi.string().optional(),
         phone1: Joi.string().required(),
         turnCheckVisible: Joi.boolean().default(false),
@@ -80,6 +82,7 @@ function validateClinica(clinica) {
         ifud2: Joi.string(),
         ifud3: Joi.string(),
         telegramId: Joi.string(),
+
         close_date: Joi.date().optional(),
         // isCreateUser: Joi.boolean().optional(),
     });

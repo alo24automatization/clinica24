@@ -186,10 +186,24 @@ export const BloodTest = () => {
             getDoctorClients(beginDay, endDay);
         }
     }, [auth, beginDay, s, endDay, getDoctorClients]);
-
+    let socket = null;
+    const getSocketInstance = () => {
+        if (!socket) {
+            socket = socketIOClient(ENDPOINT, {
+                path: '/ws',
+                withCredentials: true
+            });
+            socket.on('disconnect', () => {
+                console.log('Socket disconnected!');
+                // Clean up the socket instance when disconnected
+                socket = null;
+            }); 
+        }
+        return socket;
+    };
     const approveLab = async () => {
         try {
-            const data = await request(
+          request(
                 `/api/labaratory/approve`,
                 "POST",
                 {
@@ -198,19 +212,14 @@ export const BloodTest = () => {
                 {
                     Authorization: `Bearer ${auth.token}`,
                 }
-            );
-            notify({
-                title: data.message,
-                description: "",
-                status: "success",
-            });
-            const socket = socketIOClient(ENDPOINT, {
-                path: '/ws',
-                withCredentials: true
-            });
-            console.log(doctorClients[0].services[0].department?._id)
-            socket.on('connect', () => {
-                console.log('Socket connected!');
+            ).then((data)=>{
+                notify({
+                    title: data.message,
+                    description: "",
+                    status: "success",
+                });
+                const socket = getSocketInstance();
+             if(socket){
                 socket.emit('getDepartments', {
                     clinicaId: auth?.clinica?._id,
                     next: true,
@@ -219,20 +228,16 @@ export const BloodTest = () => {
                 }, (response) => {
                     console.log('Socket response:', response);
                     socket.disconnect();
+                    socket=null;
                     console.log('Socket disconnected!');
                 });
-            });
-
-            socket.on('connect_error', (err) => {
-                console.error('Connection error:', err);
-                notify({
-                    title: t("Socket connection error."),
-                    description: "",
-                    status: "error",
-                });
-            });
-            setModal(false);
-            getDoctorClients(beginDay, endDay);
+             }else {
+                console.error('Socket connection is not established.');
+            }
+        
+                setModal(false);
+                getDoctorClients(beginDay, endDay);
+            })
         } catch (error) {
             notify({
                 title: error,

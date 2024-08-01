@@ -274,17 +274,28 @@ export const DoctorClients = () => {
     const ENDPOINT =
         process.env.REACT_APP_API_ENDPOINT;
 
+        let socket = null;
 
+        const getSocketInstance = () => {
+            if (!socket) {
+                socket = socketIOClient(ENDPOINT, {
+                    path: '/ws',
+                    withCredentials: true
+                });
+                socket.on('disconnect', () => {
+                    console.log('Socket disconnected!');
+                    // Clean up the socket instance when disconnected
+                    socket = null;
+                });
+            }
+            return socket;
+        };
     const callClient = (clientId, department) => {
         fetchDepartmentsTurns(false, clientId, department)
     }
     const fetchDepartmentsTurns = (next, clientId, department) => {
-        const socket = socketIOClient(ENDPOINT, {
-            path: '/ws',
-            withCredentials: true
-        });
-        socket.on('connect', () => {
-            console.log('Socket connected!');
+        const socket = getSocketInstance();
+        if (socket) {
             socket.emit('getDepartments', {
                 clinicaId: auth?.clinica?._id,
                 next,
@@ -292,11 +303,14 @@ export const DoctorClients = () => {
                 departments_ids: [department]
             }, (response) => {
                 console.log('Socket response:', response);
-                // Disconnect the socket after the operation
-                socket.disconnect();
-                console.log('Socket disconnected!');
+                socket = null;
+                // Optionally, you can choose to disconnect the socket here
+                // if you don't need it for further use.
+                // socket.disconnect(); // Uncomment if you want to disconnect after use
             });
-        });
+        } else {
+            console.error('Socket connection is not established.');
+        }
     };
     const getClientsByBorn = (e) => {
         if (clientsType === 'offline') {

@@ -3,7 +3,6 @@ import TurnRouter from "./TurnRouter";
 import Navbar from "./components/Navbar";
 const Turns = () => {
     return (<>
-
         <TurnRouter/>
     </>);
 };

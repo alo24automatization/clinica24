@@ -1,4 +1,4 @@
-import {FormControl, FormLabel, useToast,Checkbox} from "@chakra-ui/react";
+import { FormControl, FormLabel, useToast, Checkbox } from "@chakra-ui/react";
 import { faL, faPenAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -11,7 +11,7 @@ import { DatePickers } from "../reseption/onlineclients/clientComponents/DatePic
 import { RegisterClient } from "../reseption/onlineclients/clientComponents/RegisterClient";
 import { Modal, Modal as Modal2 } from "./components/Modal";
 import Select from "react-select";
-
+import socketIOClient from "socket.io-client";
 export const OnlineClients = () => {
   const [beginDay, setBeginDay] = useState(new Date());
   const [endDay, setEndDay] = useState(
@@ -224,18 +224,19 @@ export const OnlineClients = () => {
           Authorization: `Bearer ${auth.token}`,
         }
       );
+
       // setClient({ ...client, serviceType: null, service: null, queue: null, bronTime: null, })
       // setDisableds({ time: false, queue: false })
       // setService([])
       // setServiceTypes([])
       // Tozalash amallari
       setClient(initialClientState);
-      console.log(initialClientState);
       setService([]);
       setServiceTypes([]);
       setServiceOptions([]);
       setDisableds({ time: false, queue: false });
       getServiceType();
+      updateOnlineClientsOnSocket(client.department)
       notify({
         title: t("Mijoz muvaffaqqiyatli yaratildi."),
         description: "",
@@ -262,7 +263,28 @@ export const OnlineClients = () => {
     connectors,
     clearDatas,
   ]);
+  const updateOnlineClientsOnSocket = (id) => {
+    const ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
+    const socket = socketIOClient(ENDPOINT, {
+      path: "/ws",
+      withCredentials: true,
+    });
+    socket.on("connect", () => {
+      socket.emit("getDepartmentsOnline", {
+        clinicaId: auth?.clinica?._id,
+        departments_id: id,
+      });
+    });
 
+    socket.on("connect_error", (err) => {
+      console.error("Connection error:", err);
+      notify({
+        title: t("Socket connection error."),
+        description: "",
+        status: "error",
+      });
+    });
+  };
   const getServiceType = async () => {
     try {
       const data = await request(
@@ -512,25 +534,33 @@ export const OnlineClients = () => {
     [auth.token, t]
   );
 
-  const [filteredCurrentConnectors, setFilteredCurrentConnectors] = useState([]);
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [filterCheckBoxChecked, setFilterCheckBoxChecked] = useState({queue: false, time: false})
+  const [filteredCurrentConnectors, setFilteredCurrentConnectors] = useState(
+    []
+  );
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterCheckBoxChecked, setFilterCheckBoxChecked] = useState({
+    queue: false,
+    time: false,
+  });
   const changeStatus = async (status) => {
-    const newArr = currentConnectors.slice(indexFirstConnector, indexLastConnector)
+    const newArr = currentConnectors.slice(
+      indexFirstConnector,
+      indexLastConnector
+    );
     if (status === "queue") {
-      setFilterStatus(status)
-      setFilteredCurrentConnectors(newArr.filter(item => item.queue))
-      setFilterCheckBoxChecked({time: false, queue: true})
+      setFilterStatus(status);
+      setFilteredCurrentConnectors(newArr.filter((item) => item.queue));
+      setFilterCheckBoxChecked({ time: false, queue: true });
     } else if (status === "time") {
-      setFilterStatus(status)
-      setFilteredCurrentConnectors(newArr.filter(item => !item.queue))
-      setFilterCheckBoxChecked({time: true, queue: false})
+      setFilterStatus(status);
+      setFilteredCurrentConnectors(newArr.filter((item) => !item.queue));
+      setFilterCheckBoxChecked({ time: true, queue: false });
     } else {
-      setFilterStatus(status)
-      setFilteredCurrentConnectors([])
-      setFilterCheckBoxChecked({time: false, queue: false})
+      setFilterStatus(status);
+      setFilteredCurrentConnectors([]);
+      setFilterCheckBoxChecked({ time: false, queue: false });
     }
-  }
+  };
   //====================================================================
   //====================================================================
   const handleClientEdit = (connector) => {
@@ -795,10 +825,10 @@ export const OnlineClients = () => {
                   <div className="bg-white flex items-center p-2 gap-4">
                     <div>
                       <select
-                          className="form-control form-control-sm selectpicker"
-                          placeholder="Bo'limni tanlang"
-                          onChange={setPageSize}
-                          style={{minWidth: "50px"}}
+                        className="form-control form-control-sm selectpicker"
+                        placeholder="Bo'limni tanlang"
+                        onChange={setPageSize}
+                        style={{ minWidth: "50px" }}
                       >
                         <option value={10}>10</option>
                         <option value={25}>25</option>
@@ -808,27 +838,27 @@ export const OnlineClients = () => {
                     </div>
                     <div>
                       <input
-                          onChange={searchFullname}
-                          style={{maxWidth: "100px", minWidth: "100px"}}
-                          type="search"
-                          className="w-100 form-control form-control-sm selectpicker"
-                          placeholder={t("F.I.O")}
+                        onChange={searchFullname}
+                        style={{ maxWidth: "100px", minWidth: "100px" }}
+                        type="search"
+                        className="w-100 form-control form-control-sm selectpicker"
+                        placeholder={t("F.I.O")}
                       />
                     </div>
                     <div>
                       <input
-                          onChange={searchPhone}
-                          style={{maxWidth: "100px", minWidth: "100px"}}
-                          type="search"
-                          className="w-100 form-control form-control-sm selectpicker"
-                          placeholder={t("Tel")}
+                        onChange={searchPhone}
+                        style={{ maxWidth: "100px", minWidth: "100px" }}
+                        type="search"
+                        className="w-100 form-control form-control-sm selectpicker"
+                        placeholder={t("Tel")}
                       />
                     </div>
                     <div>
                       <select
-                          className="form-control form-control-sm selectpicker"
-                          placeholder="Bo'limni tanlang"
-                          onChange={changeType}
+                        className="form-control form-control-sm selectpicker"
+                        placeholder="Bo'limni tanlang"
+                        onChange={changeType}
                       >
                         <option value={"today"}>Royxat</option>
                         <option value={"late"}>O'tganlar</option>
@@ -836,67 +866,76 @@ export const OnlineClients = () => {
                     </div>
                     <div className={"flex items-center gap-x-2 pt-1"}>
                       <FormControl
-                          className={"flex items-center"}
-                          onChange={(e) => changeStatus(e.target.checked ? 'queue' : 'all')}>
+                        className={"flex items-center"}
+                        onChange={(e) =>
+                          changeStatus(e.target.checked ? "queue" : "all")
+                        }
+                      >
                         <FormLabel fontSize={"0.825rem"} fontWeight={"normal"}>
                           {t("Navbat")}
                         </FormLabel>
-                        <Checkbox isChecked={filterCheckBoxChecked.queue}/>
+                        <Checkbox isChecked={filterCheckBoxChecked.queue} />
                       </FormControl>
                       <FormControl
-                          className={"flex items-center"}
-                          onChange={(e) => changeStatus(e.target.checked ? 'time' : 'all')}>
+                        className={"flex items-center"}
+                        onChange={(e) =>
+                          changeStatus(e.target.checked ? "time" : "all")
+                        }
+                      >
                         <FormLabel fontSize={"0.825rem"} fontWeight={"normal"}>
                           {t("Vaqt")}
                         </FormLabel>
-                        <Checkbox isChecked={filterCheckBoxChecked.time}/>
+                        <Checkbox isChecked={filterCheckBoxChecked.time} />
                       </FormControl>
                     </div>
                     <div className="text-center ml-auto">
                       <Pagination
-                          setCurrentDatas={setCurrentConnectors}
-                          datas={connectors}
-                          setCurrentPage={setCurrentPage}
-                          countPage={countPage}
-                          totalDatas={connectors.length}
+                        setCurrentDatas={setCurrentConnectors}
+                        datas={connectors}
+                        setCurrentPage={setCurrentPage}
+                        countPage={countPage}
+                        totalDatas={connectors.length}
                       />
                     </div>
                     <div
-                        className="text-center flex gap-2"
-                        style={{maxWidth: "300px", overflow: "hidden"}}
+                      className="text-center flex gap-2"
+                      style={{ maxWidth: "300px", overflow: "hidden" }}
                     >
-                      <DatePickers changeDate={changeStart}/>
+                      <DatePickers changeDate={changeStart} />
                     </div>
                   </div>
                   <table className="table m-0">
                     <thead>
-                    <tr>
-                      <th className="border py-1 bg-alotrade text-[16px]">
-                        №
-                      </th>
-                      <th className="border py-1 bg-alotrade text-[16px]">
-                        {t("F.I.O")}
-                      </th>
-                      <th className="border py-1 bg-alotrade text-[16px]">
-                        {t("Tel")}
-                      </th>
-                      <th className="border py-1 bg-alotrade text-[16px]">
-                        {t("Kelish sanasi")}
-                      </th>
-                      <th className="border py-1 bg-alotrade text-[16px]">
-                        {t("Tahrirlash")}
-                      </th>
-                      <th className="border py-1 bg-alotrade text-[16px]">
-                        {t("O'chirish")}
-                      </th>
-                    </tr>
+                      <tr>
+                        <th className="border py-1 bg-alotrade text-[16px]">
+                          №
+                        </th>
+                        <th className="border py-1 bg-alotrade text-[16px]">
+                          {t("F.I.O")}
+                        </th>
+                        <th className="border py-1 bg-alotrade text-[16px]">
+                          {t("Tel")}
+                        </th>
+                        <th className="border py-1 bg-alotrade text-[16px]">
+                          {t("Kelish sanasi")}
+                        </th>
+                        <th className="border py-1 bg-alotrade text-[16px]">
+                          {t("Tahrirlash")}
+                        </th>
+                        <th className="border py-1 bg-alotrade text-[16px]">
+                          {t("O'chirish")}
+                        </th>
+                      </tr>
                     </thead>
                     <tbody>
-                    {(filterStatus !== "all" ? filteredCurrentConnectors : currentConnectors).map((connector, key) => {
-                      return (
+                      {(filterStatus !== "all"
+                        ? filteredCurrentConnectors
+                        : currentConnectors
+                      ).map((connector, key) => {
+                        return (
                           <tr key={key}>
                             <td
-                                className="border py-1 font-weight-bold text-right"
+                              className="border py-1 font-weight-bold text-right"
                               style={{ maxWidth: "30px !important" }}
                             >
                               {currentPage * countPage + key + 1}

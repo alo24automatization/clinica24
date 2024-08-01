@@ -37,43 +37,46 @@ module.exports.create = async (req, res) => {
         phone: phone,
         statsionar_profit: statsionar_profit,
       });
-
-      const counterDoctor = await CounterDoctor.findByIdAndUpdate(_id).lean();
-
-      return res.status(200).json(counterDoctor);
+      const counterDoctor = await CounterDoctor.findById(_id).lean();
+      return res.status(201).json(counterDoctor);
     } else {
-      let firstCounterAgent;
-      if (!counter_agent) {
+      let firstCounterAgent = counter_agent;
+
+      if (!firstCounterAgent) {
         firstCounterAgent = await User.findOne({
           clinica,
           type: "CounterAgent",
-        })
-          .select("_id") // Only select the _id field
-          .lean();
+        });
+        console.log(firstCounterAgent);
+
         if (!firstCounterAgent) {
-          res.status(400).json({
+          return res.status(400).json({
             message: "Diqqat! Kounter Agent ma'lumotlari topilmadi.",
           });
         }
+
+        firstCounterAgent = firstCounterAgent._id;
       }
+
       const counterDoctor = new CounterDoctor({
         firstname,
         lastname,
         clinica,
         clinica_name,
-        counter_agent: counter_agent ? counter_agent : firstCounterAgent._id,
+        counter_agent: firstCounterAgent,
         phone,
         statsionar_profit,
       });
-      await counterDoctor.save();
 
-      return res.status(200).json(counterDoctor);
+      await counterDoctor.save();
+      return res.status(201).json(counterDoctor);
     }
   } catch (error) {
     console.log(error);
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
+
 const customAlphabetCompare = (a, b) => {
   const alphabet = [
     ...'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ', // Russian

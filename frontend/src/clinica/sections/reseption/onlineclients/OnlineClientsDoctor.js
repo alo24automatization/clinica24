@@ -15,6 +15,7 @@ import {
 import {DatePickers} from "./clientComponents/DatePickers";
 import {Pagination} from "../components/Pagination";
 import Select from 'react-select';
+import socketIOClient from "socket.io-client";
 
 
 export const OnlineClientsDoctor = () => {
@@ -228,7 +229,7 @@ export const OnlineClientsDoctor = () => {
     //====================================================================
     //====================================================================
     // CreateHandler
-
+   
     const createHandler = useCallback(async () => {
         try {
             await request(`/api/onlineclient/client/register`, "POST", {
@@ -244,7 +245,7 @@ export const OnlineClientsDoctor = () => {
             // setDisableds({ time: false, queue: false })
             // setService([])
             // setServiceTypes([])
-
+            updateOnlineClientsOnSocket(doctor?.specialty?._id)
             setClient(initialClientState);
             setService([]);
             setServiceTypes([]);
@@ -265,7 +266,29 @@ export const OnlineClientsDoctor = () => {
         }
     }, [auth, client, notify, request, indexLastConnector, indexFirstConnector, connectors, clearDatas,]);
 
-
+    const updateOnlineClientsOnSocket = (id) => {
+        console.log(id);
+        const ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
+        const socket = socketIOClient(ENDPOINT, {
+          path: "/ws",
+          withCredentials: true,
+        });
+        socket.on("connect", () => {
+          socket.emit("getDepartmentsOnline", {
+            clinicaId: auth?.clinica?._id,
+            departments_id: id,
+          });
+        });
+    
+        socket.on("connect_error", (err) => {
+          console.error("Connection error:", err);
+          notify({
+            title: t("Socket connection error."),
+            description: "",
+            status: "error",
+          });
+        });
+      };
     const getServiceType = async () => {
         try {
             const data = await request(`/api/services/servicetype/getalldepartment`, "POST", {

@@ -39,9 +39,9 @@ const Navbar = ({hasHead}) => {
             </Button>
         </div>
         {hasHead ? <div className={"grid grid-cols-3 w-full font-semibold pr-3"}>
-            <h1 className={"text-5xl text-white text-center !mr-[60px] "}>{t("Navbat")}</h1>
-            <h1 className={"text-5xl text-white text-center  !mr-[20px]"}>{t("Xona")}</h1>
-            <h1 className={"text-5xl text-white text-center  !mr-[20px]"}>{t("Kutmoqda")}</h1>
+            <h1 className={"text-4xl text-white text-center !mr-[60px] "}>{t("Navbat")}</h1>
+            <h1 className={"text-4xl text-white text-center  !mr-[20px]"}>{t("Xona")}</h1>
+            <h1 className={"text-4xl text-white text-center  !mr-[20px]"}>{t("Kutmoqda")}</h1>
         </div> : null}
     </div>
 }
