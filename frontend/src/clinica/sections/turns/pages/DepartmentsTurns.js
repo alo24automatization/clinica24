@@ -133,12 +133,12 @@ const DepartmentsTurns = () => {
       lastTurn = emergencyTurn;
     }
     setLastTurnShow(lastTurn);
-    console.log(lastTurn?.speak);
     if (
       localStorage.getItem("spoken") !==
         lastTurn?.turn + lastTurn?.letter + lastTurn?.room ||
       lastTurn?.speak
     ) {
+      setSeconds(10)
       speakTurn(lastTurn?.turn, lastTurn?.room, lastTurn?.letter);
     }
   }, [turns]);
@@ -166,7 +166,20 @@ const DepartmentsTurns = () => {
     "heif",
     "heic",
   ];
+  const [seconds, setSeconds] = useState(10);
+  useEffect(() => {
+    // Exit early if countdown is finished
+    if (seconds <= 0) {
+      return;
+    }
 
+    // Set up the timer
+    const timer = setInterval(() => {
+      setSeconds((prevSeconds) => prevSeconds - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [seconds]);
   const fileExtension = auth?.clinica?.ad?.split(".").pop().toLowerCase();
   const isImage = allowedImageExtensions.includes(fileExtension);
 
@@ -241,7 +254,7 @@ const DepartmentsTurns = () => {
           </div>
         ) : null}
       </div>
-      {turns.length > 0 ? (
+      {seconds !== 0 && turns.length > 0 ? (
         <div className="w-[50%] flex flex-col justify-center gap-y-3 items-center">
           <div className="border-4 border-blue-500 w-[340px] py-2">
             <h1 className="text-9xl font-semibold text-center text-blue-500">
@@ -265,6 +278,7 @@ const DepartmentsTurns = () => {
               <video
                 autoPlay
                 muted
+                loop={true}
                 src={`${baseUrl}/api/upload/file/${auth.clinica.ad}`}
                 type={`video/${fileExtension}`}
                 ref={videoRef}

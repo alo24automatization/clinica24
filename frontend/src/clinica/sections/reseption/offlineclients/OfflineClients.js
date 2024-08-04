@@ -18,6 +18,8 @@ import { useTranslation } from "react-i18next";
 import Print from "../../laborotory/components/Print";
 import AllModal from "./clientComponents/AllModal";
 import { useLocation, useHistory } from "react-router-dom";
+import socketIOClient from "socket.io-client";
+
 export const OfflineClients = () => {
   const history = useHistory();
   const [beginDay, setBeginDay] = useState(
@@ -760,6 +762,37 @@ export const OfflineClients = () => {
       clearDatas();
       setVisible(false);
       getLastCardNumber();
+      const ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
+      const socket = socketIOClient(ENDPOINT, {
+        path: "/ws",
+        withCredentials: true,
+      });
+      socket.on("connect", () => {
+        console.log("Socket connected!");
+        socket.emit(
+          "getDepartmentsOnline",
+          {
+            clinicaId: auth?.clinica?._id,
+            departments_id: services[0].department?._id,
+          },
+          (response) => {
+            console.log("Socket response:", response);
+            // Disconnect the socket after the operation
+            socket.disconnect();
+            console.log("Socket disconnected!");
+          }
+        );
+      });
+
+      socket.on("connect_error", (err) => {
+        console.error("Connection error:", err);
+        notify({
+          title: t("Socket connection error."),
+          description: "",
+          status: "error",
+        });
+        setIsActive(true);
+      });
       localStorage.removeItem("newClient");
       setTimeout(() => {
         setIsActive(true);
@@ -1038,7 +1071,7 @@ export const OfflineClients = () => {
         phone: onlineclient.phone,
         brondate: onlineclient.brondate,
         bronTime: onlineclient.bronTime,
-        queue:onlineclient.queue
+        queue: onlineclient.queue,
       });
       setVisible(true);
       setSelectedDepartament(onlineclient?.department);

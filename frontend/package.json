@@ -64,6 +64,7 @@
     "react-scripts": "^5.0.0",
     "react-select": "^5.8.0",
     "react-simple-file-upload": "^1.1.0",
+    "react-speech-kit": "^3.0.1",
     "react-tilt": "^1.0.2",
     "react-to-print": "^2.14.6",
     "socket.io-client": "^4.7.5",
