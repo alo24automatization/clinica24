@@ -35,6 +35,7 @@ const TurnCheck = (props) => {
             setDeparmtents(all);
         }
     }, [connector]);
+    console.log(departments);
     // Check if services is defined and log its contents
     return (
         departments.map((item,index) => <div key={item._id}
@@ -48,6 +49,9 @@ const TurnCheck = (props) => {
                 <h1 className={"border-b-2 text-2xl  border-black font-semibold text-center"}>
                     {item.name}
                 </h1>
+                <h5 className={"text-2xl  font-semibold text-center"}>
+                    {connector.client.fullname}
+                </h5>
                 <span
                     className={"border-2 mt-3 border-black font-semibold text-center text-6xl px-4 py-2"}>
                     {item?.letter + "-" + item?.turn}
