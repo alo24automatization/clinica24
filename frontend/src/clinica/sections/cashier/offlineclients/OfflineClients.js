@@ -805,11 +805,11 @@ export const OfflineClients = () => {
                 if (auth.clinica?.reseption_and_pay) {
                     setOpenSmallCheck(IsPayFromReseption);
                     sessionStorage.removeItem('payFromReseption');
-                    setSmallCheckType("done");
                     if (IsPayFromReseption) {
                         history.push("/alo24");
                     }
                 }
+                setSmallCheckType("done");
                 getConnectors(beginDay, endDay);
                 setTimeout(() => {
                     setIsActive(true);
@@ -818,6 +818,10 @@ export const OfflineClients = () => {
                 setTimeout(() => {
                     setOpenSmallCheck(false)
                 }, 1000);
+                setTimeout(() => {
+                setSmallCheckType("all");
+                }, 1005);
+                
             })
             
         } catch (error) {

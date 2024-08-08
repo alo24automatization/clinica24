@@ -41,7 +41,6 @@ export const SmallCheck = ({
       setDeparmtents(all);
     }
   }, [connector]);
-
   return (
     <>
       <div>

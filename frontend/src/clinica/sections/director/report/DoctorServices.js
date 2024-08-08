@@ -114,11 +114,11 @@ const DoctorServices = () => {
     const searchFullname =
         (e) => {
             const searching = searchStorage.filter((item) =>
-                item.firstname
-                    .toLowerCase()
+                item?.client?.firstname
+                    ?.toLowerCase()
                     .includes(e.target.value.toLowerCase()) ||
-                item.lastname
-                    .toLowerCase()
+                item?.client?.lastname
+                    ?.toLowerCase()
                     .includes(e.target.value.toLowerCase())
             )
             setServices(searching)

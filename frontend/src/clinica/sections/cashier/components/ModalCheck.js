@@ -19,6 +19,7 @@ export const CheckModal = ({
                                setSmallCheckType,
                                openSmallCheck,
                            }) => {
+                            console.log(smallCheckType);
     const [qr, setQr] = useState();
     const componentRef = useRef();
     const smallcheckref = useRef();
@@ -46,7 +47,6 @@ export const CheckModal = ({
             handlePrint2();
         }
     }, [openSmallCheck, modal]);
-    console.log(turnCheckData)
     return (
         <div
             className={`modal ${modal ? "" : "d-none"}`}
@@ -82,7 +82,7 @@ export const CheckModal = ({
                             <div ref={smallcheckref} className="w-[10.4cm] p-2">
                                 {clinica.turnCheckVisible
                                     ? <>
-                                        <TurnCheck clinica={clinica} connector={turnCheckData}/>
+                                        <TurnCheck smallCheckType={smallCheckType} clinica={clinica} connector={turnCheckData}/>
                                     </>
                                     : (
                                         <SmallCheck
