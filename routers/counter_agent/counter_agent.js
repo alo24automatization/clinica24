@@ -119,7 +119,7 @@ module.exports.getDoctorClients = async (req, res) => {
     };
 
     const services = await OfflineService.find(query)
-      .select("service createdAt counterdoctor pieces client")
+      .select("service createdAt counterdoctor pieces client payment")
       .populate({
         path: "counterdoctor",
         select: "firstname lastname phone",
@@ -130,13 +130,11 @@ module.exports.getDoctorClients = async (req, res) => {
       })
       .populate({
         path: "service",
-        select: "name",
       })
       .lean();
 
     // Filter out services that are refused
-    const validServices = services.filter(service => !service.refuse);
-
+    const validServices = services.filter(service => !service.refuse&&service.payment);
     // Group clients and calculate doctor and agent profit
     const clients = validServices.map(service => {
       const totalprice = service.service.price * service.pieces;

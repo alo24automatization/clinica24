@@ -55,6 +55,7 @@ export const TableClients = ({
                     (24 * 60 * 60 * 1000)
                 )
             )
+
             roomprice = connector?.room?.room?.price * day
         } else {
             let begin = new Date(connector?.room?.beginday)
@@ -68,6 +69,7 @@ export const TableClients = ({
                     (24 * 60 * 60 * 1000)
                 )
             )
+            
             roomprice = connector?.room?.room?.price * day
         }
 

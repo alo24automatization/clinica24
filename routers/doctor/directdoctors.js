@@ -62,7 +62,7 @@ module.exports.getDirectService = async (req, res) => {
         })
             .populate({
                 path: 'service',
-                select: 'service pieces department client',
+                select: 'service pieces department client ',
                 populate: {
                     path: "client",
                     select: "firstname lastname"
@@ -70,18 +70,14 @@ module.exports.getDirectService = async (req, res) => {
             })
             .populate({
                 path: 'service',
-                select: 'service pieces department client',
+                select: 'service pieces department client payment refuse',
                 populate: {
                     path: "department",
                     select: "name"
                 }
             })
             .lean()
-
-            (services);
-
-        res.status(200).send(services);
-
+        res.status(200).send(services.filter(({service})=>!service.refuse&&service.payment));
     } catch (error) {
         console.log(error);
         res.status(501).json({ error: "Serverda xatolik yuz berdi..." });

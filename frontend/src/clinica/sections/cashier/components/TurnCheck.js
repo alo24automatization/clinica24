@@ -36,7 +36,6 @@ const TurnCheck = (props) => {
       setDeparmtents(all);
     }
   }, [connector]);
-  console.log(smallCheckType);
   // Check if services is defined and log its contents
   const formatDate = (born) => {
     if (!born) return null;
@@ -137,16 +136,17 @@ const TurnCheck = (props) => {
                     : !service.payment)
               )
               .map((service, index) => {
+                console.log(service);
                 return (
                   <div
                     key={service._id}
-                    className="text-[18px] flex items-center gap-x-3"
+                    className="text-[18px] space-y-2"
                   >
-                    <span className="font-semibold">
+                    <span className=" block font-semibold">
                       {" "}
                       {index + 1}. {service.service.name}
                     </span>{" "}
-                    <span className="font-extrabold">{service.service.price}</span>
+                    <span className="block text-right font-extrabold">{service.pieces +" * "+service.service.price+"="+service.pieces*service.service.price}</span>
                   </div>
                 );
               })}
@@ -161,7 +161,7 @@ const TurnCheck = (props) => {
                   (smallCheckType === "all"
                     ? service.payment
                     : !service.payment)
-              ).reduce((prev,item)=>prev+item.service.price,0)}</span>
+              ).reduce((prev,item)=>prev+item.service.price*item.pieces,0)}</span>
         </div>
       </div>
     )

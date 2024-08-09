@@ -113,16 +113,22 @@ const DoctorServices = () => {
 
     const searchFullname =
         (e) => {
-            const searching = searchStorage.filter((item) =>
-                item?.client?.firstname
-                    ?.toLowerCase()
-                    .includes(e.target.value.toLowerCase()) ||
-                item?.client?.lastname
-                    ?.toLowerCase()
-                    .includes(e.target.value.toLowerCase())
-            )
-            setServices(searching)
-            setCurrentServices(searching.slice(0, countPage))
+            if(e.target.value===""){
+        getDoctorServices(state?.startDate, state?.endDate)
+            }else{
+
+                const searching = searchStorage.filter((item) =>
+                    item?.client?.firstname
+                        ?.toLowerCase()
+                        .includes(e.target.value.toLowerCase()) ||
+                    item?.client?.lastname
+                        ?.toLowerCase()
+                        .includes(e.target.value.toLowerCase())
+                )
+                setServices(searching)
+                setSearchStrorage(searching)
+                setCurrentServices(searching.slice(0, countPage))
+            }
         }
 
     //=======================================================

@@ -277,14 +277,14 @@ export const StatsionarClients = () => {
         if (connector.room.endday) {
             const day = Math.round(
                 Math.abs(
-                    (new Date(connector.room.endday).setUTCHours(0, 0, 0, 0)
+                    (new Date(connector?.room?.endday).setHours(0, 0, 0, 0)
                         -
-                        new Date(connector.room.beginday).setUTCHours(0, 0, 0, 0))
+                        new Date(connector?.room?.beginday).setHours(0, 0, 0, 0))
                     /
                     (24 * 60 * 60 * 1000)
                 )
             )
-            roomprice = connector.room.room.price * day
+            roomprice = connector.room.room.price * day;
             setRoom({
                 price: connector.room.room.price,
                 day: day,
@@ -296,9 +296,9 @@ export const StatsionarClients = () => {
             let today = new Date()
             const day = Math.round(
                 Math.abs(
-                    (new Date(new Date(today).setHours(0, 0, 0, 0)).getTime()
+                    (new Date(connector?.room?.endday).setHours(0, 0, 0, 0)
                         -
-                        new Date(new Date(begin).setHours(0, 0, 0, 0)).getTime())
+                        new Date(connector?.room?.beginday).setHours(0, 0, 0, 0))
                     /
                     (24 * 60 * 60 * 1000)
                 )
