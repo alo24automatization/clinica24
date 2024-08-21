@@ -219,7 +219,7 @@ export const RegisterClient = ({
                         </td>
                         <td className="border py-1 text-right font-bold">
                           {" "}
-                          {room} {t("kun")}
+                          {room.day} {t("kun")}
                         </td>
                         <td className="border font-bold text-right">
                           {room.totalprice}
