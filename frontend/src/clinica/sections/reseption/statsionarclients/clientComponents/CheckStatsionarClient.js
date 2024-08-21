@@ -541,11 +541,10 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                     {t("Qarz")}:
                   </td>
                   <td className="text-right">
-                    {connector?.payments &&
-                      connector?.payments.reduce(
-                        (prev, el) => prev + el.debt,
-                        0
-                      )}
+                    {connector?.payments?.reduce(
+                      (totalDebt, payment) => totalDebt + payment.debt,
+                      0
+                    )}
                   </td>
                 </tr>
                 <tr>
