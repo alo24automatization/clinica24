@@ -6,7 +6,6 @@ import { Modal } from "../components/Modal";
 import { RegisterClient } from "./clientComponents/RegisterClient";
 import { TableClients } from "./clientComponents/TableClients";
 import { checkData, checkServices } from "./checkData/checkData";
-import { CheckModal } from "../components/ModalCheck";
 import { CheckModalStatsionar } from "../../reseption/components/ModalCheckStatsionar";
 import { useTranslation } from "react-i18next";
 // import {
