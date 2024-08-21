@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
@@ -29,6 +29,10 @@ export const RegisterClient = ({
   connector,
 }) => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    console.log(room);
+  }, []);
 
   return (
     <>
