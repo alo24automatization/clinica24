@@ -6,7 +6,6 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    console.log(connector?.payments);
     // Calculate the room price based on the stay duration
     const calculateRoomPrice = () => {
       const beginday = new Date(connector?.room?.beginday).setHours(0, 0, 0, 0);
