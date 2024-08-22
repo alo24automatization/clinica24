@@ -1486,7 +1486,7 @@ module.exports.getDepartments = async (
             department.turn = clientService.turn;
             department.waiting = uniqueServices.length - 1;
             department.emergency = true;
-            department.speak=true;
+            department.speak = true;
           }
         } else {
           const lastService = uniqueServices[uniqueServices.length - 1];
@@ -1505,7 +1505,7 @@ module.exports.getDepartments = async (
       dep_id: department._id,
       data: department.turn
         ? [
-            { 
+            {
               ...department,
               _id: department._id,
               name: department.name,
@@ -1520,7 +1520,9 @@ module.exports.getDepartments = async (
 
     // Ensure all departments_ids are represented in the final response
     const finalData = departments_ids.map((dep_id) => {
-      const existingData = data.find((item) => item.dep_id.toString() === dep_id.toString());
+      const existingData = data.find(
+        (item) => item.dep_id.toString() === dep_id.toString()
+      );
       return existingData || { dep_id, data: [] }; // Add empty data if dep_id is not found
     });
 
@@ -1529,7 +1531,6 @@ module.exports.getDepartments = async (
     throw new Error("Serverda xatolik yuz berdi...");
   }
 };
-
 
 // module.exports.getDepartments = async (clinicaId, departments_ids, next, clientId) => {
 //     try {

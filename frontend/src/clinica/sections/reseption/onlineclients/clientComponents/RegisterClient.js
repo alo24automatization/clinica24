@@ -18,10 +18,9 @@ export const RegisterClient = ({
   departments,
   setModal,
   loading,
-  clientDate
+  clientDate,
 }) => {
-
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { request } = useHttp();
   const auth = useContext(AuthContext);
 
@@ -66,22 +65,18 @@ export const RegisterClient = ({
   //   [departments]
   // );
 
-
   const toast = useToast();
 
-  const notify = useCallback(
-    (data) => {
-      toast({
-        title: data.title && data.title,
-        description: data.description && data.description,
-        status: data.status && data.status,
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-      });
-    },
-    []
-  );
+  const notify = useCallback((data) => {
+    toast({
+      title: data.title && data.title,
+      description: data.description && data.description,
+      status: data.status && data.status,
+      duration: 5000,
+      isClosable: true,
+      position: "top-right",
+    });
+  }, []);
 
   const getServiceType = async () => {
     try {
@@ -94,11 +89,13 @@ export const RegisterClient = ({
         }
       );
 
-      console.log(data)
+      console.log(data);
       data?.map((item) => {
-        setServiceTypes((old) => [...old, { value: item._id, label: item.name }]);
-      })
-
+        setServiceTypes((old) => [
+          ...old,
+          { value: item._id, label: item.name },
+        ]);
+      });
     } catch (error) {
       notify({
         title: t(`${error}`),
@@ -106,7 +103,7 @@ export const RegisterClient = ({
         status: "error",
       });
     }
-  }
+  };
 
   const getService = async (id) => {
     try {
@@ -119,11 +116,11 @@ export const RegisterClient = ({
         }
       );
 
-      console.log(data)
-      data && data?.services?.map((item) => {
-        setServices((old) => [...old, { value: item._id, label: item.name }]);
-      })
-
+      console.log(data);
+      data &&
+        data?.services?.map((item) => {
+          setServices((old) => [...old, { value: item._id, label: item.name }]);
+        });
     } catch (error) {
       notify({
         title: t(`${error}`),
@@ -131,9 +128,9 @@ export const RegisterClient = ({
         status: "error",
       });
     }
-  }
+  };
 
-  console.log(serviceTypes)
+  console.log(serviceTypes);
 
   // useEffect(() => {
   //   if (departments) {
@@ -142,10 +139,10 @@ export const RegisterClient = ({
   // }, [departments, getServices]);
 
   useEffect(() => {
-    getServiceType()
-  }, [])
+    getServiceType();
+  }, []);
 
-  console.log(client)
+  console.log(client);
   return (
     <>
       {/* Row start */}
@@ -153,7 +150,9 @@ export const RegisterClient = ({
         <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12">
           <div className="card">
             <div className="card-header">
-              <div className="card-title">{t("Mijozning shaxsiy ma'lumotlari")}</div>
+              <div className="card-title">
+                {t("Mijozning shaxsiy ma'lumotlari")}
+              </div>
             </div>
             <div className="card-body">
               <div className="row gutters">
@@ -161,7 +160,7 @@ export const RegisterClient = ({
                   <div className="form-group">
                     <label htmlFor="fullName">{t("Familiyasi")}</label>
                     <input
-                      value={client?.lastname || ''}
+                      value={client?.lastname || ""}
                       onChange={changeClientData}
                       type="text"
                       className="form-control form-control-sm"
@@ -175,7 +174,7 @@ export const RegisterClient = ({
                   <div className="form-group">
                     <label htmlFor="inputEmail">{t("Ismi")}</label>
                     <input
-                      value={client?.firstname || ''}
+                      value={client?.firstname || ""}
                       onChange={changeClientData}
                       type="text"
                       className="form-control form-control-sm"
@@ -191,13 +190,13 @@ export const RegisterClient = ({
                       <label htmlFor="education">{t("Kelish sanasi")}</label>
                       <input
                         onChange={(e) => {
-                          changeClientBorn(e)
+                          changeClientBorn(e);
                         }}
                         type="date"
                         name="born"
                         className="form-control inp"
                         placeholder=""
-                        style={{ color: '#999' }}
+                        style={{ color: "#999" }}
                         value={clientDate}
                       />
                     </div>
@@ -207,8 +206,18 @@ export const RegisterClient = ({
                       <label htmlFor="education">{t("Vaqt")}</label>
                       <input
                         onChange={(e) => {
-                          setClient({ ...client, bronTime: e.target.value })
-                          e.target.value.length > 0 ? setDisableds({ ...disableds, time: false, queue: true }) : setDisableds({ ...disableds, time: false, queue: false })
+                          setClient({ ...client, bronTime: e.target.value });
+                          e.target.value.length > 0
+                            ? setDisableds({
+                                ...disableds,
+                                time: false,
+                                queue: true,
+                              })
+                            : setDisableds({
+                                ...disableds,
+                                time: false,
+                                queue: false,
+                              });
                         }}
                         value={time}
                         type="time"
@@ -216,7 +225,7 @@ export const RegisterClient = ({
                         disabled={disableds.time}
                         className="form-control inp"
                         placeholder=""
-                        style={{ color: '#999' }}
+                        style={{ color: "#999" }}
                       />
                     </div>
                   </div>
@@ -224,10 +233,20 @@ export const RegisterClient = ({
                     <div className="form-group">
                       <label htmlFor="navbat">{t("Navbat")}</label>
                       <input
-                        value={client.queue || ''}
+                        value={client.queue || ""}
                         onChange={(e) => {
                           setClient({ ...client, queue: e.target.value });
-                          e.target.value.length > 0 ? setDisableds({ ...disableds, time: true, queue: false }) : setDisableds({ ...disableds, time: false, queue: false });
+                          e.target.value.length > 0
+                            ? setDisableds({
+                                ...disableds,
+                                time: true,
+                                queue: false,
+                              })
+                            : setDisableds({
+                                ...disableds,
+                                time: false,
+                                queue: false,
+                              });
                         }}
                         type="text"
                         disabled={disableds.queue}
@@ -252,7 +271,7 @@ export const RegisterClient = ({
                         </span>
                       </div>
                       <input
-                        value={client?.phone || ''}
+                        value={client?.phone || ""}
                         onChange={changeClientData}
                         type="number"
                         className="form-control"
@@ -266,8 +285,8 @@ export const RegisterClient = ({
                     <label htmlFor="addreSs">{t("Xizmat turi")}</label>
                     <Select
                       onChange={(e) => {
-                        getService(e.value)
-                        setClient({ ...client, serviceType: e.value })
+                        getService(e.value);
+                        setClient({ ...client, serviceType: e.value });
                       }}
                       name="serivceType"
                       options={serviceTypes}
@@ -285,11 +304,11 @@ export const RegisterClient = ({
                       name="service"
                       options={services}
                       onChange={(e) => {
-                        let data = []
+                        let data = [];
                         e.map((item) => {
-                          data.push(item.value)
-                        })
-                        setClient({ ...client, service: data })
+                          data.push(item.value);
+                        });
+                        setClient({ ...client, service: data });
                       }}
                       className="basic-multi-select"
                       classNamePrefix="select"
@@ -297,16 +316,21 @@ export const RegisterClient = ({
                   </div>
                 </div>
 
-
                 <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div className="text-right">
                     {loading ? (
-                      <button className="bg-alotrade rounded text-white py-2 px-3" disabled>
+                      <button
+                        className="bg-alotrade rounded text-white py-2 px-3"
+                        disabled
+                      >
                         <span className="spinner-border spinner-border-sm"></span>
                         Loading...
                       </button>
                     ) : (
-                      <button onClick={checkData} className="bg-alotrade rounded text-white py-2 px-3">
+                      <button
+                        onClick={checkData}
+                        className="bg-alotrade rounded text-white py-2 px-3"
+                      >
                         {t("Saqlash")}
                       </button>
                     )}
@@ -316,7 +340,6 @@ export const RegisterClient = ({
             </div>
           </div>
         </div>
-
       </div>
       {/* Row end */}
     </>

@@ -19,6 +19,15 @@ const DepartmentsTurns = () => {
   const id = queryParams.get("_id");
   const { t } = useTranslation();
   const [lastTurnShow, setLastTurnShow] = useState(null);
+
+  const [onlineClientName, setOnlineClientName] = useState(
+    localStorage.getItem("online_department_name") || ""
+  );
+
+  const storedOnlineClient = JSON.parse(
+    localStorage.getItem("selected_online_clients") || "[]"
+  );
+
   const [baseUrl, setBaseUrl] = useState();
   const { request } = useHttp();
   const toast = useToast();
@@ -91,11 +100,30 @@ const DepartmentsTurns = () => {
       });
     });
 
-    if (id) {
-      socket.on("departmentsOnlineClientsData", (data) => {
-        setOnlineClients(data);
+    socket.on("departmentsOnlineClientsData", (data) => {
+      const filteredData = data.filter((item) => {
+        const isDepartmentSelected = departments_ids.includes(item.department);
+        const isStoredOnlineClient = storedOnlineClient.includes(
+          item.department
+        );
+
+        // return isDepartmentSelected || isStoredOnlineClient;
+        return isStoredOnlineClient;
       });
-    }
+
+      setOnlineClients((prevOnlineClients) => {
+        const prevClientsMap = new Map(
+          prevOnlineClients.map((client) => [client._id, client])
+        );
+
+        filteredData.forEach((client) => {
+          prevClientsMap.set(client._id, client);
+        });
+
+        return Array.from(prevClientsMap.values());
+      });
+    });
+
     socket.on("error", (errorMessage) => {
       alert(errorMessage);
     });
@@ -106,15 +134,16 @@ const DepartmentsTurns = () => {
         departments_ids,
       });
     };
+
     const fetchDepartmentsOnlineClients = () => {
       socket.emit("getDepartmentsOnline", {
         clinicaId: auth?.clinica?._id,
-        departments_id: id,
+        departments_id: id || storedOnlineClient,
       });
     };
-    if (id) {
-      fetchDepartmentsOnlineClients();
-    }
+
+    fetchDepartmentsOnlineClients();
+
     fetchDepartments();
     return () => {
       localStorage.removeItem("spoken");
@@ -127,21 +156,36 @@ const DepartmentsTurns = () => {
     const sortedTurns = [...updatedTurns].sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
+
     let lastTurn = sortedTurns[0];
     let emergencyTurn = updatedTurns.find((item) => item.emergency);
     if (emergencyTurn) {
       lastTurn = emergencyTurn;
     }
-    setLastTurnShow(lastTurn);
+
+    const parsedDepartmentsNames = JSON.parse(
+      localStorage.getItem("selected_departments_names")
+    );
+
+    if (parsedDepartmentsNames && parsedDepartmentsNames.length > 0) {
+      const departmentMatch = parsedDepartmentsNames.some(
+        (department) => department.departmentName === lastTurn?.name
+      );
+
+      if (departmentMatch) {
+        setLastTurnShow(lastTurn);
+      }
+    }
+
     if (
       localStorage.getItem("spoken") !==
         lastTurn?.turn + lastTurn?.letter + lastTurn?.room ||
       lastTurn?.speak
     ) {
-      setSeconds(10)
+      setSeconds(10);
       speakTurn(lastTurn?.turn, lastTurn?.room, lastTurn?.letter);
     }
-  }, [turns]);
+  }, [turns, auth?.clinica?._id]);
 
   const speakTurn = (turn, room, letter) => {
     if (room && turn && letter) {
@@ -189,37 +233,40 @@ const DepartmentsTurns = () => {
         <Navbar hasHead />
         <ul>
           {turns.length > 0 ? (
-            updatedTurns.map((item, index) => (
-              <li
-                key={index}
-                className={`border-2 border-r-0 ${
-                  index === 0 ? "border-t" : "border-t-0"
-                } !grid grid-cols-3`}
-              >
-                <span className="text-blue-500 text-5xl p-4 text-center border-r-2 font-semibold">
-                  {item?.letter + "-" + item?.turn}
-                </span>
-                <span className="text-orange-500 text-5xl p-4 border-r-2 text-center font-semibold">
-                  Xona-{item?.room}
-                </span>
-                <span className="text-orange-500 text-5xl py-4 text-center font-semibold">
-                  {item?.waiting}
-                </span>
-              </li>
-            ))
+            updatedTurns
+              ?.filter((e) => departments_ids?.includes(e?._id))
+              ?.map((item, index) => (
+                <li
+                  key={index}
+                  className={`border-2 border-r-0 ${
+                    index === 0 ? "border-t" : "border-t-0"
+                  } !grid grid-cols-3`}
+                >
+                  <span className="text-blue-500 text-5xl p-4 text-center border-r-2 font-semibold">
+                    {item?.letter + "-" + item?.turn}
+                  </span>
+                  <span className="text-orange-500 text-5xl p-4 border-r-2 text-center font-semibold">
+                    Xona-{item?.room}
+                  </span>
+                  <span className="text-orange-500 text-5xl py-4 text-center font-semibold">
+                    {item?.waiting}
+                  </span>
+                </li>
+              ))
           ) : (
             <li className={"text-xl text-center font-semibold p-2"}>
               {t("Mijozlar mavjud emas")}
             </li>
           )}
         </ul>
-        {id ? (
+        {storedOnlineClient.length > 0 ? (
           <div className={"border-t"}>
             <div className={"bg-[#3b82f6]"}>
               <h1
                 className={"text-3xl text-center text-white font-semibold py-2"}
               >
-                {t("Online navbatga yozilgan mijozlar ro'yxati")}
+                {onlineClientName.replace(/^"|"$/g, "")}{" "}
+                {t("navbatiga yozilgan mijozlar ro'yxati")}
               </h1>
             </div>
             <table className={"table border !border-x-0"}>
