@@ -10,13 +10,13 @@
   "Juma": "Juma",
   "Shanba": "Shanba",
   "Yakshanba": "Yakshanba",
-  "Ambulator karta raqami:":"Ambulator karta raqami", 
+  "Ambulator karta raqami:": "Ambulator karta raqami",
   "Yanvar": "Yanvar",
   "Fevral": "Fevral",
   "Mart": "Mart",
   "Aprel": "Aprel",
-  "Suratni qirqish":"Suratni qirqish",
-  "Rasmni kesish va yuklash":"Rasmni kesish va yuklash",
+  "Suratni qirqish": "Suratni qirqish",
+  "Rasmni kesish va yuklash": "Rasmni kesish va yuklash",
   "May": "May",
   "Iyun": "Iyun",
   "Iyul": "Iyul",
@@ -32,5 +32,6 @@
   "menu4": "Foydalanuchilar",
   "menu5": "Qabul",
   "menu6": "Kassa",
-  "menu7": "Marketing"
+  "menu7": "Marketing",
+  "Bugungi to'lovlar": "Today payments"
 }

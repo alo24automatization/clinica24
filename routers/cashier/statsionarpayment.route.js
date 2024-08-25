@@ -1,18 +1,18 @@
-const { validatePayment, StatsionarPayment } = require("../../models/Cashier/StatsionarPayment");
-const { StatsionarService } = require("../../models/StatsionarClient/StatsionarService");
-const { StatsionarClient } = require("../../models/StatsionarClient/StatsionarClient");
-const { StatsionarProduct } = require("../../models/StatsionarClient/StatsionarProduct");
-const { ProductConnector } = require("../../models/Warehouse/ProductConnector");
-const { Product } = require("../../models/Warehouse/Product");
-const { StatsionarConnector } = require("../../models/StatsionarClient/StatsionarConnector");
-const { StatsionarDiscount, validateDiscount } = require("../../models/Cashier/StatsionarDiscount");
-const { StatsionarRoom } = require("../../models/StatsionarClient/StatsionarRoom");
-const { Clinica } = require("../../models/DirectorAndClinica/Clinica");
-const { OfflinePayment } = require("../../models/Cashier/OfflinePayment");
+const {validatePayment, StatsionarPayment} = require("../../models/Cashier/StatsionarPayment");
+const {StatsionarService} = require("../../models/StatsionarClient/StatsionarService");
+const {StatsionarClient} = require("../../models/StatsionarClient/StatsionarClient");
+const {StatsionarProduct} = require("../../models/StatsionarClient/StatsionarProduct");
+const {ProductConnector} = require("../../models/Warehouse/ProductConnector");
+const {Product} = require("../../models/Warehouse/Product");
+const {StatsionarConnector} = require("../../models/StatsionarClient/StatsionarConnector");
+const {StatsionarDiscount, validateDiscount} = require("../../models/Cashier/StatsionarDiscount");
+const {StatsionarRoom} = require("../../models/StatsionarClient/StatsionarRoom");
+const {Clinica} = require("../../models/DirectorAndClinica/Clinica");
+const {OfflinePayment} = require("../../models/Cashier/OfflinePayment");
 //Payment
 module.exports.payment = async (req, res) => {
     try {
-        const { payment, discount, services, products } = req.body
+        const {payment, discount, services, products} = req.body
 
         // CheckPayment
         const checkPayment = validatePayment(payment).error
@@ -70,7 +70,7 @@ module.exports.payment = async (req, res) => {
         })
 
         // Delete Debets
-        const debts = await StatsionarPayment.find({ connector: payment.connector })
+        const debts = await StatsionarPayment.find({connector: payment.connector})
         for (const debt of debts) {
             const update = await StatsionarPayment.findByIdAndUpdate(debt._id, {
                 debt: 0
@@ -78,7 +78,7 @@ module.exports.payment = async (req, res) => {
         }
 
         // CreatePayment
-        const newpayment = new StatsionarPayment({ ...payment })
+        const newpayment = new StatsionarPayment({...payment})
         await newpayment.save()
 
         const updateConnector = await StatsionarConnector.findById(payment.connector)
@@ -106,14 +106,14 @@ module.exports.payment = async (req, res) => {
         res.status(201).send(newpayment)
     } catch (error) {
         console.log(error);
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
 // PrePayment
 module.exports.prepayment = async (req, res) => {
     try {
-        const { payment, services, products } = req.body
+        const {payment, services, products} = req.body
 
         // CheckPayment
         const checkPayment = validatePayment(payment).error
@@ -157,7 +157,7 @@ module.exports.prepayment = async (req, res) => {
         })
 
         // CreatePayment
-        const newpayment = new StatsionarPayment({ ...payment })
+        const newpayment = new StatsionarPayment({...payment})
         await newpayment.save()
 
         const updateConnector = await StatsionarConnector.findById(payment.connector)
@@ -168,7 +168,7 @@ module.exports.prepayment = async (req, res) => {
         res.status(201).send(newpayment)
     } catch (error) {
         console.log(error);
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
@@ -176,7 +176,7 @@ module.exports.prepayment = async (req, res) => {
 //Clients getall
 module.exports.getAll = async (req, res) => {
     try {
-        const { clinica, beginDay, endDay, clientborn, type } = req.body
+        const {clinica, beginDay, endDay, clientborn, type} = req.body
         const clinic = await Clinica.findById(clinica)
 
         if (!clinic) {
@@ -185,7 +185,7 @@ module.exports.getAll = async (req, res) => {
             })
         }
 
-        let connectors = []
+        let connectors = [];
 
         if (clientborn) {
             connectors = await StatsionarConnector.find({
@@ -204,7 +204,7 @@ module.exports.getAll = async (req, res) => {
                     }
                 })
                 .populate('discount')
-                .sort({ _id: -1 })
+                .sort({_id: -1})
                 .lean()
                 .then(connectors => connectors.filter(connector =>
                     new Date(new Date(connector.client.born).setUTCHours(0, 0, 0, 0)).toISOString() === new Date(new Date(clientborn).setUTCHours(0, 0, 0, 0)).toISOString()
@@ -226,7 +226,7 @@ module.exports.getAll = async (req, res) => {
                     }
                 })
                 .populate('discount')
-                .then(connectors => connectors.filter(connector => connector.room && connector.room.endday 
+                .then(connectors => connectors.filter(connector => connector.room && connector.room.endday
                     && (new Date(connector.room.endday) >= new Date(beginDay) && new Date(connector.room.endday) <= new Date(endDay))))
         } else if (type === 'continue') {
             connectors = await StatsionarConnector.find({
@@ -250,8 +250,24 @@ module.exports.getAll = async (req, res) => {
                 })
                 .populate('discount')
                 .then(statsionars => statsionars.filter(s => s?.room?.endday === null))
-        }
-        else {
+        } else if (type === "todayPayments") {
+
+
+            const payments = await StatsionarPayment.find({
+                clinica,
+                createdAt: {
+                    $gte: beginDay,
+                    $lte: endDay,
+                }
+            })
+                .populate('client')
+                .populate({
+                    path: "connector",
+                    populate: ["services", "room"]
+                });
+
+            return res.status(200).send(payments);
+        } else {
             connectors = await StatsionarConnector.find({
                 clinica,
                 createdAt: {
@@ -272,21 +288,21 @@ module.exports.getAll = async (req, res) => {
                     }
                 })
                 .populate('discount')
-                .sort({ createdAt: -1 })
+                .sort({createdAt: -1})
         }
 
         res.status(200).send(connectors)
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        console.log(error);
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
-
 
 
 // PrePayment
 module.exports.updateservices = async (req, res) => {
     try {
-        const { services, products } = req.body
+        const {services, products} = req.body
 
         //Update Services and Products
         services && services.map(async (service) => {
@@ -322,9 +338,9 @@ module.exports.updateservices = async (req, res) => {
         })
 
 
-        res.status(201).send({ message: "Xizmatlar muvaffqqiyatli yangilandi!" })
+        res.status(201).send({message: "Xizmatlar muvaffqqiyatli yangilandi!"})
     } catch (error) {
-        res.status(501).json({ error: 'Serverda xatolik yuz berdi...' })
+        res.status(501).json({error: 'Serverda xatolik yuz berdi...'})
     }
 }
 
