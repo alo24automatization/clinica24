@@ -271,8 +271,9 @@ export const StatsionarClients = () => {
 
         let roomprice = 0;
         if (connector.room.endday) {
+            console.log(connector.room.endday);
             const beginday = new Date(connector?.room?.beginday);
-            const now = new Date();
+            const now = new Date(connector.room.endday);
 
             const timeDifference = now - beginday;
             const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
