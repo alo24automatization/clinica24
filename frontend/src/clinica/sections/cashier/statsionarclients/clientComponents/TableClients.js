@@ -526,21 +526,21 @@ export const TableClients = ({
                         >
                             <thead>
                             <tr>
-                                <th className="border py-1 bg-alotrade text-[16px]">№</th>
-                                <th className="border py-1 bg-alotrade text-[16px]">F.I.O</th>
-                                <th className="border py-1 bg-alotrade text-[16px]">Tel</th>
-                                <th className="border py-1 bg-alotrade text-[16px]">ID</th>
-                                <th className="border py-1 bg-alotrade text-[16px]">Kelgan</th>
-                                <th className="border py-1 bg-alotrade text-[16px]">Ketgan</th>
-                                <th className="border py-1 bg-alotrade text-[16px]">
+                                <th className="border py-1 bg-alotrade text-[16px] text-center">№</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center">F.I.O</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center">Tel</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center">ID</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center">Kelgan</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center">Ketgan</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center">
                                     Jami to'lov summasi
                                 </th>
-                                <th className="border py-1 bg-alotrade text-[16px]">
+                                <th className="border py-1 bg-alotrade text-[16px] text-center">
                                     Jami to'langan summa
                                 </th>
-                                <th className="border py-1 bg-alotrade text-[16px]">To'landi</th>
-                                <th className="border py-1 bg-alotrade text-[16px]">To'lov turi</th>
-                                <th className="border py-1 bg-alotrade text-[16px]">Qarz</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center align-center">To'landi</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center align-center">To'lov turi</th>
+                                <th className="border py-1 bg-alotrade text-[16px] text-center align-center">Qarz</th>
                                 {/*{!location.pathname.includes("/alo24/statsionarreport") && (*/}
                                 {/*    <th className="border py-1 bg-alotrade text-[16px]">To'lov</th>*/}
                                 {/*)}*/}
@@ -578,14 +578,19 @@ export const TableClients = ({
                                             </Moment>
                                         </td>
                                         <td className="border py-1 text-[16px] text-right">
-                                            {connector?.room?.endday &&
-                                                new Date(connector?.connector?.room?.endday).toDateString()}
-                                        </td>
-                                        <td className="border py-1 text-[16px] text-right">
-                                            <Money value={connector.connector.totalprice}/>
+                                        {
+                                            connector?.connector?.room?.endday &&
+                                            <Moment className="block text-center"
+                                                    date={connector?.connector?.room?.endday}
+                                                    format={"DD.MM.yyyy HH:mm:ss"}>
+                                            </Moment>
+                                        }
                                         </td>
                                         <td className="border py-1 text-[16px] text-right">
                                             <Money value={connector.total}/>
+                                        </td>
+                                        <td className="border py-1 text-[16px] text-right">
+                                            <Money value={connector.connector.totalprice}/>
                                         </td>
                                         <td className="border py-1 text-[16px] text-right">
                                             <Money value={connector.payment}/>
