@@ -203,6 +203,9 @@ export const StatsionarReport = () => {
   //====================================================================
   //====================================================================
   const changeType = (e) => {
+    setConnectors([]);
+    setSearchStrorage([]);
+    setCurrentConnectors([]);
     setType(e.target.value);
   };
   //====================================================================
@@ -275,6 +278,7 @@ export const StatsionarReport = () => {
               // setModal2={setModal2}
               loading={loading}
               changeType={changeType}
+              type={type}
             />
           </div>
         </div>

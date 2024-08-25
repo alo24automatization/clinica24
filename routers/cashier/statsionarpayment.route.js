@@ -156,8 +156,14 @@ module.exports.prepayment = async (req, res) => {
             }
         })
 
+        const oldPayments = await StatsionarPayment.find({clinica: payment.clinica});
+
+        const oldPaymentsSum = oldPayments.reduce((acc, cur) => acc + cur.payment, 0);
+
+    
+
         // CreatePayment
-        const newpayment = new StatsionarPayment({...payment})
+        const newpayment = new StatsionarPayment({...payment, totalWhileNow: oldPaymentsSum + payment.payment})
         await newpayment.save()
 
         const updateConnector = await StatsionarConnector.findById(payment.connector)
