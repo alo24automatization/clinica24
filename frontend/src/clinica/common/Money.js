@@ -3,7 +3,7 @@ export const Money = ({value}) => {
     const formatted = new Intl.NumberFormat('uz-UZ', {
         style: 'currency',
         currency: 'UZS',
-        maximumFractionDigits: 20,
+        maximumFractionDigits: 0,
         notation: 'standard'
     })
         .formatToParts(value)
