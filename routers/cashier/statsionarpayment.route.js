@@ -264,7 +264,8 @@ module.exports.getAll = async (req, res) => {
                 .populate({
                     path: "connector",
                     populate: ["services", "room"]
-                });
+                })
+                .sort({createdAt: -1})
 
             return res.status(200).send(payments);
         } else {
