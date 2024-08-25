@@ -200,7 +200,7 @@ export const TableClients = ({
                                 table="statsionarreport-table"
                                 sheet="Sheet"
                                 buttonText="Excel"
-                                filename="Statsionar"
+                                filename={type !== "todayPayments" ? "Statsionar" : "Daily Payments"}
                             />
                         </div>
                     </div>
@@ -522,6 +522,7 @@ export const TableClients = ({
                     <div>
                         <table
                             className="table m-0 table-sm"
+                            id="statsionarreport-table"
                         >
                             <thead>
                             <tr>
