@@ -898,7 +898,7 @@ export const StatsionarClients = () => {
         description: "",
         status: "success",
       });
-      getConnectors(beginDay, endDay);
+      getConnectors(beginDay, endDay, type);
     } catch (error) {
       notify({
         title: t(`${error}`),
