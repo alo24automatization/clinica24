@@ -5,6 +5,55 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
   const [totalAmount, setTotalAmount] = useState(0);
   const { t } = useTranslation();
 
+  const getTotalprice = (connector) => {
+    let roomprice = 0;
+    if (connector?.room?.endday) {
+      const beginday = new Date(connector?.room?.beginday);
+      const now = new Date(connector?.room?.endday);
+
+      const timeDifference = now - beginday;
+      const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+      roomprice = connector?.room?.room?.price * daysDifference;
+    } else {
+      let begin = new Date(connector?.room?.beginday);
+      let today = new Date();
+      const day = Math.round(
+        Math.abs(
+          (new Date(new Date(today).setHours(0, 0, 0, 0)).getTime() -
+            new Date(new Date(begin).setHours(0, 0, 0, 0)).getTime()) /
+            (24 * 60 * 60 * 1000)
+        )
+      );
+
+      roomprice = connector?.room?.room?.price * day;
+    }
+
+    let servicesTotal = connector?.services?.reduce((prev, s) => {
+      if (s.refuse === false) {
+        prev += s.service.price * s.pieces;
+      }
+      return prev;
+    }, 0);
+    let productsTotal = connector?.products?.reduce((prev, el) => {
+      if (el.refuse === false) {
+        prev += el.product.price * el.pieces;
+      }
+      return prev;
+    }, 0);
+    return servicesTotal + productsTotal + roomprice;
+  };
+
+  const getDebt = (connector) => {
+    const debt =
+      connector?.payments?.length > 0
+        ? getTotalprice(connector) -
+          (connector?.discount?.discount || 0) -
+          connector.payments.reduce((prev, el) => prev + el.payment, 0)
+        : 0;
+    return debt;
+  };
+
   useEffect(() => {
     // Calculate the room price based on the stay duration
     const calculateRoomPrice = () => {
@@ -540,12 +589,7 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                   <td className="text-right px-3 font-weight-bold" colSpan="4">
                     {t("Qarz")}:
                   </td>
-                  <td className="text-right">
-                    {connector?.payments?.reduce(
-                      (totalDebt, payment) => totalDebt + payment.debt,
-                      0
-                    )}
-                  </td>
+                  <td className="text-right">{getDebt(connector)}</td>
                 </tr>
                 <tr>
                   <td className="text-right px-3 font-weight-bold" colSpan="4">
