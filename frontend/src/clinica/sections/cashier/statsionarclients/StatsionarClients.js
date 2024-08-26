@@ -807,6 +807,17 @@ export const StatsionarClients = () => {
         setConnectors([]);
         setSearchStrorage([]);
         setCurrentConnectors([]);
+
+        if (e.target.value === "todayPayments")
+          setBeginDay(
+            (() => {
+              const curr = new Date();
+              curr.setDate(new Date().getDate() - 1);
+              curr.setUTCHours(23, 59, 59, 59);
+              return curr;
+            })()
+          );
+
         setType(e.target.value);
     };
 
