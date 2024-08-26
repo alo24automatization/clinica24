@@ -56,31 +56,31 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
 
   useEffect(() => {
     // Calculate the room price based on the stay duration
-    const calculateRoomPrice = () => {
-      const beginday = new Date(connector?.room?.beginday).setHours(0, 0, 0, 0);
-      const endday = connector?.room?.endday
-        ? new Date(connector?.room?.endday).setHours(0, 0, 0, 0)
-        : new Date().setHours(0, 0, 0, 0);
-      const daysStayed = Math.round(
-        Math.abs((beginday - endday) / (24 * 60 * 60 * 1000))
-      );
-      return daysStayed * connector?.room?.room?.price;
-    };
+    // const calculateRoomPrice = () => {
+    //   const beginday = new Date(connector?.room?.beginday).setHours(0, 0, 0, 0);
+    //   const endday = connector?.room?.endday
+    //     ? new Date(connector?.room?.endday).setHours(0, 0, 0, 0)
+    //     : new Date().setHours(0, 0, 0, 0);
+    //   const daysStayed = Math.round(
+    //     Math.abs((beginday - endday) / (24 * 60 * 60 * 1000))
+    //   );
+    //   return daysStayed * connector?.room?.room?.price;
+    // };
 
-    // Calculate the total services price
-    const calculateServicesPrice = () => {
-      return (
-        connector?.services?.reduce(
-          (total, service) => total + service.pieces * service.service.price,
-          0
-        ) || 0
-      );
-    };
+    // // Calculate the total services price
+    // const calculateServicesPrice = () => {
+    //   return (
+    //     connector?.services?.reduce(
+    //       (total, service) => !service.refuse ? (total + service.pieces * service.service.price) : total,
+    //       0
+    //     ) || 0
+    //   );
+    // };
 
-    const roomPrice = calculateRoomPrice();
-    const servicesPrice = calculateServicesPrice();
+    // const roomPrice = calculateRoomPrice();
+    // const servicesPrice = calculateServicesPrice();
 
-    setTotalAmount(roomPrice + servicesPrice);
+    setTotalAmount(getTotalprice(connector));
   }, [connector]);
 
   return (
@@ -375,7 +375,7 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
               </thead>
               <tbody>
                 {connector.services &&
-                  connector.services.map((service, index) => {
+                  connector.services.filter(x => !x.refuse).map((service, index) => {
                     return (
                       <tr key={index}>
                         <td className="border py-1 text-bold font-weight-bold">
