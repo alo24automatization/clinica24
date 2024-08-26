@@ -437,6 +437,7 @@ export const TableClients = ({
                         (service) =>
                           service.client === connector.client._id &&
                           service.payment
+                          && service.department._id === user.specialty._id
                       )
                         ? "!bg-gray-400"
                         : ""
@@ -521,6 +522,7 @@ export const TableClients = ({
                               (service) =>
                                 service.client === connector.client._id &&
                                 service.payment
+                                && service.department._id === user.specialty._id
                             )
                           }
                           checked={
@@ -558,6 +560,7 @@ export const TableClients = ({
                                 service.client === connector.client._id &&
                                 service.payment &&
                                 !service.accept
+                                && service.department._id === user.specialty._id
                             )
                           }
                           onClick={() =>
@@ -583,6 +586,7 @@ export const TableClients = ({
                               (service) =>
                                 service.client === connector.client._id &&
                                 service.payment
+                                && service.department._id === user.specialty._id
                             )
                           }
                           onClick={() => {
@@ -611,6 +615,7 @@ export const TableClients = ({
                               (service) =>
                                 service.client === connector.client._id &&
                                 service.payment
+                                && service.department._id === user.specialty._id
                             )
                           }
                           onClick={() =>
@@ -638,6 +643,7 @@ export const TableClients = ({
                               (service) =>
                                 service.client === connector.client._id &&
                                 service.payment
+                                && service.department._id === user.specialty._id
                             )
                           }
                           onClick={() => {
@@ -666,6 +672,7 @@ export const TableClients = ({
                               (service) =>
                                 service.client === connector.client._id &&
                                 service.payment
+                                && service.department._id === user.specialty._id
                             )
                           }
                           onClick={() => handlePrint(connector)}
