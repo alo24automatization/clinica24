@@ -288,6 +288,7 @@ export const DoctorClients = () => {
       socket = socketIOClient(ENDPOINT, {
         path: "/ws",
         withCredentials: true,
+        transports: ["websocket"]
       });
       socket.on("disconnect", () => {
         console.log("Socket disconnected!");
@@ -298,6 +299,7 @@ export const DoctorClients = () => {
     return socket;
   };
   const callClient = (clientId, department) => {
+    console.log(clientId, department);
     fetchDepartmentsTurns(false, clientId, department);
   };
   const fetchDepartmentsTurns = (next, clientId, department) => {

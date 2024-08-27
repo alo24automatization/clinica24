@@ -34,18 +34,19 @@ const initializeSocket = (server) => {
     socket.on("getDepartmentsOnline", async (data) => {
       const { clinicaId, departments_id } = data;
       if (data) {
-        setInterval(async () => {
-          try {
-            const clients = await getDepartmentsOnline(
+        try {
+          const clients = await getDepartmentsOnline(
               clinicaId,
               departments_id
-            );
+          );
 
-            io.emit("departmentsOnlineClientsData", clients);
-          } catch (error) {
-            console.error(error.message);
-            socket.emit("error", error.message);
-          }
+          io.emit("departmentsOnlineClientsData", clients);
+        } catch (error) {
+          console.error(error.message);
+          socket.emit("error", error.message);
+        }
+        setInterval(async () => {
+
         }, 1000);
       }
     });
