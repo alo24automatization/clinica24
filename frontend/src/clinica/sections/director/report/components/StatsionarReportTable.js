@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleDown,
@@ -609,126 +609,103 @@ export const StatsionarReportTable = ({
           <div>
             <table className="table m-0 table-sm" id="statsionarreport-table">
               <thead>
-                <tr>
+              <tr>
                   <th className="border py-1 bg-alotrade text-[16px] text-center">
-                    №
+                      №
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center">
-                    F.I.O
+                      F.I.O
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center">
-                    Tel
+                      To'lov sanasi
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center">
-                    ID
+                      Tel
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center">
-                    Kelgan
+                      ID
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center">
-                    Ketgan
+                      Jami to'lov
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center">
-                    Jami to'lov
-                  </th>
-                  <th className="border py-1 bg-alotrade text-[16px] text-center">
-                    To'langan
+                      To'langan
                   </th>
 
                   <th className="border py-1 bg-alotrade text-[16px] text-center align-center">
-                    Naqd
+                      Naqd
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center align-center">
-                    Plastik
+                      Plastik
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center align-center">
-                    O'tkazma
+                      O'tkazma
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px] text-center align-center">
-                    Qarz
+                      Qarz
                   </th>
                   {/*{!location.pathname.includes("/alo24/statsionarreport") && (*/}
                   {/*    <th className="border py-1 bg-alotrade text-[16px]">To'lov</th>*/}
                   {/*)}*/}
 
                   {/*<th className="border py-1 bg-alotrade text-[16px]">Chek</th>*/}
-                </tr>
+              </tr>
               </thead>
 
-              <tbody>
+                <tbody>
                 {connectors.map((connector, key) => {
-                  return (
-                    <tr key={key}>
-                      <td
-                        className={`border py-1 font-weight-bold text-right text-[16px]`}
-                        style={{ maxWidth: "30px !important" }}
-                      >
-                        {currentPage * countPage + key + 1}
-                      </td>
-                      <td className="border py-1 text-[16px] font-weight-bold">
-                        {connector.client.lastname +
-                          " " +
-                          connector.client.firstname}
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        +998{connector.client.phone}
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        {connector.client.id}
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        <Moment
-                          className="block text-center"
-                          date={connector?.connector?.room?.beginday}
-                          format={"DD.MM.yyyy HH:mm:ss"}
-                        ></Moment>
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        {connector?.connector?.room?.endday && (
-                          <Moment
-                            className="block text-center"
-                            date={connector?.connector?.room?.endday}
-                            format={"DD.MM.yyyy HH:mm:ss"}
-                          ></Moment>
-                        )}
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        <Money value={connector.total} />
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        <Money value={connector.totalWhileNow} />
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        <Money value={connector.cash} />
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        <Money value={connector.card} />
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        <Money value={connector.transfer} />
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        <Money value={connector.debt} />
-                      </td>
-                    </tr>
+                    return (
+                      <tr key={key}>
+                        <td
+                            className={`border py-1 font-weight-bold text-right text-[16px]`}
+                            style={{maxWidth: "30px !important"}}
+                        >
+                          {currentPage * countPage + key + 1}
+                        </td>
+                        <td className="border py-1 text-[16px] font-weight-bold">
+                          {connector.client.lastname +
+                              " " +
+                              connector.client.firstname}
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          <Moment date={connector.createdAt} format={"DD.MM.yyyy HH:mm:ss"}/>
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          +998{connector.client.phone}
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          {connector.client.id}
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          <Money value={connector.total}/>
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          <Money value={connector.totalWhileNow}/>
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          <Money value={connector.cash}/>
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          <Money value={connector.card}/>
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          <Money value={connector.transfer}/>
+                        </td>
+                        <td className="border py-1 text-[16px] text-right">
+                          <Money value={connector.debt}/>
+                        </td>
+                      </tr>
                   );
                 })}
 
                 <tr>
                   <td
-                    className={`border py-1 font-weight-bold text-right text-[16px]`}
-                    style={{ maxWidth: "30px !important" }}
+                      className={`border py-1 font-weight-bold text-right text-[16px]`}
+                      style={{ maxWidth: "30px !important" }}
+                      colSpan={2}
                   >
                     Qoldiq:
                   </td>
-                  <td
-                    className={`border py-1 font-weight-bold text-right text-[16px]`}
-                    style={{ maxWidth: "30px !important" }}
-                  ></td>
-                  <td
-                    className={`border py-1 font-weight-bold text-right text-[16px]`}
-                    style={{ maxWidth: "30px !important" }}
-                  ></td>
                   <td
                     className={`border py-1 font-weight-bold text-right text-[16px]`}
                     style={{ maxWidth: "30px !important" }}
