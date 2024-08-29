@@ -274,9 +274,9 @@ module.exports.getStat = async (req, res) => {
         const services = [...offlineservices, ...statsionarservices];
     
         for (const service of services) {
-            const agent_procient = service.service.counterAgentProcient;
-            const procient = service.service.doctorProcient;
-            const counterdoctor_procient = service.service.counterDoctorProcient;
+            const agent_procient = service.service.counterAgentProcient ?? 0;
+            const procient = service.service.doctorProcient ?? 0;
+            const counterdoctor_procient = service.service.counterDoctorProcient ?? 0;
       
             const totalprice = service.pieces * service.service.price;
       
@@ -388,9 +388,9 @@ module.exports.get = async (req, res) => {
     const services = [...offlineservices, ...statsionarservices];
 
     for (const service of services) {
-      const agent_procient = service.service.counterAgentProcient;
-      const procient = service.service.doctorProcient;
-      const counterdoctor_procient = service.service.counterDoctorProcient;
+      const agent_procient = service.service.counterAgentProcient ?? 0;
+      const procient = service.service.doctorProcient ?? 0;
+      const counterdoctor_procient = service.service.counterDoctorProcient ?? 0;
 
       const totalprice = service.pieces * service.service.price;
 
