@@ -9,6 +9,7 @@ import { AuthContext } from '../../../context/AuthContext';
 import { useHttp } from '../../../hooks/http.hook';
 import { DatePickers } from '../../reseption/offlineclients/clientComponents/DatePickers';
 import { Pagination } from '../components/Pagination';
+import Moment from 'react-moment';
 
 const DoctorServices = () => {
     //======================================================
@@ -201,7 +202,13 @@ const DoctorServices = () => {
                                         <tr>
                                             <th className="border py-1 bg-alotrade text-[16px]">№</th>
                                             <th className="border py-1 bg-alotrade text-[16px]">
+                                                {t("Sana")}
+                                            </th>
+                                            <th className="border py-1 bg-alotrade text-[16px]">
                                                 {t("Mijoz")}
+                                            </th>
+                                            <th className="border py-1 bg-alotrade text-[16px]">
+                                                {t("ID")}
                                             </th>
                                             <th className="border py-1 bg-alotrade text-[16px]">
                                                 {t("Xizmat nomi")}
@@ -212,12 +219,7 @@ const DoctorServices = () => {
                                             <th className="border py-1 bg-alotrade text-[16px]">
                                                 {t("Umumiy narxi")}
                                             </th>
-                                            <th className="border py-1 bg-alotrade text-[16px]">
-                                                {t("Kounteragent ulushi")}
-                                            </th>
-                                            <th className="border py-1 bg-alotrade text-[16px]">
-                                                {t("Kounterdoktor ulushi")}
-                                            </th>
+                                        
                                             <th className="border py-1 bg-alotrade text-[16px]">
                                                 {t("Shifokor ulushi")}
                                             </th>
@@ -234,9 +236,15 @@ const DoctorServices = () => {
                                                         {currentPage * countPage + key + 1}
                                                     </td>
                                                     <td className="border py-1 text-[16px] font-weight-bold">
+                                                        <Moment date={service.createdAt} format='DD.MM.yyyy'/>
+                                                    </td>
+                                                    <td className="border py-1 text-[16px] font-weight-bold">
                                                         {service.client.lastname +
                                                             " " +
                                                             service.client.firstname}
+                                                    </td>
+                                                    <td className="border py-1 text-[16px] font-weight-bold">
+                                                        {service.client.id}
                                                     </td>
                                                     <td className="border py-1 text-[16px] text-center">
                                                         {service?.service?.name}
@@ -247,12 +255,7 @@ const DoctorServices = () => {
                                                     <td className="border py-1 text-[16px] text-right">
                                                         {service?.totalprice}
                                                     </td>
-                                                    <td className="border py-1 text-[16px] text-right">
-                                                        {service?.agent_profit}
-                                                    </td>
-                                                    <td className="border py-1 text-[16px] text-right">
-                                                        {service?.counterdoctor_profit}
-                                                    </td>
+                                                
                                                     <td className="border py-1 text-[16px] text-right">
                                                         {service?.doctor_profit}
                                                     </td>
@@ -267,14 +270,10 @@ const DoctorServices = () => {
                                             <td className="border py-1 text-[16px] font-weight-bold"></td>
                                             <td className="border py-1 text-[16px] text-center"></td>
                                             <td className="border py-1 text-[16px] text-center"></td>
+                                            <td className="border py-1 text-[16px] text-center"></td>
+                                            <td className="border py-1 text-[16px] text-center"></td>
                                             <td className="border py-1 text-[16px] text-right font-bold">
                                                 {searchStorage.reduce((prev, el) => prev + el?.totalprice, 0)}
-                                            </td>
-                                            <td className="border py-1 text-[16px] text-right font-bold">
-                                                {searchStorage.reduce((prev, el) => prev + el?.agent_profit, 0)}
-                                            </td>
-                                            <td className="border py-1 text-[16px] text-right font-bold">
-                                                {searchStorage.reduce((prev, el) => prev + el?.counterdoctor_profit, 0)}
                                             </td>
                                             <td className="border py-1 text-[16px] text-right font-bold">
                                                 {searchStorage.reduce((prev, el) => prev + el?.doctor_profit, 0)}

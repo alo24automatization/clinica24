@@ -393,7 +393,7 @@ export const TableClients = ({
                 <th className="border bg-alotrade text-[16px] py-1">
                   {t("Kelgan vaqti")}
                 </th>
-                <th className="border bg-alotrade text-[16px] py-1">
+                {/* <th className="border bg-alotrade text-[16px] py-1">
                   {t("Navbat")}
                   <button
                     onClick={() => sortData(sort, setSort)}
@@ -401,7 +401,7 @@ export const TableClients = ({
                   >
                     <FontAwesomeIcon icon={faArrowsUpDown} />
                   </button>
-                </th>
+                </th> */}
                 <th className="border bg-alotrade text-[16px] py-1">
                   {t("ID")}
                 </th>
@@ -438,7 +438,7 @@ export const TableClients = ({
                           service.client === connector.client._id &&
                           service.payment
                           && service.department._id === user.specialty._id
-                      )
+                      ) && clientsType !== "statsionar"
                         ? "!bg-gray-400"
                         : ""
                     }`}
@@ -480,14 +480,14 @@ export const TableClients = ({
                           )[0].createdAt
                       ).toLocaleTimeString("ru-RU")}
                     </td>
-                    <td className="border text-[16px] py-1 text-right">
+                    {/* <td className="border text-[16px] py-1 text-right">
                       {connector.client.bronTime
                         ? connector.client.bronTime
                         : [...connector?.services].filter(
                             (service) =>
                               service.department._id === user.specialty._id
                           )[0].turn}
-                    </td>
+                    </td> */}
                     <td className="border text-[16px] py-1 text-right">
                       {connector.client.id}
                     </td>
@@ -523,7 +523,7 @@ export const TableClients = ({
                                 service.client === connector.client._id &&
                                 service.payment
                                 && service.department._id === user.specialty._id
-                            )
+                            ) && clientsType !== "statsionar"
                           }
                           checked={
                             connector?.services?.filter(
@@ -561,7 +561,7 @@ export const TableClients = ({
                                 service.payment &&
                                 !service.accept
                                 && service.department._id === user.specialty._id
-                            )
+                            ) && clientsType !== "statsionar"
                           }
                           onClick={() =>
                             callClient(
@@ -587,7 +587,7 @@ export const TableClients = ({
                                 service.client === connector.client._id &&
                                 service.payment
                                 && service.department._id === user.specialty._id
-                            )
+                            ) && clientsType !== "statsionar"
                           }
                           onClick={() => {
                             setClient(connector.client);
@@ -616,7 +616,7 @@ export const TableClients = ({
                                 service.client === connector.client._id &&
                                 service.payment
                                 && service.department._id === user.specialty._id
-                            )
+                            ) && clientsType !== "statsionar"
                           }
                           onClick={() =>
                             history.push("/alo24/adoption", {
@@ -644,7 +644,7 @@ export const TableClients = ({
                                 service.client === connector.client._id &&
                                 service.payment
                                 && service.department._id === user.specialty._id
-                            )
+                            ) && clientsType !== "statsionar"
                           }
                           onClick={() => {
                             setClient(connector.client);
@@ -673,7 +673,7 @@ export const TableClients = ({
                                 service.client === connector.client._id &&
                                 service.payment
                                 && service.department._id === user.specialty._id
-                            )
+                            ) && clientsType !== "statsionar"
                           }
                           onClick={() => handlePrint(connector)}
                           className="btn btn-success py-0"
