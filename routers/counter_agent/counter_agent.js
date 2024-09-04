@@ -385,10 +385,9 @@ module.exports.getCounterAgents = async (req, res) => {
           (prev, el) => {
             if (el.service.counterAgentProcient <= 100) {
               prev +=
-                ((el.service.price * el.pieces) / 100) *
-                el.service.counterAgentProcient;
+                (el.service.price * el.pieces * el.service.counterAgentProcient) / 100;
             } else {
-              prev += el.service.counterAgentProcient;
+              prev += (el.service.counterAgentProcient) ?? 0;
             }
             return prev;
           },
