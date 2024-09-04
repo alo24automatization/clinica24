@@ -208,11 +208,11 @@ module.exports.get = async (req, res) => {
       }
       const totalprice = service.service.price * service.pieces;
       const counterdoctor_profit = service.service.counterDoctorProcient <= 100
-        ? (totalprice / 100) * service.service.counterDoctorProcient
-        : service.service.counterDoctorProcient;
+        ? (totalprice / 100) * service.service.counterDoctorProcient ?? 0
+        : service.service.counterDoctorProcient ?? 0;
       const counteragent_profit = service.service.counterAgentProcient <= 100
-        ? (totalprice / 100) * service.service.counterAgentProcient
-        : service.service.counterAgentProcient;
+        ? (totalprice / 100) * service.service.counterAgentProcient ?? 0
+        : service.service.counterAgentProcient ?? 0;
 
       acc[service.counterdoctor._id].totalprice += totalprice;
       acc[service.counterdoctor._id].counterdoctor_profit += counterdoctor_profit;
