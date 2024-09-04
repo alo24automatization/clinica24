@@ -103,8 +103,19 @@ module.exports.payment = async (req, res) => {
       });
     }
 
+    const oldPayments = await StatsionarPayment.find({
+      clinica: payment.clinica,
+      client: payment.client,
+      connector: payment.connector,
+    });
+
+    const oldPaymentsSum = oldPayments.reduce(
+        (acc, cur) => acc + cur.payment,
+        0
+    );
+
     // CreatePayment
-    const newpayment = new StatsionarPayment({ ...payment });
+    const newpayment = new StatsionarPayment({ ...payment, totalWhileNow: oldPaymentsSum + payment.payment, });
     await newpayment.save();
 
     const updateConnector = await StatsionarConnector.findById(
