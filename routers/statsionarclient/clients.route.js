@@ -313,10 +313,24 @@ module.exports.register = async (req, res) => {
       }
       for (const payment of offlinepayments) {
         const oldpayment = { ...payment };
+
         delete oldpayment._id;
         delete oldpayment.discount;
+
+        const oldPayments = await StatsionarPayment.find({
+          clinica: payment.clinica,
+          client: newclient._id,
+          connector: newconnector._id,
+        });
+
+        const oldPaymentsSum = oldPayments.reduce(
+            (acc, cur) => acc + cur.payment,
+            0
+        );
+
         const statsionarpayment = new StatsionarPayment({
           ...oldpayment,
+          totalWhileNow: oldPaymentsSum + payment.payment,
           connector: newconnector._id,
           client: newclient._id,
         });
