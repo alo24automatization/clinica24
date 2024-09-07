@@ -46,8 +46,8 @@ module.exports.create = async (req, res) => {
         firstCounterAgent = await User.findOne({
           clinica,
           type: "CounterAgent",
+          primary_agent: true
         });
-        console.log(firstCounterAgent);
 
         if (!firstCounterAgent) {
           return res.status(400).json({
