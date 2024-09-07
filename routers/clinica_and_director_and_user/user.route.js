@@ -9,7 +9,6 @@ const ObjectId = require("mongodb").ObjectId;
 const { startSession } = require("mongoose");
 const { CounterDoctor } = require("../../models/CounterDoctor/CounterDoctor");
 const {OfflineService} = require("../../models/OfflineClient/OfflineService");
-const {Counter} = require("../../frontend/src/clinica/Counter");
 
 module.exports.register = async (req, res) => {
   try {
