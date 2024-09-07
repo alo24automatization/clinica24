@@ -341,15 +341,15 @@ module.exports.removeUser = async (req, res) => {
     await session.startTransaction();
 
     try {
-      
-      const updateUser = await User.findByIdAndUpdate(userId, {
-        isArchive: true,
-      });
-
       if (user.type === "CounterAgent"){
         const counterDoctors = await CounterDoctor.find({counter_agent: user._id}).lean();
         await OfflineService.updateMany({counterdoctor: {$in: counterDoctors.map(x => x._id)}}, {counterdoctor: null});
         await  CounterDoctor.find({_id: {$in: counterDoctors.map(x => x._id)}}).deleteMany();
+        await User.findByIdAndDelete(userId);
+      } else {
+        const updateUser = await User.findByIdAndUpdate(userId, {
+          isArchive: true,
+        });
       }
 
       await session.commitTransaction();
