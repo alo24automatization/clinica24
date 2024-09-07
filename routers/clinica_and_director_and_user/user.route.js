@@ -52,6 +52,13 @@ module.exports.register = async (req, res) => {
         const hash = await bcrypt.hash(password, 8);
         req.body.password = hash;
       }
+
+      if(req.body.type === "CounterAgent" && req.body.primary_agent === true)
+        await User.updateMany({
+          type: "CounterAgent",
+          clinica: req.body.clinica
+        }, {primary_agent: false});
+
       const update = await User.findByIdAndUpdate(_id, {
         ...req.body,
         statsionar_profit: Number(statsionar_profit) || 0,

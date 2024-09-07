@@ -289,8 +289,8 @@ export const Users = () => {
 
   //====================================================================
   //====================================================================
-  const changeHandler = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value })
+  const changeHandler = (e, value = undefined) => {
+    setUser({ ...user, [e.target.name]: value ?? e.target.value })
   }
 
   const createHandler = async () => {

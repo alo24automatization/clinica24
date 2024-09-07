@@ -239,6 +239,7 @@ export const RegistorUser = ({
                       id="select"
                       placeholder={t("Bo'limni tanlang")}
                       style={{ minWidth: "70px" }}
+                      value={user.type}
                     >
                       <option>{t("Mutaxasisligi")}</option>
                       {sections &&
@@ -265,6 +266,7 @@ export const RegistorUser = ({
                         id="select"
                         placeholder={t("Bo'limni tanlang")}
                         style={{ minWidth: "70px" }}
+                        value={user.specialty}
                       >
                         <option>{t("Ixtisosligi")}</option>
                         {departments &&
@@ -326,6 +328,18 @@ export const RegistorUser = ({
                   </div>
                 ) : (
                   ""
+                )}
+                {user.type && user.type === "CounterAgent" ? (
+                    <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                      <div className="flex justify-center">
+                        <label htmlFor="addreSs">{t("Ushbu agentni asosiy deb belgilaysizmi?")}</label>
+                        <input type="checkbox" className="form-control form-check-input"  checked={user.primary_agent} onChange={async (e) => {
+                          await changeHandler(e, e.target.checked);
+                        } } name={"primary_agent"}/>
+                      </div>
+                    </div>
+                ) : (
+                    ""
                 )}
                 <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div className="form-group">
