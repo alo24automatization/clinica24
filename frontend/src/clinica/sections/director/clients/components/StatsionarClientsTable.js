@@ -1,4 +1,4 @@
-import { faAngleDown, faAngleUp, faPenAlt, faPrint } from '@fortawesome/free-solid-svg-icons';
+import {faAngleDown, faAngleUp, faPenAlt, faPrint, faTrash} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react'
 import { useTranslation } from 'react-i18next';
@@ -28,7 +28,8 @@ const StatsionarClientsTable = ({
     searchDoctor,
     clinica,
     user,
-    baseUrl
+    baseUrl,
+    deleteClient
 }) => {
     const {t} = useTranslation()
     const history = useHistory()
@@ -232,14 +233,29 @@ const StatsionarClientsTable = ({
                                                     Loading...
                                                 </button>
                                             ) : (
-                                                <button
-                                                    onClick={() =>
-                                                        history.push("/alo24/statsionarclient_history", { connector, clinica, user, baseUrl })
-                                                    }
-                                                    className="btn btn-primary py-0"
-                                                >
-                                                    <FontAwesomeIcon icon={faPenAlt} />
-                                                </button>
+                                                <div className={"flex flex-row gap-x-4"}>
+                                                    <button
+                                                        onClick={() =>
+                                                            history.push("/alo24/statsionarclient_history", {
+                                                                connector,
+                                                                clinica,
+                                                                user,
+                                                                baseUrl
+                                                            })
+                                                        }
+                                                        className="btn btn-primary py-0"
+                                                    >
+                                                        <FontAwesomeIcon icon={faPenAlt}/>
+                                                    </button>
+                                                    {/*<button*/}
+                                                    {/*    onClick={() =>*/}
+                                                    {/*        deleteClient(connector)*/}
+                                                    {/*    }*/}
+                                                    {/*    className="btn btn-danger py-0"*/}
+                                                    {/*>*/}
+                                                    {/*    <FontAwesomeIcon icon={faTrash}/>*/}
+                                                    {/*</button>*/}
+                                                </div>
                                             )}
                                         </td>
                                     </tr>

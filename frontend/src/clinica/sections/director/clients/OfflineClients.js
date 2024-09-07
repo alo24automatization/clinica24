@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { faPenAlt, faPrint, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faPenAlt, faPrint, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useReactToPrint } from 'react-to-print'
@@ -95,6 +95,27 @@ const OfflineClients = () => {
             })
         }
     }, [request, auth, notify, setSearchStrorage, indexFirstUser, indexLastUser])
+
+    const deleteClient = (async (connector) => {
+        try {
+            const data = await request(
+                `/api/offlineclient/client/delete`,
+                'POST',
+                {clinica: auth.clinica._id, ...connector},
+                {
+                    Authorization: `Bearer ${auth.token}`,
+                },
+            )
+
+            await  getConnectors(beginDay, endDay);
+        } catch (error) {
+            notify({
+                title: t(`${error}`),
+                description: '',
+                status: 'error',
+            })
+        }
+    })
 
     //=================================================
     //=================================================
@@ -473,15 +494,33 @@ const OfflineClients = () => {
                                                                     Loading...
                                                                 </button>
                                                             ) : (
-                                                                <button
-                                                                    onClick={() =>
-                                                                        history.push("/alo24/statsionarclient_history", { connector, clinica: auth?.clinica, user: auth?.user, baseUrl })
-                                                                    }
-                                                                    className="btn btn-primary py-0"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faPenAlt} />
-                                                                </button>
+                                                                <div className={"flex flex-row gap-x-3"}>
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            history.push("/alo24/statsionarclient_history", {
+                                                                                connector,
+                                                                                clinica: auth?.clinica,
+                                                                                user: auth?.user,
+                                                                                baseUrl
+                                                                            })
+                                                                        }
+                                                                        className="btn btn-primary py-0"
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faPenAlt}/>
+                                                                    </button>
+
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            deleteClient(connector)
+                                                                        }
+                                                                        className="btn btn-danger py-0"
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faTrash}/>
+                                                                    </button>
+
+                                                                </div>
                                                             )}
+
                                                         </td>
                                                     </tr>
                                                 )

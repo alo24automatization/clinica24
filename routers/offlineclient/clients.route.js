@@ -2,6 +2,7 @@ const { Product } = require("../../models/Warehouse/Product");
 const { Clinica } = require("../../models/DirectorAndClinica/Clinica");
 const { Service } = require("../../models/Services/Service");
 const { ProductConnector } = require("../../models/Warehouse/ProductConnector");
+const {startSession} = require("mongoose");
 const {
   OfflineClient,
   validateOfflineClient,
@@ -35,6 +36,8 @@ const { checkMinimum } = require("../tgbot/bot_controller");
 const { OnlineClient } = require("../../models/OnlineClient/OnlineClient");
 require("../../models/Cashier/OfflinePayment");
 require("../../models/Users");
+const {StatsionarClient} = require("../../models/StatsionarClient/StatsionarClient");
+const {StatsionarConnector} = require("../../models/StatsionarClient/StatsionarConnector");
 const findNextAvailableTurn = async (
   clinica,
   department,
@@ -1233,6 +1236,43 @@ module.exports.getAllReseption = async (req, res) => {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
+
+module.exports.delete = async (req, res) => {
+  const session = await startSession();
+  await  session.startTransaction();
+  try {
+    const { clinica, client, _id} =
+        req.body;
+
+    const clientId = client?._id;
+
+    const clinic = await Clinica.findById(clinica._id);
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+
+    await OfflineConnector.findByIdAndDelete(_id);
+
+    await  OfflineClient.deleteOne({_id: clientId, clinica: clinica._id});
+
+
+    await StatsionarConnector.findByIdAndDelete(_id);
+
+    await  StatsionarConnector.deleteOne({_id: clientId, clinica: clinica._id});
+
+    await  session.commitTransaction();
+    res.status(200).send(true);
+  } catch (error) {
+    session.abortTransaction();
+    console.log(error);
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+  finally {
+    await session.endSession();
+  }
+}
 
 // Update client
 module.exports.update = async (req, res) => {

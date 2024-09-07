@@ -235,6 +235,26 @@ const StatsionarClients = () => {
         }
     }, [request, notify]);
 
+
+    const deleteClient = (async (connector) => {
+        try {
+            const data = await request(
+                `/api/offlineclient/client/delete`,
+                'POST',
+                {clinica: auth.clinica._id, ...connector},
+                {
+                    Authorization: `Bearer ${auth.token}`,
+                },
+            )
+        } catch (error) {
+            notify({
+                title: t(`${error}`),
+                description: '',
+                status: 'error',
+            })
+        }
+    })
+
     //====================================================================
     //====================================================================
 
@@ -311,6 +331,7 @@ const StatsionarClients = () => {
                             baseUrl={baseUrl}
                             clinica={auth?.clinica}
                             user={auth?.user}
+                            deleteClient={deleteClient}
                         />
                     </div>
                 </div>
