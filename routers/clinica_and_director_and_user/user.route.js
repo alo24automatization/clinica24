@@ -348,7 +348,7 @@ module.exports.removeUser = async (req, res) => {
 
       if (user.type === "CounterAgent"){
         const counterDoctors = await CounterDoctor.find({counter_agent: user._id}).lean();
-        await OfflineService.find({counterdoctor: {$in: counterDoctors.map(x => x._id)}}).update(null, {counterdoctor: null});
+        await OfflineService.updateMany({counterdoctor: {$in: counterDoctors.map(x => x._id)}}, {counterdoctor: null});
         await  CounterDoctor.find({_id: {$in: counterDoctors.map(x => x._id)}}).deleteMany();
       }
 
