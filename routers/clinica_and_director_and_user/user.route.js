@@ -6,6 +6,10 @@ const config = require("config");
 const jwt = require("jsonwebtoken");
 const { Director } = require("../../models/DirectorAndClinica/Director");
 const ObjectId = require("mongodb").ObjectId;
+const { startSession } = require("mongoose");
+const { CounterDoctor } = require("../../models/CounterDoctor/CounterDoctor");
+const {OfflineService} = require("../../models/OfflineClient/OfflineService");
+const {Counter} = require("../../frontend/src/clinica/Counter");
 
 module.exports.register = async (req, res) => {
   try {
@@ -198,9 +202,9 @@ module.exports.login = async (req, res) => {
 
     if (
       new Date().getFullYear() ===
-      new Date(user?.clinica?.close_date).getFullYear() &&
+        new Date(user?.clinica?.close_date).getFullYear() &&
       new Date().getMonth() ===
-      new Date(user?.clinica?.close_date).getMonth() &&
+        new Date(user?.clinica?.close_date).getMonth() &&
       new Date().getDate() === new Date(user?.clinica?.close_date).getDate()
     ) {
       user.clinica.isClose = true;
@@ -269,15 +273,17 @@ module.exports.getUserType = async (req, res) => {
 module.exports.getUserById = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const findedUser = await User.findById(user_id).select("accessCreateClient")
+    const findedUser = await User.findById(user_id).select(
+      "accessCreateClient"
+    );
     if (!findedUser) {
-      res.status(400).json({ message: "Shifokor topilmadi!" })
+      res.status(400).json({ message: "Shifokor topilmadi!" });
     }
     res.status(200).send(findedUser);
   } catch (error) {
     res.status(501).json({ error: error });
   }
-}
+};
 
 module.exports.getUsers = async (req, res) => {
   try {
@@ -299,13 +305,13 @@ module.exports.getUsers = async (req, res) => {
 module.exports.addAccess = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const { accessCreateClient } = req.body
-    const findedUser = await User.findById(user_id)
+    const { accessCreateClient } = req.body;
+    const findedUser = await User.findById(user_id);
     if (!findedUser) {
-      res.status(400).json({ message: "Shifokor topilmadi!" })
+      res.status(400).json({ message: "Shifokor topilmadi!" });
     }
     findedUser.accessCreateClient = accessCreateClient;
-    await findedUser.save()
+    await findedUser.save();
     res.status(200).send({ message: "Shifokor ma'lumotlari yangilandi." });
   } catch (error) {
     res.status(501).json({ error: error });
@@ -331,10 +337,28 @@ module.exports.removeUser = async (req, res) => {
       });
     }
 
-    const updateUser = await User.findByIdAndUpdate(userId, {
-      isArchive: true,
-    });
+    const session = await startSession();
 
+    await session.startTransaction();
+
+    try {
+      
+      const updateUser = await User.findByIdAndUpdate(userId, {
+        isArchive: true,
+      });
+
+      if (user.type === "CounterAgent"){
+        const counterDoctors = await CounterDoctor.find({counter_agent: user._id}).lean();
+        await OfflineService.find({counterdoctor: {$in: counterDoctors.map(x => x._id)}}).update(null, {counterdoctor: null});
+        await  CounterDoctor.find({_id: {$in: counterDoctors.map(x => x._id)}}).deleteMany();
+      }
+
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+    } finally {
+      await session.endSession();
+    }
     res
       .status(201)
       .send({ message: "Foydalanuvchi muvaffaqqiyatli o'chirildi" });
