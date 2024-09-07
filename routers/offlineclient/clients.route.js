@@ -38,6 +38,12 @@ require("../../models/Cashier/OfflinePayment");
 require("../../models/Users");
 const {StatsionarClient} = require("../../models/StatsionarClient/StatsionarClient");
 const {StatsionarConnector} = require("../../models/StatsionarClient/StatsionarConnector");
+const {OfflineDiscount} = require("../../models/Cashier/OfflineDiscount");
+const {OfflinePayment} = require("../../models/Cashier/OfflinePayment");
+const {StatsionarDaily} = require("../../models/StatsionarClient/StatsionarDaily");
+const {StatsionarDiscount} = require("../../models/Cashier/StatsionarDiscount");
+const {StatsionarPayment} = require("../../models/Cashier/StatsionarPayment");
+const {StatsionarService} = require("../../models/StatsionarClient/StatsionarService");
 const findNextAvailableTurn = async (
   clinica,
   department,
@@ -1253,14 +1259,27 @@ module.exports.delete = async (req, res) => {
       });
     }
 
-    await OfflineConnector.findByIdAndDelete(_id);
+    if(clientId) {
+      await OfflineClient.deleteOne({_id: clientId});
 
-    await  OfflineClient.deleteOne({_id: clientId, clinica: clinica._id});
+      await StatsionarClient.deleteOne({_id: clientId});
 
 
-    await StatsionarConnector.findByIdAndDelete(_id);
+      await OfflineConnector.deleteMany({client: clientId});
+      await  OfflineDiscount.deleteMany({client: clientId});
+      await  OfflinePayment.deleteMany({client: clientId});
+      await  OfflineProduct.deleteMany({client: clientId});
+      await  OfflineAdver.deleteMany({client: clientId});
 
-    await  StatsionarConnector.deleteOne({_id: clientId, clinica: clinica._id});
+      await StatsionarConnector.deleteMany({client: clientId});
+      await StatsionarDaily.deleteMany({client: clientId});
+      await StatsionarDiscount.deleteMany({client: clientId});
+      await StatsionarPayment.deleteMany({client: clientId});
+      await StatsionarRoom.deleteMany({client: clientId});
+      await StatsionarService.deleteMany({client: clientId});
+
+    }
+
 
     await  session.commitTransaction();
     res.status(200).send(true);
