@@ -568,9 +568,6 @@ export const TableClients = ({
                 <th className="border py-1 bg-alotrade text-[16px] text-center align-center">
                   To'landi
                 </th>
-                <th className="border py-1 bg-alotrade text-[16px] text-center align-center">
-                  Qarz
-                </th>
                 {/*{!location.pathname.includes("/alo24/statsionarreport") && (*/}
                 {/*    <th className="border py-1 bg-alotrade text-[16px]">To'lov</th>*/}
                 {/*)}*/}
@@ -611,9 +608,6 @@ export const TableClients = ({
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         <Money value={connector.payment}/>
-                      </td>
-                      <td className="border py-1 text-[16px] text-right">
-                        <Money value={connector.debt}/>
                       </td>
                     </tr>
                 );

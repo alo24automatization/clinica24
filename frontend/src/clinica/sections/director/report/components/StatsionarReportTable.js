@@ -641,9 +641,6 @@ export const StatsionarReportTable = ({
                   <th className="border py-1 bg-alotrade text-[16px] text-center align-center">
                       O'tkazma
                   </th>
-                  <th className="border py-1 bg-alotrade text-[16px] text-center align-center">
-                      Qarz
-                  </th>
                   {/*{!location.pathname.includes("/alo24/statsionarreport") && (*/}
                   {/*    <th className="border py-1 bg-alotrade text-[16px]">To'lov</th>*/}
                   {/*)}*/}
@@ -690,9 +687,6 @@ export const StatsionarReportTable = ({
                         </td>
                         <td className="border py-1 text-[16px] text-right">
                           <Money value={connector.transfer}/>
-                        </td>
-                        <td className="border py-1 text-[16px] text-right">
-                          <Money value={connector.debt}/>
                         </td>
                       </tr>
                   );
@@ -762,17 +756,6 @@ export const StatsionarReportTable = ({
                     <Money
                       value={connectors.reduce(
                         (acc, curr) => acc + curr.transfer,
-                        0
-                      )}
-                    />
-                  </td>
-                  <td
-                    className={`border py-1 font-weight-bold text-right text-[16px]`}
-                    style={{ maxWidth: "30px !important" }}
-                  >
-                    <Money
-                      value={connectors.reduce(
-                        (acc, curr) => acc + curr.debt,
                         0
                       )}
                     />
