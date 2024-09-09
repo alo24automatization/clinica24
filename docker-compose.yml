@@ -15,7 +15,8 @@ services:
       - "8080:8080"
     restart: always
     networks:
-      - alo-24-network
+      alo-24-network:
+        ipv4_address: 10.5.0.3
 
   mongodb:
     image: mongo:6-jammy
@@ -24,13 +25,17 @@ services:
     volumes:
       - ./data:/data/db
     networks:
-      - alo-24-network
+      alo-24-network:
+        ipv4_address: 10.5.0.2
     labels:
       - dev.dozzle.group=ALO-24
       - dev.dozzle.name=DB
     restart: always
 
-
 networks:
   alo-24-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
