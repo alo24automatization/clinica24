@@ -1,0 +1,36 @@
+services:
+  alo-24-app:
+    container_name: alo-24-app
+    image: alodokker/alo-24-app:latests
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+    labels:
+      - dev.dozzle.group=ALO-24
+      - dev.dozzle.name=APP
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - alo-24-network
+
+  mongodb:
+    image: mongo:6-jammy
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./data:/data/db
+    networks:
+      - alo-24-network
+    labels:
+      - dev.dozzle.group=ALO-24
+      - dev.dozzle.name=DB
+    restart: always
+
+
+networks:
+  alo-24-network:
+    driver: bridge

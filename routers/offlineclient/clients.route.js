@@ -2,6 +2,7 @@ const { Product } = require("../../models/Warehouse/Product");
 const { Clinica } = require("../../models/DirectorAndClinica/Clinica");
 const { Service } = require("../../models/Services/Service");
 const { ProductConnector } = require("../../models/Warehouse/ProductConnector");
+const {startSession} = require("mongoose");
 const {
   OfflineClient,
   validateOfflineClient,
@@ -35,6 +36,14 @@ const { checkMinimum } = require("../tgbot/bot_controller");
 const { OnlineClient } = require("../../models/OnlineClient/OnlineClient");
 require("../../models/Cashier/OfflinePayment");
 require("../../models/Users");
+const {StatsionarClient} = require("../../models/StatsionarClient/StatsionarClient");
+const {StatsionarConnector} = require("../../models/StatsionarClient/StatsionarConnector");
+const {OfflineDiscount} = require("../../models/Cashier/OfflineDiscount");
+const {OfflinePayment} = require("../../models/Cashier/OfflinePayment");
+const {StatsionarDaily} = require("../../models/StatsionarClient/StatsionarDaily");
+const {StatsionarDiscount} = require("../../models/Cashier/StatsionarDiscount");
+const {StatsionarPayment} = require("../../models/Cashier/StatsionarPayment");
+const {StatsionarService} = require("../../models/StatsionarClient/StatsionarService");
 const findNextAvailableTurn = async (
   clinica,
   department,
@@ -1234,6 +1243,56 @@ module.exports.getAllReseption = async (req, res) => {
   }
 };
 
+module.exports.delete = async (req, res) => {
+  const session = await startSession();
+  await  session.startTransaction();
+  try {
+    const { clinica, client, _id} =
+        req.body;
+
+    const clientId = client?._id;
+
+    const clinic = await Clinica.findById(clinica._id);
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+
+    if(clientId) {
+      await OfflineClient.deleteOne({_id: clientId});
+
+      await StatsionarClient.deleteOne({_id: clientId});
+
+
+      await OfflineConnector.deleteMany({client: clientId});
+      await  OfflineDiscount.deleteMany({client: clientId});
+      await  OfflinePayment.deleteMany({client: clientId});
+      await  OfflineProduct.deleteMany({client: clientId});
+      await  OfflineAdver.deleteMany({client: clientId});
+
+      await StatsionarConnector.deleteMany({client: clientId});
+      await StatsionarDaily.deleteMany({client: clientId});
+      await StatsionarDiscount.deleteMany({client: clientId});
+      await StatsionarPayment.deleteMany({client: clientId});
+      await StatsionarRoom.deleteMany({client: clientId});
+      await StatsionarService.deleteMany({client: clientId});
+
+    }
+
+
+    await  session.commitTransaction();
+    res.status(200).send(true);
+  } catch (error) {
+    session.abortTransaction();
+    console.log(error);
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+  finally {
+    await session.endSession();
+  }
+}
+
 // Update client
 module.exports.update = async (req, res) => {
   try {
@@ -1486,7 +1545,7 @@ module.exports.getDepartments = async (
             department.turn = clientService.turn;
             department.waiting = uniqueServices.length - 1;
             department.emergency = true;
-            department.speak=true;
+            department.speak = true;
           }
         } else {
           const lastService = uniqueServices[uniqueServices.length - 1];
@@ -1505,7 +1564,7 @@ module.exports.getDepartments = async (
       dep_id: department._id,
       data: department.turn
         ? [
-            { 
+            {
               ...department,
               _id: department._id,
               name: department.name,
@@ -1520,7 +1579,9 @@ module.exports.getDepartments = async (
 
     // Ensure all departments_ids are represented in the final response
     const finalData = departments_ids.map((dep_id) => {
-      const existingData = data.find((item) => item.dep_id.toString() === dep_id.toString());
+      const existingData = data.find(
+        (item) => item.dep_id.toString() === dep_id.toString()
+      );
       return existingData || { dep_id, data: [] }; // Add empty data if dep_id is not found
     });
 
@@ -1529,7 +1590,6 @@ module.exports.getDepartments = async (
     throw new Error("Serverda xatolik yuz berdi...");
   }
 };
-
 
 // module.exports.getDepartments = async (clinicaId, departments_ids, next, clientId) => {
 //     try {

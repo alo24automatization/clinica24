@@ -6,6 +6,9 @@ const config = require("config");
 const jwt = require("jsonwebtoken");
 const { Director } = require("../../models/DirectorAndClinica/Director");
 const ObjectId = require("mongodb").ObjectId;
+const { startSession } = require("mongoose");
+const { CounterDoctor } = require("../../models/CounterDoctor/CounterDoctor");
+const {OfflineService} = require("../../models/OfflineClient/OfflineService");
 
 module.exports.register = async (req, res) => {
   try {
@@ -49,6 +52,13 @@ module.exports.register = async (req, res) => {
         const hash = await bcrypt.hash(password, 8);
         req.body.password = hash;
       }
+
+      if(req.body.type === "CounterAgent" && req.body.primary_agent === true)
+        await User.updateMany({
+          type: "CounterAgent",
+          clinica: req.body.clinica
+        }, {primary_agent: false});
+
       const update = await User.findByIdAndUpdate(_id, {
         ...req.body,
         statsionar_profit: Number(statsionar_profit) || 0,
@@ -198,9 +208,9 @@ module.exports.login = async (req, res) => {
 
     if (
       new Date().getFullYear() ===
-      new Date(user?.clinica?.close_date).getFullYear() &&
+        new Date(user?.clinica?.close_date).getFullYear() &&
       new Date().getMonth() ===
-      new Date(user?.clinica?.close_date).getMonth() &&
+        new Date(user?.clinica?.close_date).getMonth() &&
       new Date().getDate() === new Date(user?.clinica?.close_date).getDate()
     ) {
       user.clinica.isClose = true;
@@ -269,15 +279,17 @@ module.exports.getUserType = async (req, res) => {
 module.exports.getUserById = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const findedUser = await User.findById(user_id).select("accessCreateClient")
+    const findedUser = await User.findById(user_id).select(
+      "accessCreateClient"
+    );
     if (!findedUser) {
-      res.status(400).json({ message: "Shifokor topilmadi!" })
+      res.status(400).json({ message: "Shifokor topilmadi!" });
     }
     res.status(200).send(findedUser);
   } catch (error) {
     res.status(501).json({ error: error });
   }
-}
+};
 
 module.exports.getUsers = async (req, res) => {
   try {
@@ -299,13 +311,13 @@ module.exports.getUsers = async (req, res) => {
 module.exports.addAccess = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const { accessCreateClient } = req.body
-    const findedUser = await User.findById(user_id)
+    const { accessCreateClient } = req.body;
+    const findedUser = await User.findById(user_id);
     if (!findedUser) {
-      res.status(400).json({ message: "Shifokor topilmadi!" })
+      res.status(400).json({ message: "Shifokor topilmadi!" });
     }
     findedUser.accessCreateClient = accessCreateClient;
-    await findedUser.save()
+    await findedUser.save();
     res.status(200).send({ message: "Shifokor ma'lumotlari yangilandi." });
   } catch (error) {
     res.status(501).json({ error: error });
@@ -331,10 +343,28 @@ module.exports.removeUser = async (req, res) => {
       });
     }
 
-    const updateUser = await User.findByIdAndUpdate(userId, {
-      isArchive: true,
-    });
+    const session = await startSession();
 
+    await session.startTransaction();
+
+    try {
+      if (user.type === "CounterAgent"){
+        const counterDoctors = await CounterDoctor.find({counter_agent: user._id}).lean();
+        await OfflineService.updateMany({counterdoctor: {$in: counterDoctors.map(x => x._id)}}, {counterdoctor: null});
+        await  CounterDoctor.find({_id: {$in: counterDoctors.map(x => x._id)}}).deleteMany();
+        await User.findByIdAndDelete(userId);
+      } else {
+        const updateUser = await User.findByIdAndUpdate(userId, {
+          isArchive: true,
+        });
+      }
+
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+    } finally {
+      await session.endSession();
+    }
     res
       .status(201)
       .send({ message: "Foydalanuvchi muvaffaqqiyatli o'chirildi" });

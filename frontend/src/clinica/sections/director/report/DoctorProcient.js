@@ -131,6 +131,33 @@ const DoctorProcient = () => {
         [request, auth, notify]
     );
 
+    const getStats = useCallback(
+        async (beginDay, endDay, clinica) => {
+            try {
+                const data = await request(
+                    `/api/doctor_procient/stats`,
+                    "POST",
+                    { clinica: clinica, beginDay, endDay },
+                    {
+                        Authorization: `Bearer ${auth.token}`,
+                    }
+                );
+                setDoctors(data)
+                setSearchStrorage(data)
+                setCurrentDoctors(
+                    data.slice(indexFirstConnector, indexLastConnector),
+                )
+            } catch (error) {
+                notify({
+                    title: t(`${error}`),
+                    description: "",
+                    status: "error",
+                });
+            }
+        },
+        [request, auth, notify]
+    );
+
     //=======================================================
     //=======================================================
 
@@ -141,16 +168,16 @@ const DoctorProcient = () => {
 
     const changeStart = (e) => {
         setBeginDay(new Date(new Date(e).setUTCHours(0, 0, 0, 0)));
-        getDoctorCleitns(new Date(new Date(e).setUTCHours(0, 0, 0, 0)), endDay, clinicaValue);
-        getStatsionar(beginDay, endDay, clinicaValue)
+        // getDoctorCleitns(new Date(new Date(e).setUTCHours(0, 0, 0, 0)), endDay, clinicaValue);
+        // getStatsionar(beginDay, endDay, clinicaValue)
     };
 
     const changeEnd = (e) => {
         const date = new Date(new Date(e).setUTCHours(23, 59, 59, 59))
 
         setEndDay(date);
-        getDoctorCleitns(beginDay, date, clinicaValue);
-        getStatsionar(beginDay, date, clinicaValue)
+        // getDoctorCleitns(beginDay, date, clinicaValue);
+        // getStatsionar(beginDay, date, clinicaValue)
     }
 
     //=======================================================
@@ -160,13 +187,13 @@ const DoctorProcient = () => {
 
     const changeType = (e) => {
         if (e.target.value === 'offline') {
-            setSearchStrorage(doctors);
+            // setSearchStrorage(doctors);
             setType('offline')
-            setCurrentDoctors([...doctors].slice(indexFirstConnector, indexLastConnector));
+            // setCurrentDoctors([...doctors].slice(indexFirstConnector, indexLastConnector));
         } else {
             setType('statsionar')
-            setSearchStrorage(statsionarDoctors);
-            setCurrentDoctors([...statsionarDoctors].slice(indexFirstConnector, indexLastConnector));
+            // setSearchStrorage(statsionarDoctors);
+            // setCurrentDoctors([...statsionarDoctors].slice(indexFirstConnector, indexLastConnector));
         }
     }
 
@@ -199,13 +226,14 @@ const DoctorProcient = () => {
 
     const [s, setS] = useState(0);
 
-    useEffect(() => {
+    useEffect(async () => {
+        await getStats(beginDay, endDay, clinicaValue)
         if (!s) {
             setS(1)
-            getDoctorCleitns(beginDay, endDay, clinicaValue)
-            getStatsionar(beginDay, endDay, clinicaValue)
+            // getDoctorCleitns(beginDay, endDay, clinicaValue)
+            // getStatsionar(beginDay, endDay, clinicaValue)
         }
-    }, [getDoctorCleitns, s, beginDay, endDay, clinicaValue])
+    }, [s, beginDay, endDay, clinicaValue, type])
 
     return (
         <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
@@ -274,7 +302,7 @@ const DoctorProcient = () => {
                                             placeholder={t("F.I.O")}
                                         />
                                     </div>
-                                    <div>
+                                    {/* <div>
                                         <select
                                             className="form-control form-control-sm selectpicker"
                                             placeholder={t("Turini tanlang")}
@@ -284,7 +312,7 @@ const DoctorProcient = () => {
                                             <option value='offline'>{t("Kunduzgi")}</option>
                                             <option value='statsionar'>{t("Statsionar")}</option>
                                         </select>
-                                    </div>
+                                    </div> */}
                                     <div
                                         className="text-center ml-auto flex gap-2"
                                         style={{ overflow: 'hidden' }}
@@ -326,12 +354,12 @@ const DoctorProcient = () => {
                                             <th className="border py-1 bg-alotrade text-[16px]">
                                                 {t("Umumiy narxi")}
                                             </th>
-                                            <th className="border py-1 bg-alotrade text-[16px]">
+                                            {/* <th className="border py-1 bg-alotrade text-[16px]">
                                                 {t("Kounteragent ulushi")}
                                             </th>
                                             <th className="border py-1 bg-alotrade text-[16px]">
                                                 {t("Kounterdoktor ulushi")}
-                                            </th>
+                                            </th> */}
                                             <th className="border py-1 bg-alotrade text-[16px]">
                                                 {t("Shifokor ulushi")}
                                             </th>
@@ -359,12 +387,12 @@ const DoctorProcient = () => {
                                                     <td className="border py-1 text-[16px] text-right">
                                                         {doctor.total}
                                                     </td>
-                                                    <td className="border py-1 text-[16px] text-right">
+                                                    {/* <td className="border py-1 text-[16px] text-right">
                                                         {doctor?.agent_profit}
                                                     </td>
                                                     <td className="border py-1 text-[16px] text-right">
                                                         {doctor?.counterdoctor_profit}
-                                                    </td>
+                                                    </td> */}
                                                     <td className="border py-1 text-[16px] text-right">
                                                         {doctor.doctor_profit}
                                                     </td>
@@ -417,12 +445,6 @@ const DoctorProcient = () => {
                                             </td>
                                             <td className="border py-1 text-[16px] text-right font-bold">
                                                 {searchStorage.reduce((prev, el) => prev + el?.total, 0)}
-                                            </td>
-                                            <td className="border py-1 text-[16px] text-right font-bold">
-                                                {searchStorage.reduce((prev, el) => prev + el?.agent_profit, 0)}
-                                            </td>
-                                            <td className="border py-1 text-[16px] text-right font-bold">
-                                                {searchStorage.reduce((prev, el) => prev + el?.counterdoctor_profit, 0)}
                                             </td>
                                             <td className="border py-1 text-[16px] text-right font-bold">
                                                 {searchStorage.reduce((prev, el) => prev + el.doctor_profit, 0)}

@@ -11,8 +11,7 @@ export const CheckModalStatsionar = ({
   setModal,
   baseUrl,
 }) => {
-
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   const [qr, setQr] = useState();
 
@@ -25,11 +24,11 @@ export const CheckModalStatsionar = ({
 
   useEffect(() => {
     if (connector.client) {
-      QRCode.toDataURL(
-        `${baseUrl}/clienthistorys/${connector._id}`
-      ).then((data) => {
-        setQr(data);
-      });
+      QRCode.toDataURL(`${baseUrl}/clienthistorys/${connector._id}`).then(
+        (data) => {
+          setQr(data);
+        }
+      );
     }
   }, [connector, baseUrl]);
   return (
@@ -55,7 +54,12 @@ export const CheckModalStatsionar = ({
           </div>
           <div className="modal-body overflow-scroll">
             <div ref={componentRef}>
-              <CheckStatsionarClient baseUrl={baseUrl} clinica={auth?.clinica} connector={connector} qr={qr} />
+              <CheckStatsionarClient
+                baseUrl={baseUrl}
+                clinica={auth?.clinica}
+                connector={connector}
+                qr={qr}
+              />
             </div>
           </div>
           <div className="modal-footer custom">

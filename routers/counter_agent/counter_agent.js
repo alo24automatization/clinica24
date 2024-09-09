@@ -46,8 +46,8 @@ module.exports.create = async (req, res) => {
         firstCounterAgent = await User.findOne({
           clinica,
           type: "CounterAgent",
+          primary_agent: true
         });
-        console.log(firstCounterAgent);
 
         if (!firstCounterAgent) {
           return res.status(400).json({
@@ -208,11 +208,11 @@ module.exports.get = async (req, res) => {
       }
       const totalprice = service.service.price * service.pieces;
       const counterdoctor_profit = service.service.counterDoctorProcient <= 100
-        ? (totalprice / 100) * service.service.counterDoctorProcient
-        : service.service.counterDoctorProcient;
+        ? (totalprice / 100) * service.service.counterDoctorProcient ?? 0
+        : service.service.counterDoctorProcient ?? 0;
       const counteragent_profit = service.service.counterAgentProcient <= 100
-        ? (totalprice / 100) * service.service.counterAgentProcient
-        : service.service.counterAgentProcient;
+        ? (totalprice / 100) * service.service.counterAgentProcient ?? 0
+        : service.service.counterAgentProcient ?? 0;
 
       acc[service.counterdoctor._id].totalprice += totalprice;
       acc[service.counterdoctor._id].counterdoctor_profit += counterdoctor_profit;
@@ -385,10 +385,9 @@ module.exports.getCounterAgents = async (req, res) => {
           (prev, el) => {
             if (el.service.counterAgentProcient <= 100) {
               prev +=
-                ((el.service.price * el.pieces) / 100) *
-                el.service.counterAgentProcient;
+                (el.service.price * el.pieces * el.service.counterAgentProcient) / 100;
             } else {
-              prev += el.service.counterAgentProcient;
+              prev += (el.service.counterAgentProcient) ?? 0;
             }
             return prev;
           },

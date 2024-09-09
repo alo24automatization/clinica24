@@ -490,7 +490,7 @@ module.exports.getLabClientsForApprove = async (req, res) => {
             .populate("templates", "name template")
             .lean()
             .then(services => {
-                return services.filter(service => service.department.probirka)
+                return services.filter(service => service.department.probirka && service.connector.payments.length > 0)
             })
         let statsionar = await StatsionarService.find({
             createdAt: {
@@ -525,6 +525,8 @@ module.exports.getLabClientsForApprove = async (req, res) => {
                 return services.filter(service => service.department.probirka)
             })
 
+            console.log(statsionar);
+
         services = [...offline, ...statsionar]
 
         if (services.length > 0) {
@@ -545,7 +547,7 @@ module.exports.getLabClientsForApprove = async (req, res) => {
             }
         }
 
-        const response = clients.filter(client => client.connector.payments.length > 0)
+        const response = clients;
 
         res.status(200).send(response);
     } catch (error) {

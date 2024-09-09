@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { faAngleDown, faAngleUp, faPenAlt, faSearch } from "@fortawesome/free-solid-svg-icons";
+import {faAngleDown, faAngleUp, faPenAlt, faSearch, faTrash} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -161,6 +161,27 @@ export const ConclusionClients = () => {
     },
     [searchStorage, countPage]
   );
+
+  const deleteClient = (async (connector) => {
+    try {
+      const data = await request(
+          `/api/offlineclient/client/delete`,
+          'POST',
+          { ...connector.connector, clinica: auth.clinica},
+          {
+            Authorization: `Bearer ${auth.token}`,
+          },
+      )
+
+      await getDoctorClients(beginDay, endDay);
+    } catch (error) {
+      notify({
+        title: t(`${error}`),
+        description: '',
+        status: 'error',
+      })
+    }
+  })
 
   //====================================================================
   //====================================================================
@@ -416,14 +437,22 @@ export const ConclusionClients = () => {
                               <td className="border text-[16px] py-1 text-right">
                                 {connector?.connector?.room?.endday && new Date(connector?.connector?.room?.endday).toLocaleDateString()} {connector?.connector?.room?.endday && new Date(connector?.connector?.room?.endday).toLocaleTimeString()}
                               </td>
-                              <td className="border text-[16px] py-1 text-center flex gap-[4px] items-center">
+                              <td className="text-[16px] py-1 text-center flex gap-[4px] items-center">
                                 <button
-                                  onClick={() =>
-                                    history.push("/alo24/conclusion", { ...connector })
-                                  }
-                                  className="btn btn-primary py-0"
+                                    onClick={() =>
+                                        history.push("/alo24/conclusion", {...connector})
+                                    }
+                                    className="btn btn-primary py-0"
                                 >
-                                  <FontAwesomeIcon icon={faPenAlt} />
+                                  <FontAwesomeIcon icon={faPenAlt}/>
+                                </button>
+                                <button
+                                    onClick={() =>
+                                        deleteClient(connector)
+                                    }
+                                    className="btn btn-danger py-0"
+                                >
+                                  <FontAwesomeIcon icon={faTrash}/>
                                 </button>
                               </td>
                             </tr>

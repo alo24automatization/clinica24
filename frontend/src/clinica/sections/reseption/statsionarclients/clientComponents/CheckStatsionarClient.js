@@ -1,54 +1,155 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
-  const {t} = useTranslation()
+  const [totalAmount, setTotalAmount] = useState(0);
+  const { t } = useTranslation();
+
+  const getTotalprice = (connector) => {
+    let roomprice = 0;
+    if (connector?.room?.endday) {
+      const beginday = new Date(connector?.room?.beginday);
+      const now = new Date(connector?.room?.endday);
+
+      const timeDifference = now - beginday;
+      const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+      roomprice = connector?.room?.room?.price * daysDifference;
+    } else {
+      let begin = new Date(connector?.room?.beginday);
+      let today = new Date();
+      const day = Math.round(
+        Math.abs(
+          (new Date(new Date(today).setHours(0, 0, 0, 0)).getTime() -
+            new Date(new Date(begin).setHours(0, 0, 0, 0)).getTime()) /
+            (24 * 60 * 60 * 1000)
+        )
+      );
+
+      roomprice = connector?.room?.room?.price * day;
+    }
+
+    let servicesTotal = connector?.services?.reduce((prev, s) => {
+      if (s.refuse === false) {
+        prev += s.service.price * s.pieces;
+      }
+      return prev;
+    }, 0);
+    let productsTotal = connector?.products?.reduce((prev, el) => {
+      if (el.refuse === false) {
+        prev += el.product.price * el.pieces;
+      }
+      return prev;
+    }, 0);
+    return servicesTotal + productsTotal + roomprice;
+  };
+
+  const getDebt = (connector) => {
+    const debt =
+      connector?.payments?.length > 0
+        ? getTotalprice(connector) -
+          (connector?.discount?.discount || 0) -
+          connector.payments.reduce((prev, el) => prev + el.payment, 0)
+        : 0;
+    return debt;
+  };
+
+  useEffect(() => {
+    // Calculate the room price based on the stay duration
+    // const calculateRoomPrice = () => {
+    //   const beginday = new Date(connector?.room?.beginday).setHours(0, 0, 0, 0);
+    //   const endday = connector?.room?.endday
+    //     ? new Date(connector?.room?.endday).setHours(0, 0, 0, 0)
+    //     : new Date().setHours(0, 0, 0, 0);
+    //   const daysStayed = Math.round(
+    //     Math.abs((beginday - endday) / (24 * 60 * 60 * 1000))
+    //   );
+    //   return daysStayed * connector?.room?.room?.price;
+    // };
+
+    // // Calculate the total services price
+    // const calculateServicesPrice = () => {
+    //   return (
+    //     connector?.services?.reduce(
+    //       (total, service) => !service.refuse ? (total + service.pieces * service.service.price) : total,
+    //       0
+    //     ) || 0
+    //   );
+    // };
+
+    // const roomPrice = calculateRoomPrice();
+    // const servicesPrice = calculateServicesPrice();
+
+    setTotalAmount(getTotalprice(connector));
+  }, [connector]);
+
   return (
     <div className="container p-3">
       <div className="">
-        {clinica?.ifud1 && <div className="row" style={{ fontSize: "10pt" }}>
-          <div
-            className="col-4"
-            style={{ border: "1px solid", textAlign: "center" }}
-          >
-            <p className="pt-2">
-              {clinica?.ifud1}
-            </p>
+        {clinica?.ifud1 && (
+          <div className="row" style={{ fontSize: "10pt" }}>
+            <div
+              className="col-4"
+              style={{ border: "1px solid", textAlign: "center" }}
+            >
+              <p className="pt-2">{clinica?.ifud1}</p>
+            </div>
+            <div
+              className="col-4"
+              style={{
+                border: "1px solid",
+                textAlign: "center",
+                borderLeft: "none",
+              }}
+            >
+              <p className="pt-2">
+                {t("IFUD")}: {clinica?.ifud2}
+              </p>
+            </div>
+            <div
+              className="col-4"
+              style={{
+                border: "1px solid",
+                textAlign: "center",
+                borderLeft: "none",
+              }}
+            >
+              <p style={{ margin: "0" }}>{clinica?.ifud3}</p>
+            </div>
           </div>
-          <div
-            className="col-4"
-            style={{
-              border: "1px solid",
-              textAlign: "center",
-              borderLeft: "none",
-            }}
-          >
-            <p className="pt-2">{t("IFUD")}: {clinica?.ifud2}</p>
-          </div>
-          <div
-            className="col-4"
-            style={{
-              border: "1px solid",
-              textAlign: "center",
-              borderLeft: "none",
-            }}
-          >
-            <p style={{ margin: "0" }}>
-              {clinica?.ifud3}
-            </p>
-          </div>
-        </div>}
-        <div className="flex justify-between items-center" style={{ fontSize: "20pt", marginBottom: "10px" }}>
+        )}
+        <div
+          className="flex justify-between items-center"
+          style={{ fontSize: "20pt", marginBottom: "10px" }}
+        >
           <div className="" style={{ textAlign: "center" }}>
-            <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
+            <pre
+              className=""
+              style={{
+                fontFamily: "-moz-initial",
+                border: "none",
+                outline: "none",
+              }}
+            >
               {clinica?.name}
             </pre>
           </div>
           <div style={{ textAlign: "center" }}>
-            <img style={{ width: "150px" }} src={baseUrl + '/api/upload/file/' + clinica?.image} alt="logo" />
+            <img
+              style={{ width: "150px" }}
+              src={baseUrl + "/api/upload/file/" + clinica?.image}
+              alt="logo"
+            />
           </div>
           <div className="" style={{ textAlign: "center" }}>
-            <pre className="" style={{ fontFamily: "-moz-initial", border: 'none', outline: "none" }}>
+            <pre
+              className=""
+              style={{
+                fontFamily: "-moz-initial",
+                border: "none",
+                outline: "none",
+              }}
+            >
               {clinica?.name2}
             </pre>
           </div>
@@ -86,7 +187,8 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
               }}
             >
               <h4>
-                {connector?.client && connector.client.lastname + " " + connector.client.firstname}
+                {connector?.client &&
+                  connector.client.lastname + " " + connector.client.firstname}
               </h4>
             </td>
             <td colSpan={2} style={{ width: "25%" }}>
@@ -115,7 +217,8 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                 fontSize: "20px",
               }}
             >
-              {connector?.client && new Date(connector.client.born).toLocaleDateString()}
+              {connector?.client &&
+                new Date(connector.client.born).toLocaleDateString()}
             </td>
             <td
               className="p-0"
@@ -136,8 +239,8 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                 fontSize: "20px",
               }}
             >
-              {connector?.client?.gender === 'man' && t('Erkak')}
-              {connector?.client?.gender === 'women' && t('Ayol')}
+              {connector?.client?.gender === "man" && t("Erkak")}
+              {connector?.client?.gender === "women" && t("Ayol")}
             </td>
           </tr>
           <tr style={{ textAlign: "center" }}>
@@ -182,7 +285,8 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                 fontSize: "20px",
               }}
             >
-              {connector?.room?.endday && new Date(connector?.room?.endday).toLocaleDateString()}
+              {connector?.room?.endday &&
+                new Date(connector?.room?.endday).toLocaleDateString()}
             </td>
           </tr>
 
@@ -230,7 +334,9 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
           </tr>
         </table>
         <div className="mt-2 px-2 py-1 bg-gray-400 flex justify-between items-center">
-          <span className="text-[14px] font-bold">{clinica?.organitionName}</span>
+          <span className="text-[14px] font-bold">
+            {clinica?.organitionName}
+          </span>
           <span className="text-[14px] font-bold">{clinica?.license}</span>
         </div>
       </div>
@@ -254,7 +360,7 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                     {t("Xizmat turi")}
                   </td>
                   <td className="text-center font-weight-bold border py-1">
-                    {t("Miqdori")} 
+                    {t("Miqdori")}
                   </td>
                   <td className="text-center font-weight-bold border py-1">
                     {t("Narxi")}
@@ -269,7 +375,7 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
               </thead>
               <tbody>
                 {connector.services &&
-                  connector.services.map((service, index) => {
+                  connector.services.filter(x => !x.refuse).map((service, index) => {
                     return (
                       <tr key={index}>
                         <td className="border py-1 text-bold font-weight-bold">
@@ -324,49 +430,72 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                     {connector.room && connector.room.room.type}
                   </td>
                   <td className="text-right border py-1 text-bold">
-                    {connector?.room?.endday ?
-                      Math.round(
-                        Math.abs(
-                          (new Date(connector?.room?.endday).setHours(0, 0, 0, 0)
-                            -
-                            new Date(connector?.room?.beginday).setHours(0, 0, 0, 0))
-                          /
-                          (24 * 60 * 60 * 1000)
+                    {connector?.room?.endday
+                      ? Math.round(
+                          Math.abs(
+                            (new Date(connector?.room?.endday).setHours(
+                              0,
+                              0,
+                              0,
+                              0
+                            ) -
+                              new Date(connector?.room?.beginday).setHours(
+                                0,
+                                0,
+                                0,
+                                0
+                              )) /
+                              (24 * 60 * 60 * 1000)
+                          )
                         )
-                      ) : Math.round(
-                        Math.abs(
-                          (new Date(connector?.room?.beginday).setHours(0, 0, 0, 0)
-                            -
-                            new Date().setHours(0, 0, 0, 0))
-                          /
-                          (24 * 60 * 60 * 1000)
-                        )
-                      )
-                    }
+                      : Math.round(
+                          Math.abs(
+                            (new Date(connector?.room?.beginday).setHours(
+                              0,
+                              0,
+                              0,
+                              0
+                            ) -
+                              new Date().setHours(0, 0, 0, 0)) /
+                              (24 * 60 * 60 * 1000)
+                          )
+                        )}
                   </td>
                   <td className="text-right border py-1 text-bold">
                     {connector?.room && connector.room.room.price}
                   </td>
-                  <td className="text-right border py-1">{
-                    (connector?.room?.endday ?
-                      Math.round(
-                        Math.abs(
-                          (new Date(connector?.room?.endday).setHours(0, 0, 0, 0)
-                            -
-                            new Date(connector?.room?.beginday).setHours(0, 0, 0, 0))
-                          /
-                          (24 * 60 * 60 * 1000)
+                  <td className="text-right border py-1">
+                    {(connector?.room?.endday
+                      ? Math.round(
+                          Math.abs(
+                            (new Date(connector?.room?.endday).setHours(
+                              0,
+                              0,
+                              0,
+                              0
+                            ) -
+                              new Date(connector?.room?.beginday).setHours(
+                                0,
+                                0,
+                                0,
+                                0
+                              )) /
+                              (24 * 60 * 60 * 1000)
+                          )
                         )
-                      ) : Math.round(
-                        Math.abs(
-                          (new Date(connector?.room?.beginday).setHours(0, 0, 0, 0)
-                            -
-                            new Date().setHours(0, 0, 0, 0))
-                          /
-                          (24 * 60 * 60 * 1000)
-                        )
-                      )) * connector?.room?.room?.price
-                  }</td>
+                      : Math.round(
+                          Math.abs(
+                            (new Date(connector?.room?.beginday).setHours(
+                              0,
+                              0,
+                              0,
+                              0
+                            ) -
+                              new Date().setHours(0, 0, 0, 0)) /
+                              (24 * 60 * 60 * 1000)
+                          )
+                        )) * connector?.room?.room?.price}
+                  </td>
                   <td className="text-right border py-1 text-bold">
                     {connector?.room &&
                       new Date(connector.room.beginday).toLocaleDateString()}
@@ -379,48 +508,96 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                     {t("Jami to'lov")}:
                   </td>
                   <td className="text-right">
-                    {(connector?.room?.endday ? Math.round(
-                      Math.abs(
-                        (new Date(connector?.room?.beginday).setHours(0, 0, 0, 0)
-                          -
-                          new Date(connector?.room?.endday).setHours(0, 0, 0, 0))
-                        /
-                        (24 * 60 * 60 * 1000)
-                      )
-                    ) * connector?.room?.room?.price : Math.round(
-                      Math.abs(
-                        (new Date(connector?.room?.beginday).setHours(0, 0, 0, 0)
-                          -
-                          new Date().setHours(0, 0, 0, 0))
-                        /
-                        (24 * 60 * 60 * 1000)
-                      )
-                    ) * connector?.room?.room?.price) + (connector?.services && connector?.services.length > 0 ? connector?.services.reduce((prev, service) => prev + (service.pieces + service.service.price), 0) : 0)}
+                    {/* {(connector?.room?.endday
+                      ? Math.round(
+                          Math.abs(
+                            (new Date(connector?.room?.beginday).setHours(
+                              0,
+                              0,
+                              0,
+                              0
+                            ) -
+                              new Date(connector?.room?.endday).setHours(
+                                0,
+                                0,
+                                0,
+                                0
+                              )) /
+                              (24 * 60 * 60 * 1000)
+                          )
+                        ) * connector?.room?.room?.price
+                      : Math.round(
+                          Math.abs(
+                            (new Date(connector?.room?.beginday).setHours(
+                              0,
+                              0,
+                              0,
+                              0
+                            ) -
+                              new Date().setHours(0, 0, 0, 0)) /
+                              (24 * 60 * 60 * 1000)
+                          )
+                        ) * connector?.room?.room?.price) +
+                      (connector?.services && connector?.services.length > 0
+                        ? connector?.services.reduce(
+                            (prev, service) =>
+                              prev + (service.pieces + service.service.price),
+                            0
+                          )
+
+                        : 0)} */}
+
+                    {totalAmount}
                   </td>
                 </tr>
-                {!connector?.room?.endday && <tr>
-                  <td className="text-right px-3 font-weight-bold" colSpan="4">
-                    {t("Oldindan to'lov")}:
-                  </td>
-                  <td className="text-right">{connector?.payments && connector?.payments.length > 0 ? connector?.payments.reduce((prev, el) => prev + el.payment, 0) : 0}</td>
-                </tr>}
-                {connector?.room?.endday && <tr>
-                  <td className="text-right px-3 font-weight-bold" colSpan="4">
-                    {t("To'langan")}:
-                  </td>
-                  <td className=" text-right">{connector?.payments && connector?.payments.reduce((prev, el) => prev + el.payment, 0)}</td>
-                </tr>}
+                {!connector?.room?.endday && (
+                  <tr>
+                    <td
+                      className="text-right px-3 font-weight-bold"
+                      colSpan="4"
+                    >
+                      {t("Oldindan to'lov")}:
+                    </td>
+                    <td className="text-right">
+                      {connector?.payments && connector?.payments.length > 0
+                        ? connector?.payments.reduce(
+                            (prev, el) => prev + el.payment,
+                            0
+                          )
+                        : 0}
+                    </td>
+                  </tr>
+                )}
+                {connector?.room?.endday && (
+                  <tr>
+                    <td
+                      className="text-right px-3 font-weight-bold"
+                      colSpan="4"
+                    >
+                      {t("To'langan")}:
+                    </td>
+                    <td className=" text-right">
+                      {connector?.payments &&
+                        connector?.payments.reduce(
+                          (prev, el) => prev + el.payment,
+                          0
+                        )}
+                    </td>
+                  </tr>
+                )}
                 <tr>
                   <td className="text-right px-3 font-weight-bold" colSpan="4">
                     {t("Qarz")}:
                   </td>
-                  <td className="text-right">{connector?.payments && connector?.payments.reduce((prev, el) => prev + el.debt, 0)}</td>
+                  <td className="text-right">{getDebt(connector)}</td>
                 </tr>
                 <tr>
                   <td className="text-right px-3 font-weight-bold" colSpan="4">
                     {t("Chegirma")}:
                   </td>
-                  <td className="text-right">{connector?.discount?.discount}</td>
+                  <td className="text-right">
+                    {connector?.discount?.discount}
+                  </td>
                 </tr>
               </tfoot>
             </table>

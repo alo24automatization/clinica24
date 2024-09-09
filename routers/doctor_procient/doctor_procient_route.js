@@ -10,6 +10,10 @@ router.post('/doctor_procient/statsionar/get', auth, (req, res) => {
     require('./doctor_procient').getStatsionar(req, res);
 })
 
+router.post('/doctor_procient/stats', auth, (req, res) => {
+    require('./doctor_procient').getStat(req, res);
+})
+
 router.post('/doctor_procient/get', auth, (req, res) => {
     require('./doctor_procient').get(req, res);
 })
