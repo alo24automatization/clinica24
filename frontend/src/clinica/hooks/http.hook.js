@@ -37,6 +37,7 @@ export const useHttp = () => {
         setLoading(false);
         return data;
       } catch (e) {
+        console.log(e);
         setLoading(false);
         setError(e.message);
         throw e.message;

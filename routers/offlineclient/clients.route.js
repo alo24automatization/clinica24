@@ -44,6 +44,8 @@ const {StatsionarDaily} = require("../../models/StatsionarClient/StatsionarDaily
 const {StatsionarDiscount} = require("../../models/Cashier/StatsionarDiscount");
 const {StatsionarPayment} = require("../../models/Cashier/StatsionarPayment");
 const {StatsionarService} = require("../../models/StatsionarClient/StatsionarService");
+const { StatsionarAdver } = require("../../models/StatsionarClient/StatsionarAdver");
+const { StatsionarProduct } = require("../../models/StatsionarClient/StatsionarProduct");
 const findNextAvailableTurn = async (
   clinica,
   department,
@@ -1247,11 +1249,9 @@ module.exports.delete = async (req, res) => {
   const session = await startSession();
   await  session.startTransaction();
   try {
-    const { clinica, client, _id} =
-        req.body;
+    const { clinica, client, room, _id} = req.body;
 
     const clientId = client?._id;
-
     const clinic = await Clinica.findById(clinica._id);
     if (!clinic) {
       return res.status(400).json({
@@ -1259,29 +1259,33 @@ module.exports.delete = async (req, res) => {
       });
     }
 
-    if(clientId) {
-      await OfflineClient.deleteOne({_id: clientId});
-
-      await StatsionarClient.deleteOne({_id: clientId});
-
-
-      await OfflineConnector.deleteMany({client: clientId});
-      await  OfflineDiscount.deleteMany({client: clientId});
-      await  OfflinePayment.deleteMany({client: clientId});
-      await  OfflineProduct.deleteMany({client: clientId});
-      await  OfflineAdver.deleteMany({client: clientId});
-
-      await StatsionarConnector.deleteMany({client: clientId});
-      await StatsionarDaily.deleteMany({client: clientId});
-      await StatsionarDiscount.deleteMany({client: clientId});
-      await StatsionarPayment.deleteMany({client: clientId});
-      await StatsionarRoom.deleteMany({client: clientId});
-      await StatsionarService.deleteMany({client: clientId});
-
+    const roomm = await Room.findById(room?.room?._id);
+    if (roomm) {
+      roomm.position = false;
+      await roomm.save();
     }
 
+    if (clientId) {
+      await OfflineClient.deleteOne({_id: clientId});
+      await OfflineConnector.deleteMany({ client: clientId });
+      await OfflineDiscount.deleteMany({client: clientId});
+      await OfflinePayment.deleteMany({client: clientId});
+      await OfflineProduct.deleteMany({client: clientId});
+      await OfflineService.deleteMany({ client: clientId });
+      await OfflineAdver.deleteMany({ client: clientId });
 
-    await  session.commitTransaction();
+      // StatsionarAdver
+      await StatsionarClient.deleteOne({_id: clientId});
+      await StatsionarConnector.deleteMany({client: clientId});
+      await StatsionarDiscount.deleteMany({client: clientId});
+      await StatsionarPayment.deleteMany({client: clientId});
+      await StatsionarDaily.deleteMany({client: clientId});
+      await StatsionarProduct.deleteMany({client: clientId});
+      await StatsionarService.deleteMany({ client: clientId });
+      await StatsionarRoom.deleteMany({ client: clientId }); 
+    }
+
+    await session.commitTransaction();
     res.status(200).send(true);
   } catch (error) {
     session.abortTransaction();

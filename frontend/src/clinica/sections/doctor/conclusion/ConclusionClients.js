@@ -163,11 +163,12 @@ export const ConclusionClients = () => {
   );
 
   const deleteClient = (async (connector) => {
+    console.log('del');
     try {
       const data = await request(
           `/api/offlineclient/client/delete`,
           'POST',
-          { ...connector.connector, clinica: auth.clinica},
+          { ...connector.connector, client: {_id:connector?.client?._id }, clinica: auth.clinica},
           {
             Authorization: `Bearer ${auth.token}`,
           },
@@ -447,8 +448,9 @@ export const ConclusionClients = () => {
                                   <FontAwesomeIcon icon={faPenAlt}/>
                                 </button>
                                 <button
-                                    onClick={() =>
-                                        deleteClient(connector)
+                                  disabled={loading}
+                                  onClick={() =>
+                                      !loading && deleteClient(connector)
                                     }
                                     className="btn btn-danger py-0"
                                 >
