@@ -2,7 +2,7 @@ import { useToast } from "@chakra-ui/react";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { useHttp } from "../../../hooks/http.hook";
-import { TableClients } from "../../cashier/debtclients/clientComponents/TableClients";
+import { TableClients } from "./TableClients";
 import Select from 'react-select'
 import makeAnimated from 'react-select/animated'
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 const animatedComponents = makeAnimated()
 
 export const DebtReport = () => {
+    console.log('Hiii');
     const [beginDay, setBeginDay] = useState(
         new Date(
             new Date().setMonth(new Date().getMonth() - 3)
@@ -20,22 +21,7 @@ export const DebtReport = () => {
     );
     //====================================================================
     //====================================================================
-    // MODAL
-    const [modal, setModal] = useState(false);
-
-    //====================================================================
-    //====================================================================
     const {t} = useTranslation()
-    //====================================================================
-    //====================================================================
-    // RegisterPage
-    const [visible, setVisible] = useState(false);
-
-    const changeVisible = () => setVisible(!visible);
-
-    //====================================================================
-    //====================================================================
-
     //====================================================================
     //====================================================================
     // Pagination
@@ -94,6 +80,7 @@ export const DebtReport = () => {
     const [offlineDebts, setOfflineDebts] = useState([]);
     const [statsionarDebts, setStatsionarDebts] = useState([]);
     const [debts, setDebts] = useState([]);
+    const [currentPage2, setCurrentPage2] = useState(currentPage)
 
     const getOfflineDebts = useCallback(
         async (beginDay, endDay, clinica) => {
@@ -140,6 +127,10 @@ export const DebtReport = () => {
         },
         [request, auth, notify]
     );
+
+    useEffect(() => {
+        setCurrentPage2(currentPage)
+    }, [currentPage])
 
     useEffect(() => {
         let debts;
@@ -193,6 +184,7 @@ export const DebtReport = () => {
         } else {
             sortEl = [...offlineDebts];
         }
+        setCurrentPage2(0);
         setSearchStrorage(sortEl);
         setCurrentConnectors(sortEl.slice(0, countPage));
     };
@@ -205,7 +197,7 @@ export const DebtReport = () => {
     const setPageSize = useCallback(
         (e) => {
             setCurrentPage(0);
-            setCountPage(e.target.value);
+            setCountPage(+e.target.value);
             setCurrentConnectors(connectors.slice(0, countPage));
         },
         [countPage, connectors]
@@ -299,7 +291,8 @@ export const DebtReport = () => {
                             />
                         </div>}
                         <TableClients
-                            setVisible={setVisible}
+                            setCurrentPage2={setCurrentPage2}
+                            currentPage2={currentPage2}
                             changeStart={changeStart}
                             changeEnd={changeEnd}
                             client={client}
@@ -315,6 +308,7 @@ export const DebtReport = () => {
                             setPageSize={setPageSize}
                             loading={loading}
                             connectors={connectors}
+                            searchStorage={searchStorage}
                             //   payment={payment}
                             //   setPayment={setPayment}
                             sortDebts={sortDebts}

@@ -3,6 +3,7 @@ import ReactPaginate from 'react-paginate'
 
 export const Pagination = ({
   countPage,
+  currentPage,
   totalDatas,
   setCurrentPage,
   setCurrentDatas,
@@ -14,7 +15,6 @@ export const Pagination = ({
   for (let i = 1; i <= Math.ceil(totalDatas / countPage); i++) {
     pageNumbers.push(i)
   }
-
   const pageHandle = useCallback(
     (data) => {
       setCurrentPage2 && setCurrentPage2(data.selected)
@@ -27,12 +27,13 @@ export const Pagination = ({
     },
     [datas, setCurrentPage2, setCurrentDatas, countPage],
   )
+
   const prop = typeof currentPage2 === 'number' ? { forcePage: currentPage2 } : {}
 
   return (
     <nav className="float-right">
       <ReactPaginate
-                {...prop}
+        {...prop}
         previousLabel={'<<'}
         nextLabel=">>"
         breakLabel={'...'}

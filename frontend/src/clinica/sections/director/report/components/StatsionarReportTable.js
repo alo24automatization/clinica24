@@ -117,10 +117,6 @@ export const StatsionarReportTable = ({
     return "bg-orange-400";
   };
 
-  useEffect(() => {
-    console.log(connectors);
-  }, []);
-
   return (
     <div className="border-0 table-container">
       <div className="table-responsive">
@@ -249,7 +245,9 @@ export const StatsionarReportTable = ({
                   <th className="border py-1 bg-alotrade text-[16px]">
                     {t("To'langan")}
                   </th>
-                  <th className="border py-1 bg-alotrade text-[16px]">
+                  {type !== 'done' && type !== 'continue' ? (
+                    <>
+                    <th className="border py-1 bg-alotrade text-[16px]">
                     {t("Naqt")}
                   </th>
                   <th className="border py-1 bg-alotrade text-[16px]">
@@ -258,6 +256,8 @@ export const StatsionarReportTable = ({
                   <th className="border py-1 bg-alotrade text-[16px]">
                     {t("O'tkazma")}
                   </th>
+                    </>
+                 ) : null}
                   <th className="border py-1 bg-alotrade text-[16px]">
                     {t("Chegirma")}
                   </th>
@@ -301,13 +301,13 @@ export const StatsionarReportTable = ({
                       <td className="border py-1 text-[16px] text-right">
                         {new Date(
                           connector?.room?.beginday
-                        ).toLocaleDateString()}
+                        ).toLocaleDateString().replaceAll('/', '.')}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {connector?.room?.endday &&
                           new Date(
                             connector?.room?.endday
-                          ).toLocaleDateString()}
+                          ).toLocaleDateString().replaceAll('/', '.')}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {getTotalprice(connector)}
@@ -318,8 +318,11 @@ export const StatsionarReportTable = ({
                           0
                         )}
                       </td>
+                      {/*  */}
+                      {type !== 'done' && type !== 'continue' ? (
+                    <>
                       <td className="border py-1 text-[16px] text-right">
-                        {connector.payments.reduce(
+                      {connector.payments.reduce(
                           (prev, el) => prev + el.cash,
                           0
                         )}
@@ -336,6 +339,9 @@ export const StatsionarReportTable = ({
                           0
                         )}
                       </td>
+                    </>
+                 ) : null}
+                      {/*  */}
                       <td className="border py-1 text-[16px] text-right">
                         {connector?.discount?.discount || 0}
                       </td>
@@ -425,7 +431,10 @@ export const StatsionarReportTable = ({
                       0
                     )}
                   </td>
-                  <td className="border py-1 text-[16px] text-right font-bold">
+
+                  {type !== 'done' && type !== 'continue' ? (
+                    <>
+                    <td className="border py-1 text-[16px] text-right font-bold">
                     {connectors.reduce(
                       (prev, connector) =>
                         prev +
@@ -458,8 +467,11 @@ export const StatsionarReportTable = ({
                       0
                     )}
                   </td>
+                    </>
+                  ) : null}
+                  
                   <td className="border py-1 text-[16px] text-right font-bold">
-                    {connectors.reduce(
+                  {connectors.reduce(
                       (prev, el) => prev + (el?.discount?.discount || 0),
                       0
                     )}
@@ -473,7 +485,7 @@ export const StatsionarReportTable = ({
                   {!location.pathname.includes("/alo24/statsionarreport") && (
                     <td className="border py-1 text-[16px] text-center"></td>
                   )}
-                  <td className="border py-1 text-[16px] text-center"></td>
+                  {type !== 'done' && type !== 'continue' ? <td className="border py-1 text-[16px] text-center"></td> : null}
                 </tr>
               </tbody>
             </table>

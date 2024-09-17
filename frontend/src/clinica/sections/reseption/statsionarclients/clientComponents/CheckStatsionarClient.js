@@ -192,7 +192,7 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
               </h4>
             </td>
             <td colSpan={2} style={{ width: "25%" }}>
-              <p className="fw-bold fs-5 m-0">
+              <p className="fw-bold fs-18 text text-uppercase m-0">
                 {connector?.client?.department}
               </p>
             </td>
@@ -369,7 +369,10 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                     {t("Umumiy")}
                   </td>
                   <td className="text-center font-weight-bold border py-1">
-                    {t("Kelgan vaqti")}
+                    {t("Sana")}
+                  </td>
+                  <td className="text-center font-weight-bold border py-1">
+                    {t("Soati")}
                   </td>
                 </tr>
               </thead>
@@ -395,6 +398,9 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                         </td>
                         <td className="text-right border py-1">
                           {new Date(service.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="text-right border py-1">
+                        {new Date(service.createdAt).toLocaleTimeString().split(' ')[0]}
                         </td>
                       </tr>
                     );

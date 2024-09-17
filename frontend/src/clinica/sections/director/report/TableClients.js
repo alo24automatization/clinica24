@@ -6,22 +6,21 @@ import {
   faPenAlt,
   faMoneyBill,
 } from "@fortawesome/free-solid-svg-icons";
-import { Sort } from "./Sort";
-import { Pagination } from "../../components/Pagination";
-import { DatePickers } from "./DatePickers";
+import { Pagination } from "./components/Pagination";
+import { DatePickers } from "../../cashier/debtclients/clientComponents/DatePickers";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 export const TableClients = ({
-  currentPage2,
-  setCurrentPage2,
-  searchStorage,
   changeStart,
+  searchStorage,
   changeEnd,
   searchId,
   searchFullname,
   connectors,
+  currentPage2,
+  setCurrentPage2,
   setCurrentPage,
   countPage,
   currentConnectors,

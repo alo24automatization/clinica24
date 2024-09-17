@@ -175,7 +175,7 @@ export const StatsionarClients = () => {
             setCurrentConnectors(connectors);
         } else {
             setCurrentPage(0);
-            setCountPage(e.target.value);
+            setCountPage(+e.target.value);
             setCurrentConnectors(connectors.slice(0, e.target.value));
         }
     };
