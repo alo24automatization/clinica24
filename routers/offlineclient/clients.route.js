@@ -363,6 +363,31 @@ module.exports.register = async (req, res) => {
   }
 };
 
+module.exports.getUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        error: "Diqqat! Foydalanuvchi ID si ko'rsatilmagan",
+      });
+    }
+
+    const user = await OfflineClient.findById(userId).populate("clinica");
+
+    if (!user) {
+      return res.status(400).json({
+        error:
+          "Diqqat! Ushbu foydalanuvchi ma'lumotlari ro'yxatdan o'tkazilmagan.",
+      });
+    }
+
+    res.status(201).send(user);
+  } catch (error) {
+    res.status(501).json({ error: error });
+  }
+};
+
 module.exports.add = async (req, res) => {
   try {
     const { client, connector, services, products, counterdoctor, adver } =

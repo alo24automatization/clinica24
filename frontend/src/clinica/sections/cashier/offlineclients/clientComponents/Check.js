@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 
 export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
   const { t } = useTranslation();
-
   const [departments, setDeparmtents] = useState([]);
 
   useEffect(() => {
@@ -167,8 +166,8 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                 style={{ fontSize: "20px", fontFamily: "times" }}
               >
                 {t("Tug'ilgan yil")}:{" "}
-                {new Date(
-                  connector.client && connector.client.born
+                {connector?.client?.born || user?.born && new Date(
+                 connector?.client?.born || user?.born 
                 ).toLocaleDateString()}
               </h6>
             </div>
@@ -637,8 +636,8 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                 style={{ fontSize: "20px", fontFamily: "times" }}
               >
                 {t("Tug'ilgan yil")}:{" "}
-                {new Date(
-                  connector.client && connector.client.born
+                {connector?.client?.born || user?.born && new Date(
+                 connector?.client?.born || user?.born 
                 ).toLocaleDateString()}
               </h6>
             </div>
