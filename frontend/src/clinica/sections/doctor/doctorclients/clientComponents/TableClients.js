@@ -478,7 +478,7 @@ export const TableClients = ({
                             (a, b) =>
                               new Date(b.createdAt) - new Date(a.createdAt)
                           )[0].createdAt
-                      ).toLocaleTimeString("ru-RU")}
+                      ).toLocaleTimeString("ru-RU").split(' ')[0]}
                     </td>
                     {/* <td className="border text-[16px] py-1 text-right">
                       {connector.client.bronTime

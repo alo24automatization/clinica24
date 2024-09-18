@@ -291,9 +291,13 @@ const StatsionarRoomDoctor = () => {
                     </td>
                     <td className="border py-1 text-[16px] text-right">
                       {new Date(el?.room?.beginday).toLocaleDateString()}
+                        {" "}
+                      {new Date(el?.room?.beginday).toLocaleTimeString().split(' ')[0]}
                     </td>
                     <td className="border py-1 text-[16px] text-right">
                       {new Date(el?.room?.endday).toLocaleDateString()}
+                        {" "}
+                      {new Date(el?.room?.endday).toLocaleTimeString().split(' ')[0]}
                     </td>
                     <td className="border py-1 text-[16px] text-right">
                       {Math.round(

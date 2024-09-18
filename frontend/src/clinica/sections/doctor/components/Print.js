@@ -152,7 +152,8 @@ const Print = ({ client, connector, sections, clinica, baseUrl, doctor, qr }) =>
                                     }}
                                 >
                                     {connector &&
-                                        new Date(connector.createdAt).toLocaleDateString()}
+                                        `${new Date(connector.createdAt).toLocaleDateString()} ${new Date(connector.createdAt).toLocaleTimeString().split(' ')[0]}`
+                                    }
                                 </td>
                                 <td
                                     className="p-0 fw-bold"

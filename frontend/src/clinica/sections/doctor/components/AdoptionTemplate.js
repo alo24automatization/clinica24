@@ -663,7 +663,8 @@ const DoctorTemplate = ({
                     }}
                   >
                     {connector &&
-                      new Date(connector.createdAt).toLocaleDateString()}
+                      `${new Date(connector.createdAt).toLocaleDateString()} ${new Date(connector.createdAt).toLocaleTimeString().split(' ')[0]}`
+                    }
                   </td>
                   <td
                     className="p-0 fw-bold"
@@ -1321,7 +1322,7 @@ const LabTemplate = ({ client, connector, services, baseUrl }) => {
                     }}
                   >
                     {connector &&
-                      new Date(connector.createdAt).toLocaleDateString()}
+                      `${new Date(connector.createdAt).toLocaleDateString()} ${new Date(connector.createdAt).toLocaleTimeString().split(' ')[0]}`}
                   </td>
                   <td
                     className="p-0 fw-bold"

@@ -194,7 +194,7 @@ export const TableClients = ({
                         connector?.doctor?.firstname}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
-                      {connector?.room?.beginday && new Date(connector.room.beginday).toLocaleDateString()}{" "}
+                      {connector?.room?.beginday && `${new Date(connector.room.beginday).toLocaleDateString()} ${new Date(connector.room.beginday).toLocaleTimeString().split(' ')[0]}`}
                     </td>
                     <td className="border py-1 text-center text-[16px]">
                       {loading ? (

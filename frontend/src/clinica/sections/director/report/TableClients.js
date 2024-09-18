@@ -164,12 +164,14 @@ export const TableClients = ({
                     </td>
                     <td className="border py-1 text-right text-[16px]">
                       {new Date(connector.createdAt).toLocaleDateString()}
+                      {' '}
+                     {new Date(connector.createdAt).toLocaleTimeString().split(' ')[0]}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
                       {connector.client.phone}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
-                      {new Date(connector.client.born).toLocaleDateString()}
+                    {new Date(connector.client.born).toLocaleDateString()}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
                       {connector.total}

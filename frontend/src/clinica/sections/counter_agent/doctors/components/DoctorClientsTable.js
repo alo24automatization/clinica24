@@ -146,6 +146,8 @@ const DoctorClientsTable = ({
                                         </td>
                                         <td className="border py-1 text-left text-[16px]">
                                             {new Date(connector?.createdAt).toLocaleDateString()}
+                                                {" "}
+                                            {new Date(connector?.createdAt).toLocaleTimeString().split(' ')[0]}
                                         </td>
                                         <td className="border py-1 text-left text-[16px]">
                                             {connector?.serviceName}

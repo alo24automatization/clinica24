@@ -301,13 +301,13 @@ export const StatsionarReportTable = ({
                       <td className="border py-1 text-[16px] text-right">
                         {new Date(
                           connector?.room?.beginday
-                        ).toLocaleDateString().replaceAll('/', '.')}
+                        ).toLocaleDateString()}
+                       {" "}
+                    {new Date( connector?.room?.beginday).toLocaleTimeString().split(' ')[0]}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {connector?.room?.endday &&
-                          new Date(
-                            connector?.room?.endday
-                          ).toLocaleDateString().replaceAll('/', '.')}
+                         `${new Date(connector?.room?.endday).toLocaleDateString()} ${new Date(connector?.room?.endday).toLocaleTimeString().split(' ')[0]}`}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {getTotalprice(connector)}
@@ -549,10 +549,13 @@ export const StatsionarReportTable = ({
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {new Date(connector?.room?.beginday).toDateString()}
+                          {" "}
+                        {new Date(connector?.room?.beginday).toLocaleTimeString().split(' ')[0]}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {connector?.room?.endday &&
-                          new Date(connector?.room?.endday).toDateString()}
+                          `${new Date(connector?.room?.endday).toLocaleDateString()} ${new Date(connector?.room?.endday).toLocaleTimeString().split(' ')[0]}`}
+                        
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {getTotalprice(connector)}

@@ -433,10 +433,12 @@ export const ConclusionClients = () => {
                                 {new Date(connector?.client?.born).toLocaleDateString()}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
-                                {new Date(connector?.connector?.createdAt).toLocaleDateString()} {new Date(connector?.connector?.createdAt).toLocaleTimeString()}
+                                {new Date(connector?.connector?.createdAt).toLocaleDateString()}
+                                  {' '}
+                                {new Date(connector?.connector?.createdAt).toLocaleTimeString().split(' ')[0]}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
-                                {connector?.connector?.room?.endday && new Date(connector?.connector?.room?.endday).toLocaleDateString()} {connector?.connector?.room?.endday && new Date(connector?.connector?.room?.endday).toLocaleTimeString()}
+                                {connector?.connector?.room?.endday && `${new Date(connector?.connector?.room?.endday).toLocaleDateString()} ${new Date(connector?.connector?.room?.endday).toLocaleTimeString().split(' ')[0]}`}
                               </td>
                               <td className="text-[16px] py-1 text-center flex gap-[4px] items-center">
                                 <button
