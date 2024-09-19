@@ -216,6 +216,7 @@ module.exports.register = async (req, res) => {
     //=========================================================
     // CreateServices
     let totalprice = 0;
+    // !!!
     for (const service of services) {
       const { error } = validateOfflineService(service);
 
@@ -565,14 +566,17 @@ module.exports.add = async (req, res) => {
       checkMinimum(produc._id, client.clinica);
     }
 
-    if (counterdoctor) {
-      const servicess = await OfflineService.find({ connector: connector._id });
-      for (const s of servicess) {
-        const ss = await OfflineService.findOne({ _id: s._id, refuse: false });
-        ss.counterdoctor = counterdoctor;
-        await ss.save();
-      }
-    }
+    // if (counterdoctor) {
+    //   const servicess = await OfflineService.find({ connector: connector._id });
+    //   console.log('===========================');
+    //   console.log(servicess);
+    //   console.log('===========================');
+    //   for (const s of servicess) {
+    //     const ss = await OfflineService.findOne({ _id: s._id, refuse: false });
+    //     ss.counterdoctor = counterdoctor;
+    //     await ss.save();
+    //   }
+    // }
 
     if (adver.adver) {
       const oldadver = await OfflineAdver.findOne({

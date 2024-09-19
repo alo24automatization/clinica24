@@ -376,19 +376,10 @@ export const RegisterClient = ({
                     <label htmlFor="biO">{t("Yullanma")}</label>
                     <div className="flex items-center gap-x-3">
                       <button
-                        disabled={
-                          auth.clinica?.connectorDoctor_client
-                            ? false
-                            : isAddHandler || isConnectorHandler
-                        }
+                        disabled={false}
                         onClick={showNewCounterDoctor}
                         type="button"
                         className={`
-                    ${
-                      isAddHandler || isConnectorHandler
-                        ? "cursor-not-allowed"
-                        : ""
-                    }
                     flex disabled:bg-green-700  justify-center items-center bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 w-[42px] h-[37px]   text-white font-semibold`}
                       >
                         {newCounterDoctor.visible ? (
@@ -402,11 +393,7 @@ export const RegisterClient = ({
                         onChange={changeCounterDoctor}
                         placeholder={t("Tanlang...")}
                         // styles={CustomStyle}
-                        isDisabled={
-                          auth.clinica?.connectorDoctor_client
-                            ? false
-                            : isAddHandler || isConnectorHandler
-                        }
+                        isDisabled={false}
                         value={selectedDoctor}
                         options={[
                           {

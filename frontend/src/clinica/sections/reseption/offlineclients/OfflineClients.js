@@ -1174,8 +1174,8 @@ export const OfflineClients = () => {
                 counterdoctors={counterdoctors}
                 advers={advers}
                 products={products}
-                isAddHandler={client._id && !isAddConnector}
-                isConnectorHandler={client._id && isAddConnector}
+                isAddHandler={!isAddConnector}
+                isConnectorHandler={isAddConnector}
                 loading={loading}
                 clientDate={clientDate}
                 setClientDate={setClientDate}
