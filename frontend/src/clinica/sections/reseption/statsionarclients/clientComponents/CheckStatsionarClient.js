@@ -8,8 +8,8 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
   const getTotalprice = (connector) => {
     let roomprice = 0;
     if (connector?.room?.endday) {
-      const beginday = new Date(connector?.room?.beginday);
-      const now = new Date(connector?.room?.endday);
+      const beginday = new Date(connector?.room?.beginday).setHours(0,0,0,0);
+      const now = new Date(connector?.room?.endday).setHours(0,0,0,0);
 
       const timeDifference = now - beginday;
       const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -439,19 +439,9 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                     {connector?.room?.endday
                       ? Math.round(
                           Math.abs(
-                            (new Date(connector?.room?.endday).setHours(
-                              0,
-                              0,
-                              0,
-                              0
-                            ) -
-                              new Date(connector?.room?.beginday).setHours(
-                                0,
-                                0,
-                                0,
-                                0
-                              )) /
-                              (24 * 60 * 60 * 1000)
+                            (new Date(connector?.room?.endday).setHours(0,0,0,0) -
+                              new Date(connector?.room?.beginday).setHours(0, 0, 0, 0)) /
+                            (24 * 60 * 60 * 1000)
                           )
                         )
                       : Math.round(

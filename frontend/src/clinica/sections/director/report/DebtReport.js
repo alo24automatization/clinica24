@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next";
 const animatedComponents = makeAnimated()
 
 export const DebtReport = () => {
-    console.log('Hiii');
     const [beginDay, setBeginDay] = useState(
         new Date(
             new Date().setMonth(new Date().getMonth() - 3)
