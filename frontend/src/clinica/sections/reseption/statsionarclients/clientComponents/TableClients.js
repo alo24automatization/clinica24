@@ -1,8 +1,4 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPrint,
-} from "@fortawesome/free-solid-svg-icons";
 import { Pagination } from "../../components/Pagination";
 import { DatePickers } from "./DatePickers";
 import { useTranslation } from "react-i18next";
@@ -11,6 +7,7 @@ export const TableClients = ({
   setVisible,
   setModal1,
   setCheck,
+  setIsAdding,
   changeStart,
   changeEnd,
   searchPhone,
@@ -205,7 +202,8 @@ export const TableClients = ({
                       ) : (
                         <button
                           className="btn btn-success py-0"
-                          onClick={() => {
+                            onClick={() => {
+                            setIsAdding(false)
                             setClient(connector.client);
                             setConnector({
                               ...connector,

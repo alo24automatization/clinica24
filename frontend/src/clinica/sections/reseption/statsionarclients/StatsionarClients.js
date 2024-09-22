@@ -39,6 +39,7 @@ export const StatsionarClients = () => {
   //====================================================================
   // RegisterPage
   const [visible, setVisible] = useState(false);
+  const [isAdding, setIsAdding] = useState(true)
 
   const changeVisible = () => setVisible(!visible);
 
@@ -323,6 +324,7 @@ export const StatsionarClients = () => {
   }, [request, auth, notify]);
 
   const [counteragent, setCounterAgent] = useState(null);
+  const [counteragent2, setCounterAgent2] = useState(null);
 
   const changeCounterAgent = (e) => {
     if (e.value === "delete") {
@@ -624,6 +626,10 @@ export const StatsionarClients = () => {
     setServices([]);
     setSelectedProducts([]);
     setSelectedServices([]);
+    setAgentSelect(null)
+    setRoomSelect(null)
+    setDoctorSelect(null)
+    setCounterAgent2(null)
   }, [auth]);
 
   const checkData = () => {
@@ -775,7 +781,7 @@ export const StatsionarClients = () => {
           connector: { ...connector, clinica: auth.clinica._id },
           services: [...services],
           products: [...newproducts],
-          counteragent: { ...counteragent, clinica: auth.clinica._id },
+          counteragent: counteragent2 ? counteragent2._id : null,
           adver: { ...adver, clinica: auth.clinica._id },
           room: { ...room },
         },
@@ -793,8 +799,14 @@ export const StatsionarClients = () => {
         status: "success",
       });
       clearDatas();
+      setCounterAgent2(null)
       setModal(false);
       setVisible(false);
+      setClient({
+        _id: null,
+        clinica: auth.clinica && auth.clinica._id,
+        reseption: auth.user && auth.user._id,
+      })
     } catch (error) {
       notify({
         title: t(`${error}`),
@@ -817,6 +829,7 @@ export const StatsionarClients = () => {
     room,
     beginDay,
     endDay,
+    counteragent2,
   ]);
 
   //====================================================================
@@ -971,7 +984,10 @@ export const StatsionarClients = () => {
                   className={`btn bg-alotrade text-white mb-2 w-100 ${
                     visible ? "d-none" : ""
                   }`}
-                  onClick={changeVisible}
+                  onClick={() => {
+                    changeVisible()
+                    setIsAdding(true)
+                  }}
                 >
                   {t("Registratsiya")}
                 </button>
@@ -979,7 +995,10 @@ export const StatsionarClients = () => {
                   className={`btn bg-alotrade text-white mb-2 w-100 ${
                     visible ? "" : "d-none"
                   }`}
-                  onClick={changeVisible}
+                  onClick={() => {
+                    changeVisible()
+                    setIsAdding(true)
+                  }}
                 >
                   {t("Registratsiya")}
                 </button>
@@ -987,6 +1006,9 @@ export const StatsionarClients = () => {
             </div>
             <div className={` ${visible ? "" : "d-none"}`}>
               <RegisterClient
+                isAdding={isAdding}
+                agentSelect2={counteragent2}
+                setAgentSelect2={setCounterAgent2}
                 changeRoom={changeRoom}
                 changeDoctor={changeDoctor}
                 selectedServices={selectedServices}
@@ -1025,6 +1047,7 @@ export const StatsionarClients = () => {
               />
             </div>
             <TableClients
+              setIsAdding={setIsAdding}
               setVisible={setVisible}
               setCheck={setCheck}
               changeStart={changeStart}

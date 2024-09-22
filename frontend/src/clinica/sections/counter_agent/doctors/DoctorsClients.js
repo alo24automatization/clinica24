@@ -1,6 +1,5 @@
 import { useToast } from '@chakra-ui/react';
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../../context/AuthContext';
 import { useHttp } from '../../../hooks/http.hook';
 import DoctorClientsTable from './components/DoctorClientsTable';
@@ -8,19 +7,14 @@ import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
 
 const DoctorsClients = () => {
 
-    const { t } = useTranslation()
-
     // Pagination
     const [currentPage, setCurrentPage] = useState(0);
     const [countPage, setCountPage] = useState(10);
 
-    const indexLastConnector = (currentPage + 1) * countPage;
-    const indexFirstConnector = indexLastConnector - countPage;
-
     //====================================================
     //====================================================
 
-    const { request, loading } = useHttp();
+    const { request } = useHttp();
     const auth = useContext(AuthContext);
 
     //====================================================
@@ -41,13 +35,6 @@ const DoctorsClients = () => {
         },
         []
     );
-
-    //====================================================
-    //====================================================
-
-    const [visible, setVisible] = useState(false);
-
-    const changeVisible = () => setVisible(!visible);
 
     //====================================================
     //====================================================
@@ -118,17 +105,6 @@ const DoctorsClients = () => {
         setEndDay(date);
     }
 
-    //==============================================================
-    //==============================================================
-
-    const changeCounterDoctor = (e) => {
-        if (e.value === 'none') {
-            setCounterdoctor('')
-        } else {
-            setCounterdoctor(e.value)
-        }
-    }
-
     const searchClientName = (e) => {
         const searching = searchStorage.filter((item) =>
             item.firstname
@@ -141,11 +117,7 @@ const DoctorsClients = () => {
         setCounterdoctorClients(searching);
     }
 
-    //==============================================================
-    //==============================================================
-
-    const [doctors, setDoctors] = useState([]);
-
+    const [type, setType] = useState('offline')
     const { id: doctor_id } = useParams();
     const getDoctorsClients = useCallback(async () => {
         try {
@@ -156,6 +128,7 @@ const DoctorsClients = () => {
                     beginDay,
                     endDay,
                     clinica: auth && auth.clinica._id,
+                    clientType: type
                 },
                 {
                     Authorization: `Bearer ${auth.token}`,
@@ -170,7 +143,7 @@ const DoctorsClients = () => {
                 status: "error",
             });
         }
-    }, [auth, request, notify, beginDay, endDay])
+    }, [auth, request, notify, beginDay, endDay, type])
 
     useEffect(() => {
         getDoctorsClients()
@@ -196,9 +169,11 @@ const DoctorsClients = () => {
                     <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                         <DoctorClientsTable
                             changeStart={changeStart}
+                            getDoctorsClients={getDoctorsClients}
                             changeEnd={changeEnd}
                             beginDay={beginDay}
                             endDay={endDay}
+                            setType={setType}
                             connectors={searchStorage}
                             setCurrentConnectors={setCounterdoctorClients}
                             currentConnectors={counterdoctorClients}

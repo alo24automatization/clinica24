@@ -17,6 +17,7 @@ export const RegisterClient = ({
   setNewServices,
   setNewProducts,
   newproducts,
+  isAdding,
   newservices,
   changeProduct,
   changeService,
@@ -35,9 +36,8 @@ export const RegisterClient = ({
   rooms,
   room,
   setRoom,
-  connector,
-  setConnector,
-  changeDiagnos,
+  agentSelect2,
+  setAgentSelect2,
   clientDate,
   doctorSelect,
   roomSelect,
@@ -87,6 +87,7 @@ export const RegisterClient = ({
       getServices("all");
     }
   }, [departments, getServices]);
+
   return (
     <>
       {/* Row start */}
@@ -119,7 +120,7 @@ export const RegisterClient = ({
                   <div className="form-group">
                     <label htmlFor="inputEmail">{t("Ismi")}</label>
                     <input
-                      defaultValue={client.firstname}
+                       value={client.firstname || ""}
                       onChange={changeClientData}
                       type="text"
                       className="form-control form-control-sm"
@@ -134,7 +135,7 @@ export const RegisterClient = ({
                   <div className="form-group">
                     <label htmlFor="education">{t("Otasining ismi")}</label>
                     <input
-                      defaultValue={client.fathername}
+                      value={client.fathername || ""}
                       onChange={changeClientData}
                       type="text"
                       className="form-control form-control-sm"
@@ -173,7 +174,7 @@ export const RegisterClient = ({
                         </span>
                       </div>
                       <input
-                        defaultValue={client.phone}
+                        defaultValue={client.phone || ""}
                         onChange={changeClientData}
                         type="number"
                         className="form-control"
@@ -399,6 +400,7 @@ export const RegisterClient = ({
                   <div className="form-group">
                     <label htmlFor="biO">{t("Yullanma")}</label>
                     <Select
+                      isDisabled={!isAdding}
                       value={agentSelect}
                       onChange={changeCounterAgent}
                       placeholder={t("Tanlang...")}
@@ -727,7 +729,25 @@ export const RegisterClient = ({
                 {!isFromOffline && (
                   <>
                     <div className="flex justify-evenly items-center">
-                      <div className="w-[300px]">
+                      <div className="w-[250px]">
+                        <div className="form-group">
+                          <label htmlFor="fullName">{t("Yullanma")}</label>
+                          <Select
+                            value={agentSelect2}
+                            onChange={(val) => setAgentSelect2(val)}
+                            placeholder={t("Tanlang...")}
+                            components={animatedComponents}
+                            options={counterdoctors}
+                            theme={(theme) => ({
+                              ...theme,
+                              borderRadius: 0,
+                              padding: 0,
+                              height: 0,
+                            })}
+                    />
+                        </div>
+                      </div>
+                      <div className="w-[250px]">
                         <div className="form-group">
                           <label htmlFor="fullName">{t("Bo'limlar")}</label>
                           <select
@@ -748,7 +768,7 @@ export const RegisterClient = ({
                           </select>
                         </div>
                       </div>
-                      <div className="w-[300px]">
+                      <div className="w-[350px]">
                         <div className="form-group">
                           <label htmlFor="inputEmail">{t("Xizmatlar")}</label>
                           <Select
@@ -768,7 +788,7 @@ export const RegisterClient = ({
                           />
                         </div>
                       </div>
-                      <div className="w-[300px]">
+                      <div className="w-[250px]">
                         <div className="form-group">
                           <label htmlFor="inputEmail">{t("Mahsulotlar")}</label>
                           <Select

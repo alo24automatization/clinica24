@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Select from 'react-select'
 import { Pagination } from '../../../reseption/components/Pagination'
 import { DatePickers } from '../../../reseption/offlineclients/clientComponents/DatePickers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -21,8 +20,10 @@ const DoctorClientsTable = ({
     setCurrentConnectors,
     currentPage,
     setPageSize,
+    getDoctorsClients,
     endDay,
-    beginDay
+    beginDay,
+    setType
 }) => {
 
     const { t } = useTranslation()
@@ -34,7 +35,6 @@ const DoctorClientsTable = ({
     const endDate = query.get('endDate');
     const history = useHistory();
     const auth = useContext(AuthContext)
-    const location = useLocation()
     const handleBackToAllDoctors = () => {
         if (auth && auth.user && auth?.user?.type === "Director") {
             const connector = JSON.parse(localStorage.getItem("last_location_state"))
@@ -55,6 +55,11 @@ const DoctorClientsTable = ({
             changeStart(beginDate, "onLoad")
         }
     }, [beginDate, endDate])
+
+    
+    const changeType = (e) => {
+        setType(e.target.value)
+    }
     return (
         <div className="border-0 table-container mt-6">
             <div className="border-0 table-container">
@@ -86,6 +91,18 @@ const DoctorClientsTable = ({
                             placeholder={t("Mijozning F.I.SH")}
                         />
                     </div>
+                    <div>
+                        <div className='w-[100px]'>
+                            <select
+                                className="form-control form-control-sm selectpicker"
+                                placeholder="Bo'limni tanlang"
+                                onChange={changeType}
+                            >
+                                <option value={'offline'}>Kunduzgi</option>
+                                <option value={'statsionar'}>Statsionar</option>
+                            </select>
+                        </div>
+                    </div>
                     <div className="text-center ml-auto ">
                         <Pagination
                             setCurrentDatas={setCurrentConnectors}
@@ -110,6 +127,9 @@ const DoctorClientsTable = ({
                                 <th className="border py-1 bg-alotrade text-[16px]">№</th>
                                 <th className="border py-1 bg-alotrade text-[16px]">
                                     {t("Mijoz")}
+                                </th>
+                                <th className="border py-1 bg-alotrade text-[16px]">
+                                    {t("ID")}
                                 </th>
                                 <th className="border py-1 bg-alotrade text-[16px]">
                                     {t("Kelgan vaqti")}
@@ -144,6 +164,9 @@ const DoctorClientsTable = ({
                                                 ' ' +
                                                 connector?.firstname}
                                         </td>
+                                        <td className="border py-1 text-[16px]">
+                                            {connector?.id}
+                                        </td>
                                         <td className="border py-1 text-left text-[16px]">
                                             {new Date(connector?.createdAt).toLocaleDateString()}
                                                 {" "}
@@ -170,6 +193,7 @@ const DoctorClientsTable = ({
                                     style={{ maxWidth: '30px !important' }}
                                 ></td>
                                 <td className="border py-1 font-weight-bold text-[16px]"> </td>
+                                <td className="border py-1 text-left text-[16px]"></td>
                                 <td className="border py-1 text-left text-[16px]"></td>
                                 <td className="border py-1 text-left text-[16px]"></td>
                                 <td className="border py-1 text-right text-[16px] font-bold">

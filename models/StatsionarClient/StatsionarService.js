@@ -34,6 +34,7 @@ const service = new Schema(
         payment: { type: Boolean, default: true },
         column: { type: Object },
         tables: { type: Array },
+        counterdoctor: {type: Schema.Types.ObjectId, ref: "CounterDoctor"},
         clientMoreDetails: { type: { complaints: [String], diagnostics: [String] }, default: null }
     },
     {
@@ -59,6 +60,7 @@ function validateStatsionarService(clientservice) {
         turn: Joi.string(),
         comment: Joi.string(),
         payment: Joi.boolean(),
+        counterdoctor: Joi.string(),
         column: Joi.object(),
         tables: Joi.array(),
         clientMoreDetails: Joi.object({

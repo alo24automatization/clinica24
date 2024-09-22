@@ -1,12 +1,9 @@
 import { useToast } from '@chakra-ui/react'
-import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { AuthContext } from '../../../context/AuthContext'
 import { useHttp } from '../../../hooks/http.hook'
 import { DatePickers } from '../../reseption/offlineclients/clientComponents/DatePickers'
-import { Sort } from '../adver/Sort'
 import { Pagination } from '../components/Pagination'
 import Select from "react-select"
 import ReactHtmlTableToExcel from 'react-html-table-to-excel'
@@ -33,16 +30,6 @@ const CounterAgentInfo = () => {
     const [endDay, setEndDay] = useState(
         new Date(new Date().setDate(new Date().getDate() + 1)),
     )
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
-    // RegisterPage
-    const [visible, setVisible] = useState(false)
-
-    const changeVisible = () => setVisible(!visible)
-
     //====================================================================
     //====================================================================
 
@@ -298,7 +285,7 @@ const CounterAgentInfo = () => {
         const year = d.getFullYear();
         return `${day}/${month}/${year}`;
     };
-    console.log(location.state);
+
     const navigateToCounterDoctorClients = (id) => {
         localStorage.setItem("last_location_state", JSON.stringify(location.state))
         history.push(`/alo24/counter_doctors_report/${id}?beginDate=${formatDateToDDMMYYYY(beginDay)}&endDate=${formatDateToDDMMYYYY(endDay)}`)

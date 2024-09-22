@@ -8,6 +8,9 @@ require("../../models/StatsionarClient/StatsionarConnector");
 require("../../models/StatsionarClient/StatsionarClient");
 require("../../models/OfflineClient/OfflineClient");
 const { User } = require("../../models/Users");
+const {
+  StatsionarService,
+} = require("../../models/StatsionarClient/StatsionarService");
 
 module.exports.create = async (req, res) => {
   try {
@@ -103,7 +106,7 @@ const customAlphabetCompare = (a, b) => {
 module.exports.getDoctorClients = async (req, res) => {
   try {
     const { id: counterdoctor } = req.params;
-    const { clinica, beginDay, endDay } = req.body;
+    const { clinica, beginDay, endDay, clientType } = req.body;
 
     if (!counterdoctor || !clinica) {
       return res.status(400).json({ error: "counterdoctor and clinica are required." });
@@ -118,7 +121,10 @@ module.exports.getDoctorClients = async (req, res) => {
       },
     };
 
-    const services = await OfflineService.find(query)
+    let services = []
+
+    if (clientType === 'statsionar') {
+      services = await StatsionarService.find(query)
       .select("service createdAt counterdoctor pieces client payment")
       .populate({
         path: "counterdoctor",
@@ -126,12 +132,28 @@ module.exports.getDoctorClients = async (req, res) => {
       })
       .populate({
         path: "client",
-        select: "firstname lastname createdAt phone",
+        select: "firstname lastname createdAt phone id",
       })
       .populate({
         path: "service",
       })
       .lean();
+    } else {
+      services = await OfflineService.find(query)
+        .select("service createdAt counterdoctor pieces client payment")
+        .populate({
+          path: "counterdoctor",
+          select: "firstname lastname phone",
+        })
+        .populate({
+          path: "client",
+          select: "firstname lastname createdAt phone id",
+        })
+        .populate({
+          path: "service",
+        })
+        .lean();
+    }
 
     // Filter out services that are refused
     const validServices = services.filter(service => !service.refuse&&service.payment);
@@ -148,6 +170,7 @@ module.exports.getDoctorClients = async (req, res) => {
       return {
         firstname: service.client.firstname,
         lastname: service.client.lastname,
+        id: service.client.id,
         phone: service.client.phone,
         createdAt: service.client.createdAt,
         serviceName: service.service.name,
@@ -195,8 +218,22 @@ module.exports.get = async (req, res) => {
     // Filter out services that are refused or do not have a counterdoctor (if counterdoctor was not specified)
     const validServices = services.filter(service => !service.refuse && (counterdoctor || service.counterdoctor));
 
+    // GET STATSIONAR CONTR_DOCTOR's %
+    const statServices = await StatsionarService.find(query)
+    .select("service createdAt counterdoctor pieces refuse client")
+    .populate({
+      path: "counterdoctor",
+      select: "firstname lastname clinica_name counter_agent phone",
+      match: counter_agent ? { counter_agent } : {},
+    })
+    .populate("client", "firstname lastname")
+      .lean()
+    
+      const validServices2 = statServices.filter(service => !service.refuse && (counterdoctor || service.counterdoctor));
+            
+
     // Group services by counterdoctor and count unique clients
-    const groupedByCounterdoctor = validServices.reduce((acc, service) => {
+    const groupedByCounterdoctor = [...validServices, ...validServices2].reduce((acc, service) => {
       if (!acc[service.counterdoctor._id]) {
         acc[service.counterdoctor._id] = {
           counterdoctor: service.counterdoctor,
@@ -370,18 +407,31 @@ module.exports.getCounterAgents = async (req, res) => {
           },
           counterdoctor: counterdoctor._id,
         })
-          .select("service pieces client createdAt")
-          .lean();
+        .select("service pieces client createdAt")
+        .lean();
 
-        if (offlineservices.length > 0) {
+        const statsionarservices = await StatsionarService.find({
+          clinica,
+          createdAt: {
+            $gte: beginDay,
+            $lte: endDay,
+          },
+          counterdoctor: counterdoctor._id,
+        })
+        .select("service pieces client createdAt")
+        .lean();
+
+        if (offlineservices.length > 0 || statsionarservices.length > 0) {
           counteragent.counterdoctors += 1;
         }
 
-        counteragent.totalprice += offlineservices.reduce(
+        const services = [...offlineservices, ...statsionarservices]
+
+        counteragent.totalprice += services.reduce(
           (prev, el) => prev + el.service.price * el.pieces,
           0
         );
-        counteragent.counteragent_profit += offlineservices.reduce(
+        counteragent.counteragent_profit += services.reduce(
           (prev, el) => {
             if (el.service.counterAgentProcient <= 100) {
               prev +=
@@ -393,7 +443,7 @@ module.exports.getCounterAgents = async (req, res) => {
           },
           0
         );
-        counteragent.counterdoctor_profit += offlineservices.reduce(
+        counteragent.counterdoctor_profit += services.reduce(
           (prev, el) => {
             if (el.service.counterDoctorProcient <= 100) {
               prev +=
@@ -408,7 +458,7 @@ module.exports.getCounterAgents = async (req, res) => {
         );
 
         let clientsid = [];
-        counteragent.clients += offlineservices.reduce((prev, el) => {
+        counteragent.clients += services.reduce((prev, el) => {
           if (!clientsid.includes(String(el.client))) {
             prev += 1;
             clientsid.push(String(el.client));
