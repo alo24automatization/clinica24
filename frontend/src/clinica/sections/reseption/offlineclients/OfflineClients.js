@@ -13,7 +13,6 @@ import {
 import { CheckModal } from "../components/ModalCheck";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import AllServices from "../components/AllServices";
 import { useTranslation } from "react-i18next";
 import Print from "../../laborotory/components/Print";
 import AllModal from "./clientComponents/AllModal";

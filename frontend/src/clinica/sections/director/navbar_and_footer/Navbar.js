@@ -6,7 +6,7 @@ import { useToast } from "@chakra-ui/react";
 import AloLogo from "../../../../clinica_logo.jpg";
 import { useTranslation } from "react-i18next";
 
-export const Navbar = ({ clinica }) => {
+export const Navbar = ({ clinica, appearanceFields }) => {
   const history = useHistory();
   //====================================================================
   //====================================================================
@@ -98,7 +98,6 @@ export const Navbar = ({ clinica }) => {
   }, [getDirector, getBaseUrl, s]);
   //====================================================================
   //====================================================================
-
   return (
     <div>
       <div className="container-fluid p-0">
@@ -232,7 +231,7 @@ export const Navbar = ({ clinica }) => {
                       onClick={() => setActivePage("/alo24/rooms")}
                       to="/alo24/rooms"
                     >
-                      {t("Statsionar xonalar")}
+                      {t("Xonalar").trim()}
                     </Link>
                   </li>
                   <li>
@@ -349,15 +348,19 @@ export const Navbar = ({ clinica }) => {
                       {t("Kunduzgi")}
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to="/alo24/statsionarclients"
-                      onClick={() => setActivePage("/alo24/statsionarclients")}
-                    >
-                      {t("Statsionar")}
-                    </Link>
-                  </li>
+                  {appearanceFields.showStationary === true && (
+                    <li>
+                      <Link
+                        className="dropdown-item"
+                        to="/alo24/statsionarclients"
+                        onClick={() =>
+                          setActivePage("/alo24/statsionarclients")
+                        }
+                      >
+                        {t("Statsionar")}
+                      </Link>
+                    </li>
+                  )}
                 </ul>
               </li>
               <li className="nav-item dropdown">
@@ -427,15 +430,17 @@ export const Navbar = ({ clinica }) => {
                       {t("Kunduzgi")}
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to="/alo24/statsionarreport"
-                      onClick={() => setActivePage("/alo24/statsionarreport")}
-                    >
-                      {t("Statsionar")}
-                    </Link>
-                  </li>
+                  {appearanceFields.showStationary === true && (
+                    <li>
+                      <Link
+                        className="dropdown-item"
+                        to="/alo24/statsionarreport"
+                        onClick={() => setActivePage("/alo24/statsionarreport")}
+                      >
+                        {t("Statsionar")}
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <Link
                       className="dropdown-item"
@@ -495,13 +500,13 @@ export const Navbar = ({ clinica }) => {
               <li className="nav-item">
                 <Link
                   className={`nav-link ${
-                    activePage === "/sozlamalar" ? "active-page" : ""
+                    activePage === "/settings" ? "active-page" : ""
                   }`}
-                  to="/alo24/sozlamalar"
-                  onClick={() => setActivePage("/sozlamalar")}
+                  to="/alo24/settings"
+                  onClick={() => setActivePage("/settings")}
                   style={{
                     background:
-                      activePage === "/alo24/sozlamalar" ? "#F97316" : "",
+                      activePage === "/alo24/settings" ? "#F97316" : "",
                   }}
                 >
                   <i className="fa fa-cog nav-icon" />

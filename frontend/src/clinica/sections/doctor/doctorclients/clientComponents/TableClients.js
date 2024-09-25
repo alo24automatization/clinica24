@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleUp,
@@ -35,6 +35,8 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { faBell } from "@fortawesome/free-solid-svg-icons/faBell";
+import { useHttp } from "../../../../hooks/http.hook";
+import { AuthContext } from "../../../../context/AuthContext";
 
 const animatedComponents = makeAnimated();
 
@@ -79,7 +81,6 @@ export const TableClients = ({
 
   const [modal, setModal] = useState(false);
   const [debt, setDebt] = useState(0);
-  const [sort, setSort] = useState(false);
 
   const isDebt = (payments) => {
     const debt = payments.reduce((prev, item) => prev + item.debt, 0);
@@ -101,28 +102,33 @@ export const TableClients = ({
     setClientFilterData((prev) => ({ ...prev, [type]: value }));
   };
 
-  const toast = useToast();
-
-  const notify = useCallback(
-    (data) => {
-      toast({
-        title: data.title && data.title,
-        description: data.description && data.description,
-        status: data.status && data.status,
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-      });
-    },
-    [toast]
-  );
-
   const clients = startedFilter ? updatedCliets : currentDoctorClients;
   const handleStartFilter = (data) => {
     handleFilterClients(data);
     setOpenFilterModal(false);
     setStaredFiltered(true);
   };
+
+  const auth = useContext(AuthContext);
+  const { request: appearanceRequest } = useHttp();
+  const [appearanceFields, setAppearanceFields] = useState({});
+  const getAppearanceFields = async () => {
+    try {
+      const data = await appearanceRequest(
+        `/api/clinica/appearanceFields/${auth.clinica._id}`,
+        "GET",
+        null
+      );
+      setAppearanceFields(data.appearanceFields);
+    } catch (error) {
+      console.log("Appearance settings get error");
+    }
+  };
+
+  useEffect(() => {
+    getAppearanceFields();
+  }, []);
+
   return (
     <div className="border-0 shadow-lg table-container">
       <div className="border-0 table-container">
@@ -217,7 +223,9 @@ export const TableClients = ({
                 onChange={changeClientsType}
               >
                 <option value="offline">{t("Kunduzgi")}</option>
-                <option value="statsionar">{t("Statsionar")}</option>
+                {appearanceFields.showStationary === true && (
+                  <option value="statsionar">{t("Statsionar")}</option>
+                )}
               </select>
             </div>
             {/* <div
@@ -436,8 +444,8 @@ export const TableClients = ({
                       ![...connector?.services].some(
                         (service) =>
                           service.client === connector.client._id &&
-                          service.payment
-                          && service.department._id === user.specialty._id
+                          service.payment &&
+                          service.department._id === user.specialty._id
                       ) && clientsType !== "statsionar"
                         ? "!bg-gray-400"
                         : ""
@@ -468,17 +476,21 @@ export const TableClients = ({
                       {new Date(
                         connector?.connector?.createdAt
                       ).toLocaleDateString("ru-RU")}{" "}
-                      {new Date(
-                        [...connector?.services]
-                          .filter(
-                            (service) =>
-                              service.department._id === user.specialty._id
-                          )
-                          .sort(
-                            (a, b) =>
-                              new Date(b.createdAt) - new Date(a.createdAt)
-                          )[0].createdAt
-                      ).toLocaleTimeString("ru-RU").split(' ')[0]}
+                      {
+                        new Date(
+                          [...connector?.services]
+                            .filter(
+                              (service) =>
+                                service.department._id === user.specialty._id
+                            )
+                            .sort(
+                              (a, b) =>
+                                new Date(b.createdAt) - new Date(a.createdAt)
+                            )[0].createdAt
+                        )
+                          .toLocaleTimeString("ru-RU")
+                          .split(" ")[0]
+                      }
                     </td>
                     {/* <td className="border text-[16px] py-1 text-right">
                       {connector.client.bronTime
@@ -521,8 +533,8 @@ export const TableClients = ({
                             ![...connector?.services].some(
                               (service) =>
                                 service.client === connector.client._id &&
-                                service.payment
-                                && service.department._id === user.specialty._id
+                                service.payment &&
+                                service.department._id === user.specialty._id
                             ) && clientsType !== "statsionar"
                           }
                           checked={
@@ -559,8 +571,8 @@ export const TableClients = ({
                               (service) =>
                                 service.client === connector.client._id &&
                                 service.payment &&
-                                !service.accept
-                                && service.department._id === user.specialty._id
+                                !service.accept &&
+                                service.department._id === user.specialty._id
                             ) && clientsType !== "statsionar"
                           }
                           onClick={() =>
@@ -585,8 +597,8 @@ export const TableClients = ({
                             ![...connector?.services].some(
                               (service) =>
                                 service.client === connector.client._id &&
-                                service.payment
-                                && service.department._id === user.specialty._id
+                                service.payment &&
+                                service.department._id === user.specialty._id
                             ) && clientsType !== "statsionar"
                           }
                           onClick={() => {
@@ -614,8 +626,8 @@ export const TableClients = ({
                             ![...connector?.services].some(
                               (service) =>
                                 service.client === connector.client._id &&
-                                service.payment
-                                && service.department._id === user.specialty._id
+                                service.payment &&
+                                service.department._id === user.specialty._id
                             ) && clientsType !== "statsionar"
                           }
                           onClick={() =>
@@ -642,8 +654,8 @@ export const TableClients = ({
                             ![...connector?.services].some(
                               (service) =>
                                 service.client === connector.client._id &&
-                                service.payment
-                                && service.department._id === user.specialty._id
+                                service.payment &&
+                                service.department._id === user.specialty._id
                             ) && clientsType !== "statsionar"
                           }
                           onClick={() => {
@@ -671,8 +683,8 @@ export const TableClients = ({
                             ![...connector?.services].some(
                               (service) =>
                                 service.client === connector.client._id &&
-                                service.payment
-                                && service.department._id === user.specialty._id
+                                service.payment &&
+                                service.department._id === user.specialty._id
                             ) && clientsType !== "statsionar"
                           }
                           onClick={() => handlePrint(connector)}

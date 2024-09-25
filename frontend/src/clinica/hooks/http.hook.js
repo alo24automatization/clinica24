@@ -18,7 +18,8 @@ export const useHttp = () => {
           headers["Content-Type"] = "application/json";
         }
 
-        const response = await fetch(`${url}`, { // Use baseUrl
+        const response = await fetch(`${url}`, {
+          // Use baseUrl
           method,
           body,
           headers,
@@ -37,7 +38,6 @@ export const useHttp = () => {
         setLoading(false);
         return data;
       } catch (e) {
-        console.log(e);
         setLoading(false);
         setError(e.message);
         throw e.message;

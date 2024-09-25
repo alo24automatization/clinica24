@@ -166,9 +166,11 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                 style={{ fontSize: "20px", fontFamily: "times" }}
               >
                 {t("Tug'ilgan yil")}:{" "}
-                {connector?.client?.born || user?.born && new Date(
-                 connector?.client?.born || user?.born 
-                ).toLocaleDateString()}
+                {connector?.client?.born ||
+                  (user?.born &&
+                    new Date(
+                      connector?.client?.born || user?.born
+                    ).toLocaleDateString())}
               </h6>
             </div>
           </div>
@@ -367,7 +369,6 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                   <tbody>
                     {connector.services &&
                       connector.services.map((service, index) => {
-                        console.log(service);
                         return (
                           service.refuse && (
                             <tr
@@ -399,8 +400,6 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                       })}
                     {connector.products &&
                       connector.products.map((product, index) => {
-                        console.log(product);
-
                         return (
                           product.refuse && (
                             <tr
@@ -636,9 +635,11 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                 style={{ fontSize: "20px", fontFamily: "times" }}
               >
                 {t("Tug'ilgan yil")}:{" "}
-                {connector?.client?.born || user?.born && new Date(
-                 connector?.client?.born || user?.born 
-                ).toLocaleDateString()}
+                {connector?.client?.born ||
+                  (user?.born &&
+                    new Date(
+                      connector?.client?.born || user?.born
+                    ).toLocaleDateString())}
               </h6>
             </div>
           </div>
@@ -674,7 +675,7 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                       {d?.name}
                     </td>
                     <td className="border border-black-800 text-[16px] text-center font-bold">
-                    {d?.bronTime ? d?.bronTime : d?.turn}
+                      {d?.bronTime ? d?.bronTime : d?.turn}
                     </td>
                     <td className="border border-black-800 text-[16px] text-center font-bold">
                       {d?.room}

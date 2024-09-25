@@ -1,30 +1,46 @@
-import { CloseButton, FormControl, FormLabel, ModalBody, ModalContent, ModalHeader, ModalOverlay, Switch, useToast } from '@chakra-ui/react'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { AuthContext } from '../../../context/AuthContext'
-import { useHttp } from '../../../hooks/http.hook'
-import { Pagination } from '../components/Pagination'
-import { Sort } from './components/Sort'
-import { checkUserData } from './checkData/checkData'
-import { Loader } from '../../../loader/Loader'
-import { RegistorUser } from './RegistorUser'
-import { Modal } from './modal/Modal'
-import { Modal as ChakraModal } from '@chakra-ui/react'
-import { useTranslation } from 'react-i18next'
+import {
+  CloseButton,
+  FormControl,
+  Input,
+  FormLabel,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Switch,
+  useToast,
+} from "@chakra-ui/react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { AuthContext } from "../../../context/AuthContext";
+import { useHttp } from "../../../hooks/http.hook";
+import { Pagination } from "../components/Pagination";
+import { checkUserData } from "./checkData/checkData";
+import { Loader } from "../../../loader/Loader";
+import { RegistorUser } from "./RegistorUser";
+import { Modal } from "./modal/Modal";
+import { Modal as ChakraModal } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { IoSettingsOutline } from "react-icons/io5";
 export const Users = () => {
   //====================================================================
   //====================================================================
-  const [modal, setModal] = useState(false)
-  const [remove, setRemove] = useState()
+  const [modal, setModal] = useState(false);
+  const [remove, setRemove] = useState();
   //====================================================================
   //====================================================================
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   //====================================================================
   //====================================================================
   // RegisterPage
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(false);
 
-  const changeVisible = () => setVisible(!visible)
+  const changeVisible = () => setVisible(!visible);
 
   //====================================================================
   //====================================================================
@@ -32,12 +48,12 @@ export const Users = () => {
   //====================================================================
   //====================================================================
   // Pagenation
-  const [currentPage, setCurrentPage] = useState(0)
-  const [countPage, setCountPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(0);
+  const [countPage, setCountPage] = useState(10);
 
-  const indexLastUser = (currentPage + 1) * countPage
-  const indexFirstUser = indexLastUser - countPage
-  const [currentUsers, setCurrentUsers] = useState([])
+  const indexLastUser = (currentPage + 1) * countPage;
+  const indexFirstUser = indexLastUser - countPage;
+  const [currentUsers, setCurrentUsers] = useState([]);
 
   //====================================================================
   //====================================================================
@@ -45,32 +61,29 @@ export const Users = () => {
   //====================================================================
   //====================================================================
   // TOAST
-  const toast = useToast()
+  const toast = useToast();
 
-  const notify = useCallback(
-    (data) => {
-      toast({
-        title: data.title && data.title,
-        description: data.description && data.description,
-        status: data.status && data.status,
-        duration: 5000,
-        isClosable: true,
-        position: 'top-right',
-      })
-    },
-    [],
-  )
+  const notify = useCallback((data) => {
+    toast({
+      title: data.title && data.title,
+      description: data.description && data.description,
+      status: data.status && data.status,
+      duration: 5000,
+      isClosable: true,
+      position: "top-right",
+    });
+  }, []);
   //====================================================================
   //====================================================================
 
   //====================================================================
   //====================================================================
   // AUTH
-  const [load, setLoad] = useState(false)
+  const [load, setLoad] = useState(false);
 
-  const { request, loading } = useHttp()
+  const { request, loading } = useHttp();
 
-  const auth = useContext(AuthContext)
+  const auth = useContext(AuthContext);
 
   //====================================================================
   //====================================================================
@@ -78,32 +91,32 @@ export const Users = () => {
   //====================================================================
   //====================================================================
   // DEPARTMENTS
-  const [departments, setDepartments] = useState()
+  const [departments, setDepartments] = useState();
 
   const getDepartments = useCallback(async () => {
     try {
       const data = await request(
         `/api/services/department/getall`,
-        'POST',
+        "POST",
         { clinica: auth?.clinica?._id },
         {
           Authorization: `Bearer ${auth.token}`,
-        },
-      )
-      setDepartments(data)
+        }
+      );
+      setDepartments(data);
     } catch (error) {
       notify({
         title: error,
-        description: '',
-        status: 'error',
-      })
+        description: "",
+        status: "error",
+      });
     }
-  }, [request, auth, notify])
+  }, [request, auth, notify]);
   //====================================================================
   //====================================================================
   const [blankaImage, setBlankaImage] = useState(null);
   const cropperRef = useRef(null);
-  const cmToPx = (cm) => Math.round(cm * 96 / 2.54);
+  const cmToPx = (cm) => Math.round((cm * 96) / 2.54);
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -141,7 +154,7 @@ export const Users = () => {
         });
       } finally {
         setLoad(false);
-        setBlankaImage(null)
+        setBlankaImage(null);
       }
     });
   };
@@ -168,22 +181,23 @@ export const Users = () => {
   //SECTIONS
   const [user, setUser] = useState({
     type: null,
+    statsionar_profit: 0,
     clinica: auth?.clinica?._id,
-  })
-  const [sections, setSections] = useState([])
+  });
+  const [sections, setSections] = useState([]);
 
   const getSections = useCallback(async () => {
     try {
-      const data = await request('/api/sections', 'GET', null)
-      setSections(data)
+      const data = await request("/api/sections", "GET", null);
+      setSections(data);
     } catch (error) {
       notify({
         title: t(`${error}`),
-        description: '',
-        status: 'error',
-      })
+        description: "",
+        status: "error",
+      });
     }
-  }, [request, notify])
+  }, [request, notify]);
 
   //====================================================================
   //====================================================================
@@ -191,20 +205,20 @@ export const Users = () => {
   //====================================================================
   //====================================================================
   // BASE_URL
-  const [baseUrl, setBaseUrl] = useState()
+  const [baseUrl, setBaseUrl] = useState();
 
   const getBaseUrl = useCallback(async () => {
     try {
-      const data = await request('/api/baseurl', 'GET', null)
-      setBaseUrl(data.baseUrl)
+      const data = await request("/api/baseurl", "GET", null);
+      setBaseUrl(data.baseUrl);
     } catch (error) {
       notify({
         title: t(`${error}`),
-        description: '',
-        status: 'error',
-      })
+        description: "",
+        status: "error",
+      });
     }
-  }, [request, notify])
+  }, [request, notify]);
   //====================================================================
   //====================================================================
 
@@ -214,157 +228,157 @@ export const Users = () => {
   const handleImage = async (e) => {
     if (user.image) {
       return notify({
-        title: 'Diqqat! Surat avval yuklangan',
+        title: "Diqqat! Surat avval yuklangan",
         description:
           "Suratni qayta yulash uchun suratni ustiga bir marotaba bosib uni o'chiring!",
-        status: 'error',
-      })
+        status: "error",
+      });
     }
-    const files = e.target.files[0]
-    const data = new FormData()
-    data.append('file', files)
-    setLoad(true)
-    const res = await fetch('/api/upload', { method: 'POST', body: data })
-    const file = await res.json()
-    setUser({ ...user, image: file.filename })
-    setLoad(false)
+    const files = e.target.files[0];
+    const data = new FormData();
+    data.append("file", files);
+    setLoad(true);
+    const res = await fetch("/api/upload", { method: "POST", body: data });
+    const file = await res.json();
+    setUser({ ...user, image: file.filename });
+    setLoad(false);
     notify({
-      status: 'success',
-      description: '',
-      title: 'Surat muvaffaqqiyatli yuklandi',
-    })
-  }
+      status: "success",
+      description: "",
+      title: "Surat muvaffaqqiyatli yuklandi",
+    });
+  };
 
   const removeImage = async (filename) => {
     try {
-      const data = await request(`/api/upload/del`, 'POST', { filename })
-      setUser({ ...user, image: null })
-      document.getElementById('default-btn').value = null
+      const data = await request(`/api/upload/del`, "POST", { filename });
+      setUser({ ...user, image: null });
+      document.getElementById("default-btn").value = null;
       notify({
-        status: 'success',
-        description: '',
+        status: "success",
+        description: "",
         title: data.accept,
-      })
+      });
     } catch (error) {
       notify({
-        status: 'error',
-        description: '',
+        status: "error",
+        description: "",
         title: t(`${error}`),
-      })
+      });
     }
-  }
+  };
   //====================================================================
   //====================================================================
 
   //====================================================================
   //====================================================================
-  const [users, setUsers] = useState([])
-  const [searchStorage, setSearchStrorage] = useState()
-  const [counteragents, setCounteragents] = useState([])
+  const [users, setUsers] = useState([]);
+  const [searchStorage, setSearchStrorage] = useState();
+  const [counteragents, setCounteragents] = useState([]);
 
   const getUsers = useCallback(async () => {
     try {
       const data = await request(
         `/api/user/getall`,
-        'POST',
+        "POST",
         { clinica: auth?.clinica?._id },
         {
           Authorization: `Bearer ${auth.token}`,
-        },
-      )
-      setUsers(data)
-      setCounteragents(data)
-      setSearchStrorage(data)
-      setCurrentUsers(data.slice(indexFirstUser, indexLastUser))
+        }
+      );
+      setUsers(data);
+      setCounteragents(data);
+      setSearchStrorage(data);
+      setCurrentUsers(data.slice(indexFirstUser, indexLastUser));
     } catch (error) {
       notify({
         title: t(`${error}`),
-        description: '',
-        status: 'error',
-      })
+        description: "",
+        status: "error",
+      });
     }
-  }, [request, auth, notify, setSearchStrorage, indexFirstUser, indexLastUser])
+  }, [request, auth, notify, setSearchStrorage, indexFirstUser, indexLastUser]);
   //====================================================================
   //====================================================================
 
   //====================================================================
   //====================================================================
   const changeHandler = (e, value = undefined) => {
-    setUser({ ...user, [e.target.name]: value ?? e.target.value })
-  }
+    setUser({ ...user, [e.target.name]: value ?? e.target.value });
+  };
 
   const createHandler = async () => {
     if (checkUserData(user, t)) {
-      return notify(checkUserData(user, t))
+      return notify(checkUserData(user, t));
     }
     try {
       const data = await request(
-        '/api/user/register',
-        'POST',
+        "/api/user/register",
+        "POST",
         {
           ...user,
         },
         {
           Authorization: `Bearer ${auth.token}`,
-        },
-      )
+        }
+      );
 
       localStorage.setItem(
-        'user',
+        "user",
         JSON.stringify({
           user: data,
-        }),
-      )
+        })
+      );
       notify({
         title: data.message,
-        description: '',
-        status: 'success',
-      })
-      getUsers()
+        description: "",
+        status: "success",
+      });
+      getUsers();
       setUser({
         type: null,
         password: null,
         clinica: auth.clinica._id,
-      })
+      });
     } catch (error) {
       notify({
         title: t(`${error}`),
-        description: '',
-        status: 'error',
-      })
+        description: "",
+        status: "error",
+      });
     }
-  }
+  };
 
   const deleteHandler = useCallback(async () => {
     try {
       const data = await request(
         `/api/user/remove`,
-        'POST',
+        "POST",
         { userId: remove._id },
         {
           Authorization: `Bearer ${auth.token}`,
-        },
-      )
+        }
+      );
       notify({
         title: data.message,
-        description: '',
-        status: 'success',
-      })
-      getUsers()
-      setModal(false)
-      setRemove()
+        description: "",
+        status: "success",
+      });
+      getUsers();
+      setModal(false);
+      setRemove();
       setUser({
         type: null,
         clinica: auth.clinica._id,
-      })
+      });
     } catch (error) {
       notify({
         title: t(`${error}`),
-        description: '',
-        status: 'error',
-      })
+        description: "",
+        status: "error",
+      });
     }
-  }, [auth, request, remove, notify, getUsers])
+  }, [auth, request, remove, notify, getUsers]);
   //====================================================================
   //====================================================================
 
@@ -372,10 +386,10 @@ export const Users = () => {
   //====================================================================
   // ONENTER
   const keyPressed = (e) => {
-    if (e.key === 'Enter') {
-      return createHandler()
+    if (e.key === "Enter") {
+      return createHandler();
     }
-  }
+  };
   //====================================================================
   //====================================================================
 
@@ -386,13 +400,13 @@ export const Users = () => {
   const searchName = useCallback(
     (e) => {
       const searching = searchStorage.filter((item) =>
-        item.lastname.toLowerCase().includes(e.target.value.toLowerCase()),
-      )
-      setUsers(searching)
-      setCurrentUsers(searching.slice(0, countPage))
+        item.lastname.toLowerCase().includes(e.target.value.toLowerCase())
+      );
+      setUsers(searching);
+      setCurrentUsers(searching.slice(0, countPage));
     },
-    [searchStorage, countPage],
-  )
+    [searchStorage, countPage]
+  );
   //====================================================================
   //====================================================================
 
@@ -402,22 +416,22 @@ export const Users = () => {
 
   const sortType = useCallback(
     (e) => {
-      if (e.target.value === 'all') {
-        setUsers(searchStorage)
-        setCurrentUsers(searchStorage.slice(0, countPage))
-      } else if (e.target.value === 'Director') {
-        setUsers([auth.user])
-        setCurrentUsers([auth.user])
+      if (e.target.value === "all") {
+        setUsers(searchStorage);
+        setCurrentUsers(searchStorage.slice(0, countPage));
+      } else if (e.target.value === "Director") {
+        setUsers([auth.user]);
+        setCurrentUsers([auth.user]);
       } else {
         const searching = searchStorage.filter((item) =>
-          item.type.includes(e.target.value),
-        )
-        setUsers(searching)
-        setCurrentUsers(searching.slice(0, countPage))
+          item.type.includes(e.target.value)
+        );
+        setUsers(searching);
+        setCurrentUsers(searching.slice(0, countPage));
       }
     },
-    [searchStorage, countPage],
-  )
+    [searchStorage, countPage]
+  );
   //====================================================================
   //====================================================================
 
@@ -426,101 +440,126 @@ export const Users = () => {
 
   const setPageSize = useCallback(
     (e) => {
-      setCurrentPage(0)
-      setCountPage(e.target.value)
-      setCurrentUsers(users.slice(0, countPage))
+      setCurrentPage(0);
+      setCountPage(e.target.value);
+      setCurrentUsers(users.slice(0, countPage));
     },
-    [countPage, users],
-  )
+    [countPage, users]
+  );
   //====================================================================
   //====================================================================
 
   //====================================================================
   //====================================================================
-  const [s, setS] = useState()
+  const [s, setS] = useState();
   useEffect(() => {
     if (!s) {
-      setS(1)
-      getSections()
-      getUsers()
-      getBaseUrl()
-      getDepartments()
+      setS(1);
+      getSections();
+      getUsers();
+      getBaseUrl();
+      getDepartments();
     }
-  }, [getSections, getUsers, getBaseUrl, getDepartments, s])
+  }, [getSections, getUsers, getBaseUrl, getDepartments, s]);
   //====================================================================
   //====================================================================
-  const [doctorSettingModalVisible, setDoctorSettingModalVisible] = useState(false)
-  const [isClickedDoctor, setIsClickedDoctor] = useState(null)
+  const [doctorSettingModalVisible, setDoctorSettingModalVisible] =
+    useState(false);
+  const [isClickedDoctor, setIsClickedDoctor] = useState(null);
   const toogleDoctorSettingModal = () => {
-    setDoctorSettingModalVisible(!doctorSettingModalVisible)
-  }
+    setDoctorSettingModalVisible(!doctorSettingModalVisible);
+  };
   const handleDoctorSettingClick = (user) => {
-    toogleDoctorSettingModal()
-    setIsClickedDoctor(user)
-  }
+    toogleDoctorSettingModal();
+    setIsClickedDoctor(user);
+  };
   const handleChangeDoctorSetting = (value, key) => {
     if (key === "register_client") {
-      changeAccessCreateClient(value)
+      changeAccessCreateClient(value);
     }
-  }
+  };
   const changeAccessCreateClient = async (value) => {
     try {
-      const response = await request(`/api/user/access/${isClickedDoctor?._id}`, "PUT", { accessCreateClient: value })
+      const response = await request(
+        `/api/user/access/${isClickedDoctor?._id}`,
+        "PUT",
+        { accessCreateClient: value }
+      );
       notify({
         title: t(`${response?.message}`),
-        description: '',
-        status: 'success',
-      })
-      setIsClickedDoctor(null)
-      getUsers()
-      toogleDoctorSettingModal()
+        description: "",
+        status: "success",
+      });
+      setIsClickedDoctor(null);
+      getUsers();
+      toogleDoctorSettingModal();
     } catch (error) {
       notify({
         title: t(`${error}`),
-        description: '',
-        status: 'error',
-      })
+        description: "",
+        status: "error",
+      });
     }
-  }
+  };
   if (loading) {
-    return <Loader />
+    return <Loader />;
   }
   return (
     <div className="content-wrapper px-lg-5 px-3">
       <div className="row">
         <div className="col-12 text-end">
           <button
-            className={`bg-alotrade border-0 btn text-white mb-2 w-100 ${visible ? 'd-none' : ''}`}
+            className={`bg-alotrade border-0 btn text-white mb-2 w-100 ${
+              visible ? "d-none" : ""
+            }`}
             onClick={changeVisible}
           >
             {t("Registratsiya")}
           </button>
           <button
-            className={`bg-alotrade border-0 btn text-white mb-2 w-100 ${visible ? '' : 'd-none'}`}
+            className={`bg-alotrade border-0 btn text-white mb-2 w-100 ${
+              visible ? "" : "d-none"
+            }`}
             onClick={changeVisible}
           >
             {t("Registratsiya")}
           </button>
         </div>
       </div>
-      <ChakraModal closeOnEsc isOpen={doctorSettingModalVisible} onClose={toogleDoctorSettingModal}>
+      <ChakraModal
+        closeOnEsc
+        isOpen={doctorSettingModalVisible}
+        onClose={toogleDoctorSettingModal}
+      >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader className='flex items-center justify-between'>
+          <ModalHeader className="flex items-center justify-between">
             Shifokor sozlamalari
             <CloseButton onClick={toogleDoctorSettingModal} />
           </ModalHeader>
           <ModalBody>
-            <FormControl onChange={({ target }) => handleChangeDoctorSetting(target.checked, "register_client")} className='flex items-center gap-x-2'>
-              <FormLabel>
-                Mijoz qabul qila oladimi?
-              </FormLabel>
+            <FormControl
+              onChange={({ target }) =>
+                handleChangeDoctorSetting(target.checked, "register_client")
+              }
+              className="flex items-center justify-between gap-x-1"
+            >
+              <FormLabel>Mijoz qabul qila oladimi?</FormLabel>
               <Switch isChecked={isClickedDoctor?.accessCreateClient} />
+            </FormControl>
+            <FormControl
+              onChange={({ target }) => {}}
+              className="flex items-center justify-between gap-x-1"
+            >
+              <FormLabel className="whitespace-nowrap">
+                Ko'rik davomiyligi
+              </FormLabel>
+              <Input type="number" placeholder="minutda kiriting" />
             </FormControl>
           </ModalBody>
         </ModalContent>
       </ChakraModal>
-      <div className={` ${visible ? '' : 'd-none'}`}>
+      <div className={` ${visible ? "" : "d-none"}`}>
         <RegistorUser
           auth={auth}
           blankaImage={blankaImage}
@@ -559,7 +598,7 @@ export const Users = () => {
                           className="form-control form-control-sm selectpicker"
                           placeholder={t("Bo'limni tanlang")}
                           onChange={setPageSize}
-                          style={{ minWidth: '50px' }}
+                          style={{ minWidth: "50px" }}
                         >
                           <option value={10}>10</option>
                           <option value={25}>25</option>
@@ -573,15 +612,17 @@ export const Users = () => {
                           className="form-control form-control-sm selectpicker"
                           placeholder={t("Bo'limni tanlang")}
                           onChange={sortType}
-                          style={{ minWidth: '50px' }}
+                          style={{ minWidth: "50px" }}
                         >
-                          <option value="all">{t("Barchasi foydalanuvchilar")}</option>
+                          <option value="all">
+                            {t("Barchasi foydalanuvchilar")}
+                          </option>
                           {sections.map((section, index) => {
                             return (
                               <option value={section.type} key={index}>
                                 {section.value}
                               </option>
-                            )
+                            );
                           })}
                         </select>
                       </th>
@@ -589,7 +630,7 @@ export const Users = () => {
                       <th>
                         <input
                           onChange={searchName}
-                          style={{ maxWidth: '100px', minWidth: '100px' }}
+                          style={{ maxWidth: "100px", minWidth: "100px" }}
                           type="search"
                           className="w-100 form-control form-control-sm selectpicker"
                           placeholder={t("F.I.Sh")}
@@ -608,7 +649,9 @@ export const Users = () => {
                   </thead>
                   <thead>
                     <tr>
-                      <th className="border-right bg-alotrade text-[16px]">№</th>
+                      <th className="border-right bg-alotrade text-[16px]">
+                        №
+                      </th>
                       <th className="border-right bg-alotrade text-[16px]">
                         {t("Xizmat turi")}
                       </th>
@@ -621,8 +664,12 @@ export const Users = () => {
                       <th className="border-right bg-alotrade text-[16px]">
                         {t("Tel")}
                       </th>
-                      <th className="border-right bg-alotrade text-[16px] text-center">{t("Tahrirlash")}</th>
-                      <th className="text-center bg-alotrade text-[16px]">{t("O'chirish")}</th>
+                      <th className="border-right bg-alotrade text-[16px] text-center">
+                        {t("Tahrirlash")}
+                      </th>
+                      <th className="text-center bg-alotrade text-[16px]">
+                        {t("O'chirish")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -635,9 +682,9 @@ export const Users = () => {
                           <td className="border-right text-[16px]">
                             {sections.map((section) => {
                               if (section.type === user.type) {
-                                return section.value
+                                return section.value;
                               }
-                              return ''
+                              return "";
                             })}
                           </td>
                           <td className="border-right text-[16px]">
@@ -645,13 +692,13 @@ export const Users = () => {
                           </td>
                           <td className="border-right text-[16px]">
                             {user.lastname +
-                              ' ' +
+                              " " +
                               user.firstname +
-                              ' ' +
+                              " " +
                               (user.fathername && user.fathername)}
                           </td>
                           <td className="border-right text-[16px]">
-                            {'+998' + user.phone}
+                            {"+998" + user.phone}
                           </td>
                           <td className="border-right text-[16px] text-center">
                             {loading ? (
@@ -660,28 +707,35 @@ export const Users = () => {
                                 Loading...
                               </button>
                             ) : (
-                              <div className='flex items-center justify-around gap-x-2'>
-                                {user?.type === "Doctor" ?
-                                  <button onClick={() => handleDoctorSettingClick(user)} type='button' role='button'
+                              <div className="flex items-center justify-around gap-x-2">
+                                {user?.type === "Doctor" ? (
+                                  <button
+                                    onClick={() =>
+                                      handleDoctorSettingClick(user)
+                                    }
+                                    type="button"
+                                    role="button"
                                     className="bg-gray-400 rounded text-white font-semibold py-1 px-2"
-                                    style={{ fontSize: '100%' }}
+                                    style={{ fontSize: "100%" }}
                                   >
                                     <IoSettingsOutline />
                                   </button>
-                                  : null
-                                }
+                                ) : null}
                                 <button
                                   onClick={() => {
-                                    if (user.type === 'Director') {
-                                      setUser({ ...user, clinica: user.clinica._id })
+                                    if (user.type === "Director") {
+                                      setUser({
+                                        ...user,
+                                        clinica: user.clinica._id,
+                                      });
                                     } else {
-                                      setUser({ ...user })
+                                      setUser({ ...user });
                                     }
-                                    setVisible(true)
+                                    setVisible(true);
                                   }}
                                   type="button"
                                   className="bg-alotrade rounded text-white font-semibold py-1 px-2"
-                                  style={{ fontSize: '75%' }}
+                                  style={{ fontSize: "75%" }}
                                 >
                                   {t("Tahrirlash")}
                                 </button>
@@ -697,19 +751,19 @@ export const Users = () => {
                             ) : (
                               <button
                                 onClick={() => {
-                                  setRemove(user)
-                                  setModal(true)
+                                  setRemove(user);
+                                  setModal(true);
                                 }}
                                 type="button"
                                 className="bg-red-400 rounded text-white font-semibold py-1 px-2"
-                                style={{ fontSize: '75%' }}
+                                style={{ fontSize: "75%" }}
                               >
                                 {t("O'chirish")}
                               </button>
                             )}
                           </td>
                         </tr>
-                      )
+                      );
                     })}
                   </tbody>
                 </table>
@@ -722,10 +776,10 @@ export const Users = () => {
       <Modal
         modal={modal}
         setModal={setModal}
-        basic={remove && remove.lastname + ' ' + remove.firstname}
+        basic={remove && remove.lastname + " " + remove.firstname}
         text={t("ismli foydalanuvchini o'chirishni tasdiqlaysizmi?")}
         handler={deleteHandler}
       />
     </div>
-  )
-}
+  );
+};

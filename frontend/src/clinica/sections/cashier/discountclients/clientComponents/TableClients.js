@@ -1,11 +1,10 @@
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleUp, faAngleDown } from "@fortawesome/free-solid-svg-icons";
-import { Sort } from "./Sort";
+import React, { useContext, useEffect, useState } from "react";
 import { Pagination } from "../../components/Pagination";
 import { DatePickers } from "./DatePickers";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import { useTranslation } from "react-i18next";
+import { useHttp } from "../../../../hooks/http.hook";
+import { AuthContext } from "../../../../context/AuthContext";
 
 export const TableClients = ({
   currentConnectors,
@@ -21,9 +20,29 @@ export const TableClients = ({
   commentSelect,
   sortComment,
   sortDiscounts,
-  getDiscountsByClientBorn
+  getDiscountsByClientBorn,
 }) => {
-  const {t} = useTranslation()
+  const auth = useContext(AuthContext);
+  const { request: appearanceRequest } = useHttp();
+  const [appearanceFields, setAppearanceFields] = useState({});
+  const getAppearanceFields = async () => {
+    try {
+      const data = await appearanceRequest(
+        `/api/clinica/appearanceFields/${auth.clinica._id}`,
+        "GET",
+        null
+      );
+      setAppearanceFields(data.appearanceFields);
+    } catch (error) {
+      console.log("Appearance settings get error");
+    }
+  };
+
+  useEffect(() => {
+    getAppearanceFields();
+  }, []);
+
+  const { t } = useTranslation();
   return (
     <div className="border-0 shadow-lg table-container">
       <div className="border-0 table-container">
@@ -66,8 +85,10 @@ export const TableClients = ({
                 name="born"
                 className="form-control inp"
                 placeholder=""
-                style={{ color: '#999' }}
-                onKeyDown={(e) => e.key === 'Enter' && getDiscountsByClientBorn(e)}
+                style={{ color: "#999" }}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && getDiscountsByClientBorn(e)
+                }
               />
             </div>
             <div className="text-center ml-auto">
@@ -85,7 +106,9 @@ export const TableClients = ({
                 onChange={sortDiscounts}
               >
                 <option value="none">{t("Hammasi")}</option>
-                <option value="statsionar">{t("Statsionar")}</option>
+                {appearanceFields.showStationary === true && (
+                  <option value="statsionar">{t("Statsionar")}</option>
+                )}
                 <option value="offline">{t("Kunduzgi")}</option>
               </select>
             </div>
@@ -146,7 +169,9 @@ export const TableClients = ({
                 <th className="border py-1 bg-alotrade text-[14px]">
                   {t("Chegirma summasi")}
                 </th>
-                <th className="border py-1 bg-alotrade text-[14px]">{t("Izoh")}</th>
+                <th className="border py-1 bg-alotrade text-[14px]">
+                  {t("Izoh")}
+                </th>
               </tr>
             </thead>
             <tbody>

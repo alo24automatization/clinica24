@@ -39,7 +39,7 @@ export const StatsionarClients = () => {
   //====================================================================
   // RegisterPage
   const [visible, setVisible] = useState(false);
-  const [isAdding, setIsAdding] = useState(true)
+  const [isAdding, setIsAdding] = useState(true);
 
   const changeVisible = () => setVisible(!visible);
 
@@ -501,7 +501,6 @@ export const StatsionarClients = () => {
           Authorization: `Bearer ${auth.token}`,
         }
       );
-      console.log(auth?.clinica?._id);
       setRooms(
         [...data].map((room) => ({
           ...room,
@@ -626,10 +625,10 @@ export const StatsionarClients = () => {
     setServices([]);
     setSelectedProducts([]);
     setSelectedServices([]);
-    setAgentSelect(null)
-    setRoomSelect(null)
-    setDoctorSelect(null)
-    setCounterAgent2(null)
+    setAgentSelect(null);
+    setRoomSelect(null);
+    setDoctorSelect(null);
+    setCounterAgent2(null);
   }, [auth]);
 
   const checkData = () => {
@@ -799,14 +798,14 @@ export const StatsionarClients = () => {
         status: "success",
       });
       clearDatas();
-      setCounterAgent2(null)
+      setCounterAgent2(null);
       setModal(false);
       setVisible(false);
       setClient({
         _id: null,
         clinica: auth.clinica && auth.clinica._id,
         reseption: auth.user && auth.user._id,
-      })
+      });
     } catch (error) {
       notify({
         title: t(`${error}`),
@@ -985,8 +984,8 @@ export const StatsionarClients = () => {
                     visible ? "d-none" : ""
                   }`}
                   onClick={() => {
-                    changeVisible()
-                    setIsAdding(true)
+                    changeVisible();
+                    setIsAdding(true);
                   }}
                 >
                   {t("Registratsiya")}
@@ -996,8 +995,8 @@ export const StatsionarClients = () => {
                     visible ? "" : "d-none"
                   }`}
                   onClick={() => {
-                    changeVisible()
-                    setIsAdding(true)
+                    changeVisible();
+                    setIsAdding(true);
                   }}
                 >
                   {t("Registratsiya")}

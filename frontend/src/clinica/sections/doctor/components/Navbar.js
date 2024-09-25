@@ -3,7 +3,7 @@ import { Link, useHistory } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
 import { useHttp } from "../../../hooks/http.hook";
 import { useToast } from "@chakra-ui/react";
-import AloLogo from "../../../../clinica_logo.jpg"
+import AloLogo from "../../../../clinica_logo.jpg";
 import { useTranslation } from "react-i18next";
 
 export const Navbar = () => {
@@ -29,7 +29,7 @@ export const Navbar = () => {
   const [activePage, setActivePage] = useState(window.location.pathname);
   //====================================================================
   //====================================================================
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   //====================================================================
   //====================================================================
 
@@ -70,7 +70,24 @@ export const Navbar = () => {
   }, [getBaseUrl, s]);
   //====================================================================
   //====================================================================
+  const { request: appearanceRequest } = useHttp();
+  const [appearanceFields, setAppearanceFields] = useState({});
+  const getAppearanceFields = async () => {
+    try {
+      const data = await appearanceRequest(
+        `/api/clinica/appearanceFields/${auth.clinica._id}`,
+        "GET",
+        null
+      );
+      setAppearanceFields(data.appearanceFields);
+    } catch (error) {
+      console.log("Appearance settings get error");
+    }
+  };
 
+  useEffect(() => {
+    getAppearanceFields();
+  }, []);
   return (
     <div>
       <div className="container-fluid p-0">
@@ -100,15 +117,21 @@ export const Navbar = () => {
               </li>
               <li className="nav-item">
                 <Link
-                  className={`nav-link ${activePage === "/alo24" || activePage === "/"
-                    ? "active-page"
-                    : ""
-                    }`}
+                  className={`nav-link ${
+                    activePage === "/alo24" || activePage === "/"
+                      ? "active-page"
+                      : ""
+                  }`}
                   onClick={() => {
                     setActivePage("/alo24");
                   }}
                   to="/alo24"
-                  style={{ background: activePage === "/alo24" || activePage === "/" ? "#F97316" : "" }}
+                  style={{
+                    background:
+                      activePage === "/alo24" || activePage === "/"
+                        ? "#F97316"
+                        : "",
+                  }}
                 >
                   <i className="icon-devices_other nav-icon" />
                   {t("Mijozlar")}
@@ -116,13 +139,17 @@ export const Navbar = () => {
               </li>
               <li className="nav-item">
                 <Link
-                  className={`nav-link ${activePage === "/alo24/templates" ? "active-page" : ""
-                    }`}
+                  className={`nav-link ${
+                    activePage === "/alo24/templates" ? "active-page" : ""
+                  }`}
                   onClick={() => {
                     setActivePage("/alo24/templates");
                   }}
                   to="/alo24/templates"
-                  style={{ background: activePage === "/alo24/templates" ? "#F97316" : "" }}
+                  style={{
+                    background:
+                      activePage === "/alo24/templates" ? "#F97316" : "",
+                  }}
                 >
                   <i className="icon-devices_other nav-icon" />
                   {t("Shablonlar")}
@@ -130,13 +157,21 @@ export const Navbar = () => {
               </li>
               <li className="nav-item">
                 <Link
-                  className={`nav-link ${activePage === "/alo24/conclusionclients" ? "active-page" : ""
-                    }`}
+                  className={`nav-link ${
+                    activePage === "/alo24/conclusionclients"
+                      ? "active-page"
+                      : ""
+                  }`}
                   onClick={() => {
                     setActivePage("/alo24/conclusionclients");
                   }}
                   to="/alo24/conclusionclients"
-                  style={{ background: activePage === "/alo24/conclusionclients" ? "#F97316" : "" }}
+                  style={{
+                    background:
+                      activePage === "/alo24/conclusionclients"
+                        ? "#F97316"
+                        : "",
+                  }}
                 >
                   <i className="icon-devices_other nav-icon" />
                   {t("Xulosa berish")}
@@ -144,13 +179,17 @@ export const Navbar = () => {
               </li>
               <li className="nav-item">
                 <Link
-                  className={`nav-link ${activePage === "/alo24/doctor_profit" ? "active-page" : ""
-                    }`}
+                  className={`nav-link ${
+                    activePage === "/alo24/doctor_profit" ? "active-page" : ""
+                  }`}
                   onClick={() => {
                     setActivePage("/alo24/doctor_profit");
                   }}
                   to="/alo24/doctor_profit"
-                  style={{ background: activePage === "/alo24/doctor_profit" ? "#F97316" : "" }}
+                  style={{
+                    background:
+                      activePage === "/alo24/doctor_profit" ? "#F97316" : "",
+                  }}
                 >
                   <i className="icon-devices_other nav-icon" />
                   {t("Shifokor ulushi")}
@@ -158,41 +197,59 @@ export const Navbar = () => {
               </li>
               <li className="nav-item">
                 <Link
-                  className={`nav-link ${activePage === "/alo24/onlineclients" ? "active-page" : ""
-                    }`}
+                  className={`nav-link ${
+                    activePage === "/alo24/onlineclients" ? "active-page" : ""
+                  }`}
                   onClick={() => {
                     setActivePage("/alo24/onlineclients");
                   }}
                   to="/alo24/onlineclients"
-                  style={{ background: activePage === "/alo24/onlineclients" ? "#F97316" : "" }}
+                  style={{
+                    background:
+                      activePage === "/alo24/onlineclients" ? "#F97316" : "",
+                  }}
                 >
                   <i className="icon-devices_other nav-icon" />
                   {t("Online")}
                 </Link>
               </li>
+              {appearanceFields.showStationary === true && (
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link ${
+                      activePage === "/alo24/statsionar_room"
+                        ? "active-page"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setActivePage("/alo24/statsionar_room");
+                    }}
+                    to="/alo24/statsionar_room"
+                    style={{
+                      background:
+                        activePage === "/alo24/statsionar_room"
+                          ? "#F97316"
+                          : "",
+                    }}
+                  >
+                    <i className="icon-devices_other nav-icon" />
+                    {t("Statsionar ulushi")}
+                  </Link>
+                </li>
+              )}
               <li className="nav-item">
                 <Link
-                  className={`nav-link ${activePage === "/alo24/statsionar_room" ? "active-page" : ""
-                    }`}
-                  onClick={() => {
-                    setActivePage("/alo24/statsionar_room");
-                  }}
-                  to="/alo24/statsionar_room"
-                  style={{ background: activePage === "/alo24/statsionar_room" ? "#F97316" : "" }}
-                >
-                  <i className="icon-devices_other nav-icon" />
-                  {t("Statsionar ulushi")}
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className={`nav-link ${activePage === "/alo24/settings" ? "active-page" : ""
-                    }`}
+                  className={`nav-link ${
+                    activePage === "/alo24/settings" ? "active-page" : ""
+                  }`}
                   onClick={() => {
                     setActivePage("/alo24/settings");
                   }}
                   to="/alo24/settings"
-                  style={{ background: activePage === "/alo24/settings" ? "#F97316" : "" }}
+                  style={{
+                    background:
+                      activePage === "/alo24/settings" ? "#F97316" : "",
+                  }}
                 >
                   <i className="icon-settings nav-icon" />
                   {t("Sozlamalar")}

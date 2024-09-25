@@ -1,12 +1,24 @@
-import React from "react";
-import { FormControl,Modal, ModalBody, ModalFooter, Button, ModalCloseButton, ModalOverlay, FormLabel, ModalContent, ModalHeader } from "@chakra-ui/react";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  FormControl,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  Button,
+  ModalCloseButton,
+  ModalOverlay,
+  FormLabel,
+  ModalContent,
+  ModalHeader,
+} from "@chakra-ui/react";
 import { FileUpload } from "./fileUpLoad/FileUpload";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRecycle } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
-import Cropper from 'react-cropper';
-import 'cropperjs/dist/cropper.css';
+import Cropper from "react-cropper";
+import "cropperjs/dist/cropper.css";
 import { FileUploadBlanka } from "../../../loginAndRegister/fileUpLoad/FileUploadBlanka";
+import { useHttp } from "../../../hooks/http.hook";
 export const RegistorUser = ({
   auth,
   cmToPx,
@@ -30,9 +42,27 @@ export const RegistorUser = ({
   createHandler,
   loading,
   clinicaList,
-  getDepartments
+  getDepartments,
 }) => {
-  const {t} = useTranslation()
+  const { t } = useTranslation();
+  const { request: appearanceRequest } = useHttp();
+  const [appearanceFields, setAppearanceFields] = useState({});
+  const getAppearanceFields = async () => {
+    try {
+      const data = await appearanceRequest(
+        `/api/clinica/appearanceFields/${auth.clinica._id}`,
+        "GET",
+        null
+      );
+      setAppearanceFields(data.appearanceFields);
+    } catch (error) {
+      console.log("Appearance settings get error");
+    }
+  };
+
+  useEffect(() => {
+    getAppearanceFields();
+  }, []);
   return (
     <div>
       {/* Row start */}
@@ -61,7 +91,9 @@ export const RegistorUser = ({
         <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12">
           <div className="card">
             <div className="card-header">
-              <div className="card-title">{t("Foydalanuvchi ma'lumotlari")}</div>
+              <div className="card-title">
+                {t("Foydalanuvchi ma'lumotlari")}
+              </div>
             </div>
             <div className="card-body">
               <div className="row gutters">
@@ -112,7 +144,9 @@ export const RegistorUser = ({
                 </div>
                 <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                   <div className="form-group">
-                    <label htmlFor="inputSpeciality">{t("Telefon raqami")}</label>
+                    <label htmlFor="inputSpeciality">
+                      {t("Telefon raqami")}
+                    </label>
                     <div className="input-group mb-2 mr-sm-2">
                       <div className="input-group-prepend">
                         <div className="input-group-text">+998</div>
@@ -132,93 +166,101 @@ export const RegistorUser = ({
                 </div>
                 <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div className="form-group">
-                    <label htmlFor="signature">{t("Shifokorning imzosi")}</label>
-                      <input
-                        onChange={changeHandler}
-                        onKeyUp={keyPressed}
-                        type="signature"
-                        className="form-control"
-                        id="signature"
-                        name="signature"
-                        placeholder={t("Shifokorning imzosi")}
-                        defaultValue={user?.signature}
-                      />
+                    <label htmlFor="signature">
+                      {t("Shifokorning imzosi")}
+                    </label>
+                    <input
+                      onChange={changeHandler}
+                      onKeyUp={keyPressed}
+                      type="signature"
+                      className="form-control"
+                      id="signature"
+                      name="signature"
+                      placeholder={t("Shifokorning imzosi")}
+                      defaultValue={user?.signature}
+                    />
                   </div>
                 </div>
               </div>
             </div>
-            {
-              (user.type && user.type === "Doctor") ||
-                (user.type && user.type === "Laborotory") ?
-                <div className="card-footer col-md-12">
-                  <FormControl className="w-full h-full">
-                    <FormLabel
-                      htmlFor="blanka_upload"
-                      style={{ color: "#38B2AC", marginTop: "1rem" }}
-                    >
-                      Blanka
-                    </FormLabel>
-                    <FileUploadBlanka
-                      removeImage={removeBlanka}
-                      handleImage={handleImageChange}
-                      load={load}
-                      img={user?.blanka}
-                      newAlt={"Blanka yuklang"}
-                      imgUrl={
-                        baseUrl &&
-                        user?.blanka &&
-                        `${baseUrl}/api/upload/file/${user?.blanka}`
-                      }
-                    />
-                  </FormControl>
-                  <Modal isOpen={!!blankaImage} onClose={() => setBlankaImage(null)}>
-                    <ModalOverlay />
-                    <ModalContent>
-                      <ModalHeader>
-                        {t("Suratni qirqish")}
-                      </ModalHeader>
-                      <ModalCloseButton />
-                      <ModalBody>
-                        {blankaImage && (
-                          <Cropper
-                            src={blankaImage}
-                            style={{ height: 400, width: '100%' }}
-                            initialAspectRatio={21 / 4}
-                            aspectRatio={21 / 4}
-                            viewMode={1} // restrict crop box to within the canvas
-                            dragMode="move" // only allow moving the image
-                            guides={false}
-                            cropBoxResizable={false} // disable resizing of the crop box
-                            cropBoxMovable={true} // allow moving the crop box  
-                            autoCropArea={1} // set the crop box to cover the entire image initially
-                            ready={() => {
-                              const cropper = cropperRef.current.cropper;
-                              const requiredWidth = cmToPx(21);
-                              const requiredHeight = cmToPx(4);
-                              cropper.setCropBoxData({
-                                width: requiredWidth,
-                                height: requiredHeight,
-                                left: (cropper.getContainerData().width - requiredWidth) / 2,
-                                top: (cropper.getContainerData().height - requiredHeight) / 2,
-                              });
-                            }}
-                            ref={cropperRef}
-                          />
-                        )}
-                      </ModalBody>
-                      <ModalFooter>
-                        <Button
-                          colorScheme="teal"
-                          variant="solid"
-                          onClick={handleCrop}
-                        >
-                          {load ? 'Yuklanmoqda...' : 'Rasmni kesish va yuklash'}
-                        </Button>
-                      </ModalFooter>
-                    </ModalContent>
-                  </Modal>
-                </div> : null
-            }
+            {(user.type && user.type === "Doctor") ||
+            (user.type && user.type === "Laborotory") ? (
+              <div className="card-footer col-md-12">
+                <FormControl className="w-full h-full">
+                  <FormLabel
+                    htmlFor="blanka_upload"
+                    style={{ color: "#38B2AC", marginTop: "1rem" }}
+                  >
+                    Blanka
+                  </FormLabel>
+                  <FileUploadBlanka
+                    removeImage={removeBlanka}
+                    handleImage={handleImageChange}
+                    load={load}
+                    img={user?.blanka}
+                    newAlt={"Blanka yuklang"}
+                    imgUrl={
+                      baseUrl &&
+                      user?.blanka &&
+                      `${baseUrl}/api/upload/file/${user?.blanka}`
+                    }
+                  />
+                </FormControl>
+                <Modal
+                  isOpen={!!blankaImage}
+                  onClose={() => setBlankaImage(null)}
+                >
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalHeader>{t("Suratni qirqish")}</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                      {blankaImage && (
+                        <Cropper
+                          src={blankaImage}
+                          style={{ height: 400, width: "100%" }}
+                          initialAspectRatio={21 / 4}
+                          aspectRatio={21 / 4}
+                          viewMode={1} // restrict crop box to within the canvas
+                          dragMode="move" // only allow moving the image
+                          guides={false}
+                          cropBoxResizable={false} // disable resizing of the crop box
+                          cropBoxMovable={true} // allow moving the crop box
+                          autoCropArea={1} // set the crop box to cover the entire image initially
+                          ready={() => {
+                            const cropper = cropperRef.current.cropper;
+                            const requiredWidth = cmToPx(21);
+                            const requiredHeight = cmToPx(4);
+                            cropper.setCropBoxData({
+                              width: requiredWidth,
+                              height: requiredHeight,
+                              left:
+                                (cropper.getContainerData().width -
+                                  requiredWidth) /
+                                2,
+                              top:
+                                (cropper.getContainerData().height -
+                                  requiredHeight) /
+                                2,
+                            });
+                          }}
+                          ref={cropperRef}
+                        />
+                      )}
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button
+                        colorScheme="teal"
+                        variant="solid"
+                        onClick={handleCrop}
+                      >
+                        {load ? "Yuklanmoqda..." : "Rasmni kesish va yuklash"}
+                      </Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
+              </div>
+            ) : null}
           </div>
         </div>
         <div className="col-xl-3 col-lg-3 col-md-12 col-sm-12">
@@ -230,7 +272,9 @@ export const RegistorUser = ({
               <div className="row gutters">
                 <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div className="form-group">
-                    <label htmlFor="addreSs">{t("Xodimning mustaxasisligi")}</label>
+                    <label htmlFor="addreSs">
+                      {t("Xodimning mustaxasisligi")}
+                    </label>
                     <select
                       onChange={(e) => {
                         setUser({ ...user, type: e.target.value });
@@ -254,10 +298,12 @@ export const RegistorUser = ({
                   </div>
                 </div>
                 {(user.type && user.type === "Doctor") ||
-                  (user.type && user.type === "Laborotory") ? (
+                (user.type && user.type === "Laborotory") ? (
                   <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                     <div className="form-group">
-                      <label htmlFor="addreSs">{t("Shifokorning ixtisosligi")}</label>
+                      <label htmlFor="addreSs">
+                        {t("Shifokorning ixtisosligi")}
+                      </label>
                       <select
                         onChange={(e) => {
                           setUser({ ...user, specialty: e.target.value });
@@ -279,19 +325,23 @@ export const RegistorUser = ({
                           })}
                       </select>
                     </div>
-                    <div className="form-group">
-                      <label htmlFor="statsionar_profit">{t("Statsionar ulushi")}</label>
-                      <input
-                        onChange={changeHandler}
-                        onKeyUp={keyPressed}
-                        type="number"
-                        className="form-control"
-                        id="statsionar_profit"
-                        name="statsionar_profit"
-                        placeholder="Statsionar ulushi"
-                        defaultValue={user?.statsionar_profit || ""}
-                      />
-                    </div>
+                    {appearanceFields.showStationary === true && (
+                      <div className="form-group">
+                        <label htmlFor="statsionar_profit">
+                          {t("Statsionar ulushi")}
+                        </label>
+                        <input
+                          onChange={changeHandler}
+                          onKeyUp={keyPressed}
+                          type="number"
+                          className="form-control"
+                          id="statsionar_profit"
+                          name="statsionar_profit"
+                          placeholder="Statsionar ulushi"
+                          defaultValue={user?.statsionar_profit || ""}
+                        />
+                      </div>
+                    )}
                   </div>
                 ) : (
                   ""
@@ -299,7 +349,9 @@ export const RegistorUser = ({
                 {user.type && user.type === "CounterDoctor" ? (
                   <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                     <div className="form-group">
-                      <label htmlFor="addreSs">{t("Kounteragentni tanlang")}</label>
+                      <label htmlFor="addreSs">
+                        {t("Kounteragentni tanlang")}
+                      </label>
                       <select
                         onChange={(e) => {
                           setUser({ ...user, user: e.target.value });
@@ -330,16 +382,24 @@ export const RegistorUser = ({
                   ""
                 )}
                 {user.type && user.type === "CounterAgent" ? (
-                    <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                      <div className="flex justify-center">
-                        <label htmlFor="addreSs">{t("Ushbu agentni asosiy deb belgilaysizmi?")}</label>
-                        <input type="checkbox" className="form-control form-check-input"  checked={user.primary_agent} onChange={async (e) => {
+                  <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                    <div className="flex justify-center">
+                      <label htmlFor="addreSs">
+                        {t("Ushbu agentni asosiy deb belgilaysizmi?")}
+                      </label>
+                      <input
+                        type="checkbox"
+                        className="form-control form-check-input"
+                        checked={user.primary_agent}
+                        onChange={async (e) => {
                           await changeHandler(e, e.target.checked);
-                        } } name={"primary_agent"}/>
-                      </div>
+                        }}
+                        name={"primary_agent"}
+                      />
                     </div>
+                  </div>
                 ) : (
-                    ""
+                  ""
                 )}
                 <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div className="form-group">
@@ -357,7 +417,9 @@ export const RegistorUser = ({
                 </div>
                 <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                   <div className="form-group">
-                    <label htmlFor="rePassword">{t("Parolni qayta kiriting")}</label>
+                    <label htmlFor="rePassword">
+                      {t("Parolni qayta kiriting")}
+                    </label>
                     <input
                       onChange={changeHandler}
                       onKeyUp={keyPressed}
@@ -406,7 +468,6 @@ export const RegistorUser = ({
                 </div>
               </div>
             </div>
-           
           </div>
         </div>
       </div>
