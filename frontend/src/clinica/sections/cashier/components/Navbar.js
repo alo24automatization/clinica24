@@ -12,7 +12,7 @@ export const Navbar = () => {
   //====================================================================
 
   const { t } = useTranslation();
-
+  const auth = useContext(AuthContext);
   const { request: appearanceRequest } = useHttp();
   const [appearanceFields, setAppearanceFields] = useState({});
   const getAppearanceFields = async () => {
@@ -56,7 +56,6 @@ export const Navbar = () => {
   //====================================================================
 
   const { request } = useHttp();
-  const auth = useContext(AuthContext);
 
   const user = auth.user;
   //====================================================================
@@ -194,7 +193,7 @@ export const Navbar = () => {
                   }}
                 >
                   <i className="icon-devices_other nav-icon" />
-                  {t("Qarizlar")}
+                  {t("Qarzlar")}
                 </Link>
               </li>
               <li className="nav-item">

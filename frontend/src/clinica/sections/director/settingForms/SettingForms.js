@@ -463,10 +463,10 @@ const SettingForms = ({ getAppearanceFields, appearanceFields }) => {
           </ul>
         </div>
         <div>
-          {/* <h1 className="text-center font-semibold text-lg mb-3">
+          <h1 className="text-center font-semibold text-lg mb-3">
             Ko'rinish sozlamalari
-          </h1> */}
-          <span className="font-medium">Statsionar bo'limi</span>
+          </h1>
+          {/* <span className="font-medium">Statsionar bo'limi</span> */}
           <ul className="my-2 ml-2">
             {appearanceSettings.map((item, i) => (
               <li key={item.key} className="border-b py-1">

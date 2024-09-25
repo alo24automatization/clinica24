@@ -179,111 +179,113 @@ export const Navbar = () => {
                   {t("Online")}
                 </Link>
               </li>
-              <li className="nav-item dropdown">
-                <Link
-                  role="button"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                  className={`nav-link ${
-                    activePage === "/alo24/cashier" ||
-                    activePage === "/alo24/cashier_statsionar" ||
-                    activePage === "/alo24/cashier_discount" ||
-                    activePage === "/alo24/cashier_expense" ||
-                    activePage === "/alo24/cashier_debt"
-                      ? "active-page"
-                      : ""
-                  }`}
-                  style={{
-                    background:
+              {appearanceFields.showCashbox === true && (
+                <li className="nav-item dropdown">
+                  <Link
+                    role="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    className={`nav-link ${
                       activePage === "/alo24/cashier" ||
                       activePage === "/alo24/cashier_statsionar" ||
                       activePage === "/alo24/cashier_discount" ||
                       activePage === "/alo24/cashier_expense" ||
                       activePage === "/alo24/cashier_debt"
-                        ? "#F97316"
-                        : "",
-                  }}
-                  to="#"
-                >
-                  <i className="icon-users nav-icon" />
-                  {t("Kassa")}
-                </Link>
-                <ul className="dropdown-menu" aria-labelledby="doctoRs">
-                  <li>
-                    <Link
-                      className="sub-nav-link"
-                      to="/alo24/cashier"
-                      role="button"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                      onClick={() => {
-                        setActivePage("/alo24/cashier");
-                      }}
-                    >
-                      {t("Kunduzgi")}
-                    </Link>
-                  </li>
-                  {appearanceFields.showStationary === true && (
+                        ? "active-page"
+                        : ""
+                    }`}
+                    style={{
+                      background:
+                        activePage === "/alo24/cashier" ||
+                        activePage === "/alo24/cashier_statsionar" ||
+                        activePage === "/alo24/cashier_discount" ||
+                        activePage === "/alo24/cashier_expense" ||
+                        activePage === "/alo24/cashier_debt"
+                          ? "#F97316"
+                          : "",
+                    }}
+                    to="#"
+                  >
+                    <i className="icon-users nav-icon" />
+                    {t("Kassa")}
+                  </Link>
+                  <ul className="dropdown-menu" aria-labelledby="doctoRs">
                     <li>
                       <Link
                         className="sub-nav-link"
-                        to="/alo24/cashier_statsionar"
+                        to="/alo24/cashier"
                         role="button"
                         aria-haspopup="true"
                         aria-expanded="false"
                         onClick={() => {
-                          setActivePage("/alo24/cashier_statsionar");
+                          setActivePage("/alo24/cashier");
                         }}
                       >
-                        {t("Statsionar")}
+                        {t("Kunduzgi")}
                       </Link>
                     </li>
-                  )}
-                  <li>
-                    <Link
-                      className="sub-nav-link"
-                      to="/alo24/cashier_discount"
-                      role="button"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                      onClick={() => {
-                        setActivePage("/alo24/cashier_discount");
-                      }}
-                    >
-                      {t("Chegirma")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="sub-nav-link"
-                      to="/alo24/cashier_debt"
-                      role="button"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                      onClick={() => {
-                        setActivePage("/alo24/cashier_debt");
-                      }}
-                    >
-                      {t("Qarz")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="sub-nav-link"
-                      to="/alo24/cashier_expense"
-                      role="button"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                      onClick={() => {
-                        setActivePage("/alo24/cashier_expense");
-                      }}
-                    >
-                      {t("Xarajat")}
-                    </Link>
-                  </li>
-                </ul>
-              </li>
+                    {appearanceFields.showStationary === true && (
+                      <li>
+                        <Link
+                          className="sub-nav-link"
+                          to="/alo24/cashier_statsionar"
+                          role="button"
+                          aria-haspopup="true"
+                          aria-expanded="false"
+                          onClick={() => {
+                            setActivePage("/alo24/cashier_statsionar");
+                          }}
+                        >
+                          {t("Statsionar")}
+                        </Link>
+                      </li>
+                    )}
+                    <li>
+                      <Link
+                        className="sub-nav-link"
+                        to="/alo24/cashier_discount"
+                        role="button"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        onClick={() => {
+                          setActivePage("/alo24/cashier_discount");
+                        }}
+                      >
+                        {t("Chegirma")}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="sub-nav-link"
+                        to="/alo24/cashier_debt"
+                        role="button"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        onClick={() => {
+                          setActivePage("/alo24/cashier_debt");
+                        }}
+                      >
+                        {t("Qarz")}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="sub-nav-link"
+                        to="/alo24/cashier_expense"
+                        role="button"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        onClick={() => {
+                          setActivePage("/alo24/cashier_expense");
+                        }}
+                      >
+                        {t("Xarajat")}
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+              )}
             </ul>
             <ul className="header-actions py-1 mr-2">
               <li className="dropdown">

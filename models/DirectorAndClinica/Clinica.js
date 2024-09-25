@@ -3,6 +3,7 @@ const Joi = require("joi");
 
 const CLINICA_APPEARANCE_DEFAULT = {
   showStationary: true,
+  showCashbox: false,
 };
 
 const clinica = new Schema(
