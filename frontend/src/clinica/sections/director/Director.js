@@ -23,8 +23,10 @@ export const Director = () => {
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
 
   if (auth.user.clinica.isClose) {
     setTimeout(() => {

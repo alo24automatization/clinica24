@@ -86,8 +86,10 @@ export const Navbar = () => {
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
   return (
     <div>
       <div className="container-fluid p-0">

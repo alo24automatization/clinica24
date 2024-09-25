@@ -331,8 +331,10 @@ const CounterAgentInfo = () => {
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
 
   return (
     <div className="min-h-full">

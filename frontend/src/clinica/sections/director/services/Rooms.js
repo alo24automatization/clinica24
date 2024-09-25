@@ -389,9 +389,10 @@ export const Rooms = () => {
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
-
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
   return (
     <>
       {loading ? <Loader /> : ""}

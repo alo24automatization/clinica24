@@ -161,8 +161,10 @@ const DirectDoctors = () => {
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
 
   return (
     <div className="bg-slate-100 content-wrapper px-lg-5 px-3">

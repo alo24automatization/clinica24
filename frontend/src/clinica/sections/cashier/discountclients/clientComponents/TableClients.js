@@ -39,8 +39,10 @@ export const TableClients = ({
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
 
   const { t } = useTranslation();
   return (

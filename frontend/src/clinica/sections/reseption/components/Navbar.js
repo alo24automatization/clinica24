@@ -83,13 +83,16 @@ export const Navbar = () => {
       );
       setAppearanceFields(data.appearanceFields);
     } catch (error) {
-      console.log("Appearance settings get error");
+      console.log("Appearance settings get error", error);
     }
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
+
   return (
     <div>
       <div className="container-fluid p-0">

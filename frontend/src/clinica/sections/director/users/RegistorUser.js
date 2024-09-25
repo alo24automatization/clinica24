@@ -61,8 +61,10 @@ export const RegistorUser = ({
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
   return (
     <div>
       {/* Row start */}

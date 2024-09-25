@@ -49,7 +49,7 @@ module.exports.create = async (req, res) => {
         firstCounterAgent = await User.findOne({
           clinica,
           type: "CounterAgent",
-          primary_agent: true
+          primary_agent: true,
         });
 
         if (!firstCounterAgent) {
@@ -80,19 +80,53 @@ module.exports.create = async (req, res) => {
   }
 };
 
+module.exports.remove = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "counterdoctor id is required." });
+    }
+
+    const counterDoctor = await CounterDoctor.findById(id);
+    if (!counterDoctor) {
+      return res.status(404).json({ error: "counterdoctor is not defined." });
+    }
+
+    await CounterDoctor.deleteOne({ _id: id });
+
+    const off = await OfflineService.updateMany(
+      { counterdoctor: id },
+      { counterdoctor: null }
+    );
+    const stat = await StatsionarService.updateMany(
+      { counterdoctor: id },
+      { counterdoctor: null }
+    );
+
+    console.log(off.modifiedCount);
+    console.log(stat.modifiedCount);
+
+    res.status(200).json({ message: "counterdoctor deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+
 const customAlphabetCompare = (a, b) => {
   const alphabet = [
-    ...'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ', // Russian
-    ...'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЪЫЬЭЮЯЎҚҒҲ', // Uzbek Cyrillic
-    ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ' // English
+    ..."АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", // Russian
+    ..."АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЪЫЬЭЮЯЎҚҒҲ", // Uzbek Cyrillic
+    ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ", // English
   ];
 
   const aName = a.lastname + a.firstname;
   const bName = b.lastname + b.firstname;
 
   for (let i = 0; i < Math.max(aName.length, bName.length); i++) {
-    const aChar = aName[i] || '';
-    const bChar = bName[i] || '';
+    const aChar = aName[i] || "";
+    const bChar = bName[i] || "";
 
     const aIndex = alphabet.indexOf(aChar.toUpperCase());
     const bIndex = alphabet.indexOf(bChar.toUpperCase());
@@ -109,7 +143,9 @@ module.exports.getDoctorClients = async (req, res) => {
     const { clinica, beginDay, endDay, clientType } = req.body;
 
     if (!counterdoctor || !clinica) {
-      return res.status(400).json({ error: "counterdoctor and clinica are required." });
+      return res
+        .status(400)
+        .json({ error: "counterdoctor and clinica are required." });
     }
 
     const query = {
@@ -121,23 +157,23 @@ module.exports.getDoctorClients = async (req, res) => {
       },
     };
 
-    let services = []
+    let services = [];
 
-    if (clientType === 'statsionar') {
+    if (clientType === "statsionar") {
       services = await StatsionarService.find(query)
-      .select("service createdAt counterdoctor pieces client payment")
-      .populate({
-        path: "counterdoctor",
-        select: "firstname lastname phone",
-      })
-      .populate({
-        path: "client",
-        select: "firstname lastname createdAt phone id",
-      })
-      .populate({
-        path: "service",
-      })
-      .lean();
+        .select("service createdAt counterdoctor pieces client payment")
+        .populate({
+          path: "counterdoctor",
+          select: "firstname lastname phone",
+        })
+        .populate({
+          path: "client",
+          select: "firstname lastname createdAt phone id",
+        })
+        .populate({
+          path: "service",
+        })
+        .lean();
     } else {
       services = await OfflineService.find(query)
         .select("service createdAt counterdoctor pieces client payment")
@@ -156,16 +192,20 @@ module.exports.getDoctorClients = async (req, res) => {
     }
 
     // Filter out services that are refused
-    const validServices = services.filter(service => !service.refuse&&service.payment);
+    const validServices = services.filter(
+      (service) => !service.refuse && service.payment
+    );
     // Group clients and calculate doctor and agent profit
-    const clients = validServices.map(service => {
+    const clients = validServices.map((service) => {
       const totalprice = service.service.price * service.pieces;
-      const counterdoctor_profit = service.service.counterDoctorProcient <= 100
-        ? (totalprice / 100) * service.service.counterDoctorProcient
-        : service.service.counterDoctorProcient;
-      const counteragent_profit = service.service.counterAgentProcient <= 100
-        ? (totalprice / 100) * service.service.counterAgentProcient
-        : service.service.counterAgentProcient;
+      const counterdoctor_profit =
+        service.service.counterDoctorProcient <= 100
+          ? (totalprice / 100) * service.service.counterDoctorProcient
+          : service.service.counterDoctorProcient;
+      const counteragent_profit =
+        service.service.counterAgentProcient <= 100
+          ? (totalprice / 100) * service.service.counterAgentProcient
+          : service.service.counterAgentProcient;
 
       return {
         firstname: service.client.firstname,
@@ -191,7 +231,8 @@ module.exports.getDoctorClients = async (req, res) => {
 };
 module.exports.get = async (req, res) => {
   try {
-    const { counterdoctor, counter_agent, beginDay, endDay, clinica } = req.body;
+    const { counterdoctor, counter_agent, beginDay, endDay, clinica } =
+      req.body;
 
     const query = {
       clinica,
@@ -216,51 +257,61 @@ module.exports.get = async (req, res) => {
       .lean();
 
     // Filter out services that are refused or do not have a counterdoctor (if counterdoctor was not specified)
-    const validServices = services.filter(service => !service.refuse && (counterdoctor || service.counterdoctor));
+    const validServices = services.filter(
+      (service) => !service.refuse && (counterdoctor || service.counterdoctor)
+    );
 
     // GET STATSIONAR CONTR_DOCTOR's %
     const statServices = await StatsionarService.find(query)
-    .select("service createdAt counterdoctor pieces refuse client")
-    .populate({
-      path: "counterdoctor",
-      select: "firstname lastname clinica_name counter_agent phone",
-      match: counter_agent ? { counter_agent } : {},
-    })
-    .populate("client", "firstname lastname")
-      .lean()
-    
-      const validServices2 = statServices.filter(service => !service.refuse && (counterdoctor || service.counterdoctor));
-            
+      .select("service createdAt counterdoctor pieces refuse client")
+      .populate({
+        path: "counterdoctor",
+        select: "firstname lastname clinica_name counter_agent phone",
+        match: counter_agent ? { counter_agent } : {},
+      })
+      .populate("client", "firstname lastname")
+      .lean();
+
+    const validServices2 = statServices.filter(
+      (service) => !service.refuse && (counterdoctor || service.counterdoctor)
+    );
 
     // Group services by counterdoctor and count unique clients
-    const groupedByCounterdoctor = [...validServices, ...validServices2].reduce((acc, service) => {
-      if (!acc[service.counterdoctor._id]) {
-        acc[service.counterdoctor._id] = {
-          counterdoctor: service.counterdoctor,
-          totalprice: 0,
-          counterdoctor_profit: 0,
-          counteragent_profit: 0,
-          clients: new Set(),
-        };
-      }
-      const totalprice = service.service.price * service.pieces;
-      const counterdoctor_profit = service.service.counterDoctorProcient <= 100
-        ? (totalprice / 100) * service.service.counterDoctorProcient ?? 0
-        : service.service.counterDoctorProcient ?? 0;
-      const counteragent_profit = service.service.counterAgentProcient <= 100
-        ? (totalprice / 100) * service.service.counterAgentProcient ?? 0
-        : service.service.counterAgentProcient ?? 0;
+    const groupedByCounterdoctor = [...validServices, ...validServices2].reduce(
+      (acc, service) => {
+        if (!acc[service.counterdoctor._id]) {
+          acc[service.counterdoctor._id] = {
+            counterdoctor: service.counterdoctor,
+            totalprice: 0,
+            counterdoctor_profit: 0,
+            counteragent_profit: 0,
+            clients: new Set(),
+          };
+        }
+        const totalprice = service.service.price * service.pieces;
+        const counterdoctor_profit =
+          service.service.counterDoctorProcient <= 100
+            ? (totalprice / 100) * service.service.counterDoctorProcient ?? 0
+            : service.service.counterDoctorProcient ?? 0;
+        const counteragent_profit =
+          service.service.counterAgentProcient <= 100
+            ? (totalprice / 100) * service.service.counterAgentProcient ?? 0
+            : service.service.counterAgentProcient ?? 0;
 
-      acc[service.counterdoctor._id].totalprice += totalprice;
-      acc[service.counterdoctor._id].counterdoctor_profit += counterdoctor_profit;
-      acc[service.counterdoctor._id].counteragent_profit += counteragent_profit;
-      acc[service.counterdoctor._id].clients.add(service.client._id);
+        acc[service.counterdoctor._id].totalprice += totalprice;
+        acc[service.counterdoctor._id].counterdoctor_profit +=
+          counterdoctor_profit;
+        acc[service.counterdoctor._id].counteragent_profit +=
+          counteragent_profit;
+        acc[service.counterdoctor._id].clients.add(service.client._id);
 
-      return acc;
-    }, {});
+        return acc;
+      },
+      {}
+    );
 
     // Convert grouped data to an array and count clients
-    const result = Object.values(groupedByCounterdoctor).map(doc => ({
+    const result = Object.values(groupedByCounterdoctor).map((doc) => ({
       counterdoctor: doc.counterdoctor,
       totalprice: doc.totalprice,
       counterdoctor_profit: doc.counterdoctor_profit,
@@ -407,8 +458,8 @@ module.exports.getCounterAgents = async (req, res) => {
           },
           counterdoctor: counterdoctor._id,
         })
-        .select("service pieces client createdAt")
-        .lean();
+          .select("service pieces client createdAt")
+          .lean();
 
         const statsionarservices = await StatsionarService.find({
           clinica,
@@ -418,44 +469,39 @@ module.exports.getCounterAgents = async (req, res) => {
           },
           counterdoctor: counterdoctor._id,
         })
-        .select("service pieces client createdAt")
-        .lean();
+          .select("service pieces client createdAt")
+          .lean();
 
         if (offlineservices.length > 0 || statsionarservices.length > 0) {
           counteragent.counterdoctors += 1;
         }
 
-        const services = [...offlineservices, ...statsionarservices]
+        const services = [...offlineservices, ...statsionarservices];
 
         counteragent.totalprice += services.reduce(
           (prev, el) => prev + el.service.price * el.pieces,
           0
         );
-        counteragent.counteragent_profit += services.reduce(
-          (prev, el) => {
-            if (el.service.counterAgentProcient <= 100) {
-              prev +=
-                (el.service.price * el.pieces * el.service.counterAgentProcient) / 100;
-            } else {
-              prev += (el.service.counterAgentProcient) ?? 0;
-            }
-            return prev;
-          },
-          0
-        );
-        counteragent.counterdoctor_profit += services.reduce(
-          (prev, el) => {
-            if (el.service.counterDoctorProcient <= 100) {
-              prev +=
-                ((el.service.price * el.pieces) / 100) *
-                el.service.counterDoctorProcient;
-            } else {
-              prev += el.service.counterDoctorProcient;
-            }
-            return prev;
-          },
-          0
-        );
+        counteragent.counteragent_profit += services.reduce((prev, el) => {
+          if (el.service.counterAgentProcient <= 100) {
+            prev +=
+              (el.service.price * el.pieces * el.service.counterAgentProcient) /
+              100;
+          } else {
+            prev += el.service.counterAgentProcient ?? 0;
+          }
+          return prev;
+        }, 0);
+        counteragent.counterdoctor_profit += services.reduce((prev, el) => {
+          if (el.service.counterDoctorProcient <= 100) {
+            prev +=
+              ((el.service.price * el.pieces) / 100) *
+              el.service.counterDoctorProcient;
+          } else {
+            prev += el.service.counterDoctorProcient;
+          }
+          return prev;
+        }, 0);
 
         let clientsid = [];
         counteragent.clients += services.reduce((prev, el) => {

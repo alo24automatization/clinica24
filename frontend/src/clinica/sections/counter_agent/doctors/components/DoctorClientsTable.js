@@ -88,8 +88,10 @@ const DoctorClientsTable = ({
   };
 
   useEffect(() => {
-    getAppearanceFields();
-  }, []);
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
 
   return (
     <div className="border-0 table-container mt-6">
