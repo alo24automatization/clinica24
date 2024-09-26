@@ -397,7 +397,7 @@ export const Rooms = () => {
     <>
       {loading ? <Loader /> : ""}
       <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
-        <div className="flex justify-between items-center mb-4">
+        {/* <div className="flex justify-between items-center mb-4">
           <Link
             to="/alo24/rooms/offline"
             className={`block px-4 py-2 rounded-xl text-[#fff] text-[21px] hover:text-[#fff] font-bold bg-alotrade ${
@@ -420,7 +420,7 @@ export const Rooms = () => {
               {t("Statsionar xonalar")}
             </Link>
           )}
-        </div>
+        </div> */}
         <div className="row gutters">
           <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
             <InputRoom
@@ -431,9 +431,9 @@ export const Rooms = () => {
               loading={loading}
             />
             <Switch>
-              <Route path="/alo24/rooms/offline">
+              {/* <Route path="/alo24/rooms/offline">
                 <DirectorOfflineRooms />
-              </Route>
+              </Route> */}
               <Route path="/alo24/rooms/statsionar">
                 <DirectorStatsionarRooms
                   searchType={searchType}
@@ -456,7 +456,7 @@ export const Rooms = () => {
                   loading={loading}
                 />
               </Route>
-              <Redirect to="/alo24/rooms/offline" />
+              <Redirect to="/alo24/rooms/statsionar" />
             </Switch>
           </div>
         </div>
