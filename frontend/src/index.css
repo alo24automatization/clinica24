@@ -15,11 +15,14 @@ body {
   height: 100vh;
 }
 
-
-
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+table td,
+table th {
+  white-space: nowrap;
 }
 
 .container .wrapper {
@@ -79,9 +82,11 @@ code {
   padding: 8px 0;
   font-size: 18px;
   display: none;
-  background: linear-gradient(135deg,
-      rgba(42, 214, 120, 0.856) 0%,
-      #38b2ac 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(42, 214, 120, 0.856) 0%,
+    #38b2ac 100%
+  );
 }
 
 #custom-btn {
@@ -121,7 +126,7 @@ code {
 
 /* --------------------- */
 
-input[type='checkbox'] {
+input[type="checkbox"] {
   position: relative;
   width: 34px;
   height: 14px;
@@ -132,13 +137,13 @@ input[type='checkbox'] {
   transition: 0.3s;
 }
 
-input[type='checkbox']:checked {
+input[type="checkbox"]:checked {
   background: #5af955eb;
   mix-blend-mode: normal;
 }
 
-input[type='checkbox']::before {
-  content: '';
+input[type="checkbox"]::before {
+  content: "";
   position: absolute;
   width: 20px;
   height: 20px;
@@ -152,10 +157,9 @@ input[type='checkbox']::before {
   z-index: 10;
 }
 
-input[type='checkbox']:checked::before {
+input[type="checkbox"]:checked::before {
   left: 20px;
 }
-
 
 .editor {
   text-transform: uppercase;
