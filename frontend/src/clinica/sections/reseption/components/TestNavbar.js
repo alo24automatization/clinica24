@@ -133,7 +133,7 @@ const Navbar = () => {
   return (
     <Box
       as="nav"
-      className="bg-white shadow-md mt-2 max-w-[calc(100%-6rem)] mx-auto rounded-lg"
+      className="bg-white shadow-md mt-2 cashier_navbar mx-auto rounded-lg"
     >
       {/* <div className=""></div> */}
       <Flex
@@ -143,13 +143,15 @@ const Navbar = () => {
         // className="max-w-7xl mx-auto"
       >
         {/* Mobile: Menu toggle button */}
-        <IconButton
-          size="md"
-          icon={menuOpen ? <CloseIcon /> : <HamburgerIcon />}
-          aria-label="Toggle Menu"
-          display={{ md: "none" }}
-          onClick={toggleMenu}
-        />
+        <div className="pl-2">
+          <IconButton
+            size="md"
+            icon={menuOpen ? <CloseIcon /> : <HamburgerIcon />}
+            aria-label="Toggle Menu"
+            display={{ md: "none" }}
+            onClick={toggleMenu}
+          />
+        </div>
 
         {/* Desktop: Horizontal Navbar */}
         <Flex
