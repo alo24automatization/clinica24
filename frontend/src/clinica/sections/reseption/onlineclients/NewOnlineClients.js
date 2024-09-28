@@ -1,4 +1,4 @@
-import { useToast } from "@chakra-ui/react";
+import {  useToast } from "@chakra-ui/react";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { useHttp } from "../../../hooks/http.hook";
@@ -9,6 +9,8 @@ import { checkClientData, checkProductsData, checkServicesData, } from "./checkD
 import { CheckModal } from "../components/ModalCheck";
 import { useTranslation } from "react-i18next";
 import registImg from "./image.svg"
+import deleteImg from "./image 29.svg"
+import payImg from "./image 30.svg"
 import './newOnlineClient.css'
 
 export const NewOnlineClients = () => {
@@ -24,21 +26,19 @@ export const NewOnlineClients = () => {
     const [modal, setModal] = useState(false);
     const [modal1, setModal1] = useState(false);
     const [modal2, setModal2] = useState(false);
-    //====================================================================
-    //====================================================================
+    const [isOpen, setIsOpen] = useState(false);
+    const onOpen = () => {
+        console.log("OCHIL");
+        setIsOpen(true)
+    }
+    const onClose = () => {
+        console.log("YOPIL");
+        setIsOpen(false)
+    }
     const { t } = useTranslation()
-    //====================================================================
-    //====================================================================
     // RegisterPage
-    const [visible, setVisible] = useState(false);
-
+    const [visible, setVisible] = useState(true);
     const changeVisible = () => setVisible(!visible);
-
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
     // Pagination
     const [currentPage, setCurrentPage] = useState(0);
     const [countPage, setCountPage] = useState(10);
@@ -47,13 +47,7 @@ export const NewOnlineClients = () => {
     const indexFirstConnector = indexLastConnector - countPage;
     const [currentConnectors, setCurrentConnectors] = useState([]);
 
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
     const toast = useToast();
-
     const notify = useCallback(
         (data) => {
             toast({
@@ -67,23 +61,23 @@ export const NewOnlineClients = () => {
         },
         []
     );
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
+    
     const { request, loading } = useHttp();
     const auth = useContext(AuthContext);
-
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
+    
     // getConnectors
     const [connectors, setConnectors] = useState([]);
-    console.log(connectors);
+    const [waitingconnectors, setWaitingConnectors] = useState([]);
+    const [scheduledAppointments, setScheduledAppointments] = useState([]);
+    const [doctor, setDoctor] = useState("{}");
     const [searchStorage, setSearchStrorage] = useState([]);
+
+    const [filteredCurrentConnectors, setFilteredCurrentConnectors] = useState([]);
+    const [_, setFilterStatus] = useState("all");
+    const [filterCheckBoxChecked, setFilterCheckBoxChecked] = useState({
+        queue: false,
+        time: false,
+    });
 
     const getConnectors = useCallback(
         async (beginDay, endDay) => {
@@ -97,7 +91,59 @@ export const NewOnlineClients = () => {
                     }
                 );
                 setConnectors(data);
+                setDoctor(JSON.stringify(data[0]));
+            } catch (error) {
+                notify({
+                    title: t(`${error}`),
+                    description: "",
+                    status: "error",
+                });
+            }
+        },
+        [request, auth, notify, indexFirstConnector, indexLastConnector]
+    );
+    
+    const getWaitingConnectors = useCallback(
+        async (beginDay, endDay) => {
+            try {
+                const data = await request(
+                    `/api/offlineclient/client/getallreseption`,
+                    "POST",
+                    { clinica: auth && auth.clinica._id, beginDay, endDay },
+                    {
+                        Authorization: `Bearer ${auth.token}`,
+                    }
+                );
+                setWaitingConnectors(data);
                 setSearchStrorage(data);
+            } catch (error) {
+                notify({
+                    title: t(`${error}`),
+                    description: "",
+                    status: "error",
+                });
+            }
+        },
+        [request, auth, notify, indexFirstConnector, indexLastConnector]
+    );
+
+    const getScheduledAppointmentsConnectors = useCallback(
+        async (doctor, type) => {
+            try {
+                const data = await request(
+                    `/api/onlineclient/client/getall`,
+                    "POST",
+                    {
+                        clinica: auth && auth.clinica._id,
+                        department: JSON.parse(doctor)?.specialty?._id,
+                        beginDay: new Date().toISOString().slice(0, 10),
+                        type,
+                    },
+                    {
+                        Authorization: `Bearer ${auth.token}`,
+                    }
+                );
+                setScheduledAppointments(data);
                 setCurrentConnectors(
                     data.slice(indexFirstConnector, indexLastConnector)
                 );
@@ -111,26 +157,26 @@ export const NewOnlineClients = () => {
         },
         [request, auth, notify, indexFirstConnector, indexLastConnector]
     );
-    //====================================================================
-    //====================================================================+
 
-    //====================================================================
-    //====================================================================
+    useEffect(()=>{
+        if (doctor) {
+            getScheduledAppointmentsConnectors(doctor)
+        }
+    }, [doctor])
+    
     // SEARCH
-    const searchFullname = (e) => {
-        const searching = searchStorage.filter((item) =>
-            (item.firstname + item.lastname)
-                .toLowerCase()
-                .includes(e.target.value.toLowerCase())
-        );
-        setConnectors(searching);
-        setCurrentConnectors(searching.slice(0, countPage));
-    }
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
+    const searchFullname = useCallback(
+        (e) => {
+            const searching = searchStorage.filter((item) =>
+                item.client.fullname
+                    .toLowerCase()
+                    .includes(e.target.value.toLowerCase())
+            );
+            setWaitingConnectors(searching);
+        },
+        [searchStorage, countPage]
+    );
+    
     const setPageSize = useCallback(
         (e) => {
             setCurrentPage(0);
@@ -139,13 +185,10 @@ export const NewOnlineClients = () => {
         },
         [countPage, connectors]
     );
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
+    
     // BASEURL
     const [baseUrl, setBaseurl] = useState();
+
 
     const getBaseUrl = useCallback(async () => {
         try {
@@ -160,11 +203,6 @@ export const NewOnlineClients = () => {
         }
     }, [request, notify]);
 
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
     // CLIENT
 
     const [client, setClient] = useState({
@@ -187,11 +225,7 @@ export const NewOnlineClients = () => {
         setClientDate(e.target.value)
         setClient({ ...client, brondate: new Date(e.target.value) });
     };
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
+    
     // CLEAR
 
     const clearDatas = useCallback(() => {
@@ -207,13 +241,8 @@ export const NewOnlineClients = () => {
         }
         setModal(true);
     };
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
+    
     // CreateHandler
-
     const createHandler = useCallback(async (id) => {
         try {
             await request(
@@ -232,6 +261,7 @@ export const NewOnlineClients = () => {
                 status: "success",
             });
             getConnectors(beginDay, endDay)
+            getWaitingConnectors(beginDay, endDay)
             setModal(false);
             clearDatas();
             setVisible(false);
@@ -269,6 +299,7 @@ export const NewOnlineClients = () => {
                 }
             );
             getConnectors(beginDay, endDay);
+            getWaitingConnectors(beginDay, endDay);
             notify({
                 title: `${data.lastname + " " + data.firstname
                     }  ${t("ismli mijoz ma'lumotlari muvaffaqqiyatl yangilandi.")}`,
@@ -291,20 +322,16 @@ export const NewOnlineClients = () => {
         request,
         clearDatas,
         getConnectors,
+        getWaitingConnectors,
         beginDay,
         endDay,
     ]);
-
-    //====================================================================
-    //====================================================================
-
-    //====================================================================
-    //====================================================================
+    
     // ChangeDate
-
     const changeStart = (e) => {
         setBeginDay(new Date(new Date(e).setUTCHours(0, 0, 0, 0)));
         getConnectors(new Date(new Date(e).setUTCHours(0, 0, 0, 0)), endDay);
+        getWaitingConnectors(new Date(new Date(e).setUTCHours(0, 0, 0, 0)), endDay);
     };
 
     const changeEnd = (e) => {
@@ -319,10 +346,8 @@ export const NewOnlineClients = () => {
 
         setEndDay(date);
         getConnectors(beginDay, date);
+        getWaitingConnectors(beginDay, date);
     };
-
-    //====================================================================
-    //====================================================================
 
     const [departments, setDepartments] = useState([]);
 
@@ -346,8 +371,6 @@ export const NewOnlineClients = () => {
         }
     }, [request, auth, notify]);
 
-    //====================================================================
-    //====================================================================
     // useEffect
     const [s, setS] = useState(0);
 
@@ -355,12 +378,14 @@ export const NewOnlineClients = () => {
         if (auth.clinica && !s) {
             setS(1);
             getConnectors(beginDay, endDay);
+            getWaitingConnectors(beginDay, endDay);
             getDepartments();
             getBaseUrl();
         }
     }, [
         auth,
         getConnectors,
+        getWaitingConnectors,
         s,
         getDepartments,
         getBaseUrl,
@@ -368,49 +393,12 @@ export const NewOnlineClients = () => {
         endDay,
     ]);
 
-    //====================================================================
-    //====================================================================
-
     const [currentDate, setCurrentDate] = useState('');
 
     useEffect(() => {
         const today = new Date().toLocaleDateString();
         setCurrentDate(today);
     }, []);
-
-    const scheduledAppointments = [
-        {
-            date: "27.06.2024",
-            name: "Муминов Дилшод",
-            time: "09:45",
-            phone: "+998999232444",
-        },
-        {
-            date: "27.06.2024",
-            name: "Алижонов Одил",
-            phone: "+998999232444",
-        },
-    ];
-
-    const waitingList = [
-        {
-            timeSlot: "12:00-12:30",
-            name: "Алижонов Одил",
-            phone: "+998999232444",
-        },
-        {
-            timeSlot: "12:30-13:00",
-            room: "Г12",
-            name: "Алижонов Одил",
-            phone: "+998999232444",
-        },
-        {
-            timeSlot: "13:00-13:30",
-            room: "Г13",
-            name: "Алижонов Одил",
-            phone: "+998999232444",
-        },
-    ];
 
     const carouselItems = [
         { roomName: "Kabinet-1", title: 'Item 1', description: 'Description for item 1' },
@@ -422,32 +410,48 @@ export const NewOnlineClients = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const handlePrev = () => {
-        // Move to the previous 2 items, or go to the last ones if at the beginning
         const newIndex = (currentIndex - 2 + carouselItems.length) % carouselItems.length;
         setCurrentIndex(newIndex);
     };
 
     const handleNext = () => {
-        // Move to the next 2 items, or wrap around to the beginning
         const newIndex = (currentIndex + 2) % carouselItems.length;
         setCurrentIndex(newIndex);
     };
 
-    
-   
-    // Show two items at a time
     const visibleItems = [
         carouselItems[currentIndex],
-        carouselItems[(currentIndex + 1) % carouselItems.length], // Loop around if at the end
+        carouselItems[(currentIndex + 1) % carouselItems.length]
     ];
-    
+
+    const changeStatus = async (status) => {
+        const newArr = currentConnectors.slice(
+            indexFirstConnector,
+            indexLastConnector
+        );
+        if (status === "queue") {
+            setFilterStatus(status);
+            setFilteredCurrentConnectors(newArr.filter((item) => item.queue));
+            setFilterCheckBoxChecked({ time: false, queue: true });
+        } else if (status === "time") {
+            setFilterStatus(status);
+            setFilteredCurrentConnectors(newArr.filter((item) => !item.queue));
+            setFilterCheckBoxChecked({ time: true, queue: false });
+        } else {
+            setFilterStatus(status);
+            setFilteredCurrentConnectors([]);
+            setFilterCheckBoxChecked({ time: false, queue: false });
+        }
+    };
+
     return (
         <div>
             <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
                 <div className="row gutters">
                     <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                         <div className="d-flex justify-content-between align-items-center flex-wrap">
-                            <button className="register-btn btn ms-2 d-flex align-items-center"><img
+                            {/* register bobur */}
+                            <button onClick={changeVisible} className="register-btn btn ms-2 d-flex align-items-center"><img
                                 src={registImg}
                                 alt="Plus Icon"
                                 style={{
@@ -469,6 +473,7 @@ export const NewOnlineClients = () => {
                                     backgroundColor: "#f0f0f0"
                                 }}
                                 // className="search-input form-control w-auto"
+                                onChange={searchFullname}
                                 placeholder="ФИО" />
 
                             <div style={{
@@ -476,17 +481,23 @@ export const NewOnlineClients = () => {
                             }}
                                 className="d-flex align-items-center">
                                 <label className="me-3">Vaqt
-                                    <input type="checkbox" name="vaqt" />
+                                    <input onChange={(e) =>
+                                        changeStatus(e.target.checked ? "time" : "all")
+                                    } type="checkbox" checked={filterCheckBoxChecked.time} name="vaqt" />
                                 </label>
                                 <label>Navbat
-                                    <input type="checkbox" name="navbat" />
+                                    <input onChange={(e) =>
+                                        changeStatus(e.target.checked ? "queue" : "all")
+                                    } type="checkbox" name="navbat" checked={filterCheckBoxChecked.queue} />
                                 </label>
                             </div>
 
-                            <select style={{ width: '200px' }}
+                            <select style={{ width: '200px' }} onChange={e => {
+                                setDoctor(e.target.value);
+                            }}
                                 className="options-select form-select w-auto">
                                 {connectors.map((option, index) => (
-                                    <option key={index} value={option._id}>
+                                    <option key={index} value={JSON.stringify(option)}>
                                         {option.firstname} {option.lastname}
                                     </option>
                                 ))}
@@ -497,7 +508,7 @@ export const NewOnlineClients = () => {
                         </div>
 
                         <div className="row pt-2">
-                            {/* Left Column */}
+                            {/* Left Column bobur */}
                             <div className="col-12 col-md-4 pr-0">
                                 <div
                                     className="content-box d-flex align-items-start"
@@ -510,19 +521,43 @@ export const NewOnlineClients = () => {
                                     }}
                                 >
                                     <div className="col-md-6">
-                                        <h5>Кабулга ёзилганлар</h5>
-                                        {scheduledAppointments.map((appointment, idx) => (
+                                        <h5 style={{ color: "#000", fontWeight: "bold", paddingBottom: "10px" }}>Кабулга ёзилганлар</h5>
+                                        {(filteredCurrentConnectors.length ? filteredCurrentConnectors : scheduledAppointments).map((appointment, idx) => (
                                             <div key={idx} className="card mb-2 shadow-sm" style={{ borderRadius: "10px", backgroundColor: "#e0f7fa" }}>
-                                                <div className="card-body d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <p className="text-muted mb-1">{appointment.date}</p>
-                                                        <h6 className="mb-1">{appointment.name}</h6>
-                                                        <p className="text-muted mb-0">{appointment.phone}</p>
-                                                    </div>
-                                                    <div className="d-flex align-items-center">
-                                                        <p className="me-3 text-primary" style={{ fontWeight: "bold" }}>{appointment.time}</p>
-                                                        <i className="bi bi-telephone-fill text-success me-3" style={{ fontSize: "1.5rem" }}></i>
-                                                        <i className="bi bi-trash-fill text-danger" style={{ fontSize: "1.5rem" }}></i>
+                                                <div className="d-flex justify-content-between align-items-center p-2">
+                                                    <div className="w-100">
+                                                        <div className="d-flex justify-content-between">
+                                                            <p style={{ color: "#F47709", fontWeight: "bold" }} className="mb-1">--:--</p>
+                                                            <p style={{ color: "#F47709", fontWeight: "bold" }} className="me-3">--:-- - --:--</p>
+                                                        </div>
+                                                        <h6 style={{ color: "#000", fontWeight: "bold" }} className="mb-1">{appointment.firstname} {appointment.lastname}</h6>
+                                                        <div className="d-flex justify-content-between">
+                                                            <p style={{ color: "#000", fontWeight: "bold" }} className="mb-0">{appointment.phone}</p>
+                                                            <div>
+                                                                <button>
+                                                                    <img
+                                                                        src={payImg}
+                                                                        alt="Plus Icon"
+                                                                        style={{
+                                                                            width: "20px",
+                                                                            height: "20px",
+                                                                            marginRight: "5px"
+                                                                        }}
+                                                                    />
+                                                                </button>
+                                                                <button>
+                                                                    <img
+                                                                        src={deleteImg}
+                                                                        alt="Plus Icon"
+                                                                        style={{
+                                                                            width: "20px",
+                                                                            height: "20px",
+                                                                            marginRight: "5px"
+                                                                        }}
+                                                                    />
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -531,19 +566,17 @@ export const NewOnlineClients = () => {
 
                                     {/* Waiting list column */}
                                     <div className="col-md-6">
-                                        <h5>Кутатянлар</h5>
-                                        {waitingList.map((person, idx) => (
+                                        <h5 style={{ color: "#000", fontWeight: "bold", paddingBottom: "10px" }}>Кутаётганлар</h5>
+                                        {waitingconnectors.map((person, idx) => (
                                             <div key={idx} className="card mb-2 shadow-sm" style={{ borderRadius: "10px", backgroundColor: "#e0f7fa" }}>
-                                                <div className="card-body d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        {person.room && <p className="text-muted mb-1">{person.room}</p>}
-                                                        <h6 className="mb-1">{person.name}</h6>
-                                                        <p className="text-muted mb-0">{person.phone}</p>
-                                                    </div>
-                                                    <div className="d-flex align-items-center">
-                                                        <p className="me-3 text-primary" style={{ fontWeight: "bold" }}>{person.timeSlot}</p>
-                                                        <i className="bi bi-arrow-right-circle-fill text-success me-3" style={{ fontSize: "1.5rem" }}></i>
-                                                        <i className="bi bi-trash-fill text-danger" style={{ fontSize: "1.5rem" }}></i>
+                                                <div className="d-flex justify-content-between align-items-center p-2">
+                                                    <div className="w-100">
+                                                        <div className="d-flex justify-content-between">
+                                                            <p style={{ color: "#F47709", fontWeight: "bold" }} className="mb-1">--:--</p>
+                                                            <p style={{ color: "#F47709", fontWeight: "bold" }} className="me-3">--:-- - --:--</p>
+                                                        </div>
+                                                        <h6 style={{ color: "#000", fontWeight: "bold" }} className="mb-1">{person.client.fullname}</h6>
+                                                        <p style={{ color: "#000", fontWeight: "bold" }} className="mb-0">{person.client.phone}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -552,7 +585,7 @@ export const NewOnlineClients = () => {
                                 </div>
                             </div>
 
-                            {/* Right Column */}
+                            {/* Right Column bobur*/}
                             <div className="col-12 col-md-8 pl-0">
                                 <div className="content-box"
                                     style={{
@@ -580,7 +613,7 @@ export const NewOnlineClients = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="row w-100 pt-3">
                                             {visibleItems.map((item, index) => (
                                                 <div className="col-md-6" key={index}>
@@ -609,7 +642,7 @@ export const NewOnlineClients = () => {
 };
 
 
-function CardComponent({data}) {
+function CardComponent({ data }) {
     const [timeLeft, setTimeLeft] = useState(15 * 60);
     useEffect(() => {
         if (timeLeft <= 0) return;
