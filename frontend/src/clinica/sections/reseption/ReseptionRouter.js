@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { OfflineClients } from "./offlineclients/OfflineClients";
 import { StatsionarClients } from "./statsionarclients/StatsionarClients";
 import { OnlineClients } from "./onlineclients/OnlineClients";
+import { NewOnlineClients } from "./onlineclients/NewOnlineClients";
 import { OfflineClients as CashierOffline } from "../cashier/offlineclients/OfflineClients";
 import { StatsionarClients as CashierStatsionar } from "../cashier/statsionarclients/StatsionarClients";
 import { DiscountClients } from "../cashier/discountclients/DiscountClients";
@@ -22,6 +23,9 @@ export const ReseptionRouter = () => {
         </Route>
         <Route path="/alo24/online">
           <OnlineClients />
+        </Route>
+        <Route path="/alo24/online1">
+          <NewOnlineClients />
         </Route>
         <Route path="/alo24/online_info">
           <OnlineClientsDoctor />
