@@ -9,6 +9,8 @@ import { checkClientData, checkProductsData, checkServicesData, } from "./checkD
 import { CheckModal } from "../components/ModalCheck";
 import { useTranslation } from "react-i18next";
 import registImg from "./image.svg"
+import './newOnlineClient.css'
+
 export const NewOnlineClients = () => {
     const [beginDay, setBeginDay] = useState(
         new Date(new Date().setUTCHours(0, 0, 0, 0))
@@ -24,7 +26,7 @@ export const NewOnlineClients = () => {
     const [modal2, setModal2] = useState(false);
     //====================================================================
     //====================================================================
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     //====================================================================
     //====================================================================
     // RegisterPage
@@ -116,14 +118,14 @@ export const NewOnlineClients = () => {
     //====================================================================
     // SEARCH
     const searchFullname = (e) => {
-            const searching = searchStorage.filter((item) =>
-                (item.firstname + item.lastname)
-                    .toLowerCase()
-                    .includes(e.target.value.toLowerCase())
-            );
-            setConnectors(searching);
-            setCurrentConnectors(searching.slice(0, countPage));
-        }
+        const searching = searchStorage.filter((item) =>
+            (item.firstname + item.lastname)
+                .toLowerCase()
+                .includes(e.target.value.toLowerCase())
+        );
+        setConnectors(searching);
+        setCurrentConnectors(searching.slice(0, countPage));
+    }
     //====================================================================
     //====================================================================
 
@@ -214,7 +216,7 @@ export const NewOnlineClients = () => {
 
     const createHandler = useCallback(async (id) => {
         try {
-             await request(
+            await request(
                 `/api/onlineclient/client/register`,
                 "POST",
                 {
@@ -250,7 +252,7 @@ export const NewOnlineClients = () => {
         connectors,
         clearDatas,
     ]);
-    
+
     const updateHandler = useCallback(async () => {
         if (checkClientData(client)) {
             return notify(checkClientData(client));
@@ -358,7 +360,7 @@ export const NewOnlineClients = () => {
         }
     }, [
         auth,
-        getConnectors, 
+        getConnectors,
         s,
         getDepartments,
         getBaseUrl,
@@ -376,46 +378,69 @@ export const NewOnlineClients = () => {
         setCurrentDate(today);
     }, []);
 
-    const appointments = [
-        { date: "27.09.2024", name: "Муминов Дилшод", time: "09:45", phone: "+998999232444" },
+    const scheduledAppointments = [
+        {
+            date: "27.06.2024",
+            name: "Муминов Дилшод",
+            time: "09:45",
+            phone: "+998999232444",
+        },
+        {
+            date: "27.06.2024",
+            name: "Алижонов Одил",
+            phone: "+998999232444",
+        },
     ];
 
-    const scheduledAppointments = [
-  {
-    date: "27.06.2024",
-    name: "Муминов Дилшод",
-    time: "09:45",
-    phone: "+998999232444",
-  },
-  {
-    date: "27.06.2024",
-    name: "Алижонов Одил",
-    phone: "+998999232444",
-  },
-];
+    const waitingList = [
+        {
+            timeSlot: "12:00-12:30",
+            name: "Алижонов Одил",
+            phone: "+998999232444",
+        },
+        {
+            timeSlot: "12:30-13:00",
+            room: "Г12",
+            name: "Алижонов Одил",
+            phone: "+998999232444",
+        },
+        {
+            timeSlot: "13:00-13:30",
+            room: "Г13",
+            name: "Алижонов Одил",
+            phone: "+998999232444",
+        },
+    ];
 
-const waitingList = [
-  {
-    timeSlot: "12:00-12:30",
-    name: "Алижонов Одил",
-    phone: "+998999232444",
-  },
-  {
-    timeSlot: "12:30-13:00",
-    room: "Г12",
-    name: "Алижонов Одил",
-    phone: "+998999232444",
-  },
-  {
-    timeSlot: "13:00-13:30",
-    room: "Г13",
-    name: "Алижонов Одил",
-    phone: "+998999232444",
-  },
-];
+    const carouselItems = [
+        { roomName: "Kabinet-1", title: 'Item 1', description: 'Description for item 1' },
+        { roomName: "Kabinet-2", title: 'Item 1', description: 'Description for item 1' },
+        { roomName: "Kabinet-3", title: 'Item 1', description: 'Description for item 1' },
+        { roomName: "Kabinet-4", title: 'Item 1', description: 'Description for item 1' },
+    ];
 
+    const [currentIndex, setCurrentIndex] = useState(0);
 
+    const handlePrev = () => {
+        // Move to the previous 2 items, or go to the last ones if at the beginning
+        const newIndex = (currentIndex - 2 + carouselItems.length) % carouselItems.length;
+        setCurrentIndex(newIndex);
+    };
 
+    const handleNext = () => {
+        // Move to the next 2 items, or wrap around to the beginning
+        const newIndex = (currentIndex + 2) % carouselItems.length;
+        setCurrentIndex(newIndex);
+    };
+
+    
+   
+    // Show two items at a time
+    const visibleItems = [
+        carouselItems[currentIndex],
+        carouselItems[(currentIndex + 1) % carouselItems.length], // Loop around if at the end
+    ];
+    
     return (
         <div>
             <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
@@ -529,29 +554,41 @@ const waitingList = [
 
                             {/* Right Column */}
                             <div className="col-12 col-md-8 pl-0">
-                                <div
-                                    className="content-box"
+                                <div className="content-box"
                                     style={{
                                         border: '2px solid #10A98A',
                                         borderBottom: "0px",
                                         borderRight: "0px",
                                         padding: '10px',
                                         minHeight: "500px"
-                                    }}
-                                >
-                                    <h5>Кабинет-1 & Кабинет-2</h5>
-                                    <div className="row">
-                                        {/* Rooms and Time Slots */}
-                                        {[].map((room, idx) => (
-                                            <div key={idx} className="col-6">
-                                                <h6>{room.room}</h6>
-                                                {room.slots.map((slot, sidx) => (
-                                                    <div key={sidx} className="border-bottom py-2">
-                                                        <strong>{slot.time}</strong> - {slot.person}
-                                                    </div>
-                                                ))}
+                                    }}>
+                                    <div className="ml-2">
+                                        <span className="ml-2">Тасдикланган 1</span>
+                                        <span className="ml-2">Кутаётган 3</span>
+                                        <span className="ml-2">Онлайн 2</span>
+                                    </div>
+                                    <div className="row ml-2 pt-2">
+                                        <div className="row w-100">
+                                            <div className="col-md-6">
+                                                <button className="custom-btn" onClick={handlePrev}>
+                                                    <span className="arrow">&lt;</span> {/* Left arrow */}
+                                                </button>
                                             </div>
-                                        ))}
+                                            <div className="col-md-6 d-flex justify-end">
+                                                <button className="custom-btn" onClick={handleNext}>
+                                                    <span className="arrow">&gt;</span> {/* Right arrow */}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="row w-100 pt-3">
+                                            {visibleItems.map((item, index) => (
+                                                <div className="col-md-6" key={index}>
+                                                    <CardComponent data={item} key={index} />
+                                                </div>
+                                            ))}
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -570,3 +607,66 @@ const waitingList = [
         </div>
     );
 };
+
+
+function CardComponent({data}) {
+    const [timeLeft, setTimeLeft] = useState(15 * 60);
+    useEffect(() => {
+        if (timeLeft <= 0) return;
+
+        const timerId = setInterval(() => {
+            setTimeLeft(timeLeft - 1);
+        }, 1000);
+
+        return () => clearInterval(timerId);
+    }, [timeLeft]);
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+
+    return (
+        <div className="main-card" style={{ height: "130px" }}>
+            <div
+                className="d-flex  align-items-center  justify-content-between"
+                style={{ paddingLeft: "50px", marginBottom: "5px" }}
+            >
+                <h4 className="h6 text-danger m-0">{data.roomName}</h4>
+                <h5 className="h6 text-dark m-0">{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</h5>
+            </div>
+            <div className="card-item" style={{ height: "80%" }}>
+                <div
+                    className="d-flex flex-column align-items-start justify-content-between"
+                    style={{ width: "13%", height: "100%" }}
+                >
+                    <h6 className="m-0" style={{ fontSize: "12px", fontWeight: "bold" }}>
+                        09:00
+                    </h6>
+                    <h6 className="m-0" style={{ fontSize: "12px", fontWeight: "bold" }}>
+                        10:00
+                    </h6>
+                </div>
+
+                <div
+                    className="roomCard"
+                    style={{ width: "86%", height: "90%", paddingLeft: "10px" }}>
+                    <div style={{ background: "#10A98A" }} className="w-100 h-25 px-2 pt-2 item-flex">
+                        <h6 className="text-font">9:00</h6>
+                        <h6 className="text-font">U1</h6>
+                        <h6 className="text-font fw-bold">Samoyev Jasur</h6>
+                    </div>
+                    <div style={{ background: "#F47709" }} className="w-100 h-25 px-2 pt-2 item-flex">
+                        <h6 className="text-font">9:15</h6>
+                        <h6 className="text-font">9:15</h6>
+                        <h6 className="text-font fw-bold">Samoyev Jasur</h6>{" "}
+                    </div>
+                    <div style={{ background: "#F5F5F5" }} className="w-100 h-25 px-2 pt-2 item-flex">
+                        <h6 className="text-font">9:15</h6>
+                    </div>
+                    <div style={{ background: "#D9D9D9" }} className="w-100 h-25 px-2 pt-2 item-flex">
+                        <h6 className="text-font">9:15</h6>
+                        <h6 className="text-font fw-bold">Muhinov Dilshod</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
