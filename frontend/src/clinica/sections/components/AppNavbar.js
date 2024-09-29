@@ -10,7 +10,6 @@ import {
   MenuList,
   VStack,
   toast,
-  useBreakpoint,
   useBreakpointValue,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -22,7 +21,7 @@ import AloLogo from "../../../clinica_logo.jpg";
 import { useHttp } from "../../hooks/http.hook";
 import { AuthContext } from "../../context/AuthContext";
 
-const AppNavbar = ({ links, userType }) => {
+const AppNavbar = ({ links, user, userType }) => {
   const [menuOpen, setMenuOpen] = useState(false); // Sidebar control for mobile
   const [activeMenu, setActiveMenu] = useState(null); // Control for submenu
   const { t } = useTranslation();
@@ -63,7 +62,17 @@ const AppNavbar = ({ links, userType }) => {
   }, [getBaseUrl, s]);
 
   // Toggle sidebar
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  }, [menuOpen]);
 
   // Toggle submenu for mobile
   const toggleSubMenu = (index) => {
@@ -92,12 +101,13 @@ const AppNavbar = ({ links, userType }) => {
     }
   }, [auth?.clinica?._id]);
 
-  const user = auth.user;
   const mobileIconClass = useBreakpointValue({
     base: "block",
     md: "hidden",
   });
-
+  // console.log(
+  //   userType.type === "director" ? userType.appearanceFields : appearanceFields
+  // );
   return (
     <Box
       as="nav"
@@ -124,13 +134,17 @@ const AppNavbar = ({ links, userType }) => {
           <div>
             <img src={AloLogo} alt="logo" className="w-[100px]" />
           </div>
-          {links.map((link) => (
-            <NavbarItemDesktop
-              link={link}
-              show={link.showWhen ? link.showWhen(appearanceFields) : true}
-              key={link.name}
-            />
-          ))}
+          {links.map((link) => {
+            return (
+              <NavbarItemDesktop
+                key={link.name}
+                link={link}
+                allowedToShow={(link) =>
+                  link.showWhen ? link.showWhen(appearanceFields) : true
+                }
+              />
+            );
+          })}
         </Flex>
 
         {/* User profile */}
@@ -192,7 +206,7 @@ const AppNavbar = ({ links, userType }) => {
         initial={{ x: "-100%" }}
         animate={{ x: menuOpen ? 0 : "-100%" }}
         transition={{ type: "spring", stiffness: 120, damping: 20 }}
-        className="md:hidden fixed  top-0 left-0 w-full h-full bg-white shadow-lg z-50"
+        className="md:hidden fixed overflow-y-auto top-0 left-0 w-full h-full bg-white shadow-lg z-50"
       >
         <div className="text-right pt-6 pr-4">
           <IconButton
@@ -210,6 +224,9 @@ const AppNavbar = ({ links, userType }) => {
               toggleSubMenu={toggleSubMenu}
               activeMenu={activeMenu}
               key={link.name}
+              allowedToShow={(a) =>
+                a.showWhen ? a.showWhen(appearanceFields) : true
+              }
               link={link}
               index={index}
             />
@@ -228,10 +245,11 @@ const AppNavbar = ({ links, userType }) => {
   );
 };
 
-function NavbarItemDesktop({ link, show }) {
+function NavbarItemDesktop({ link, allowedToShow }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const history = useHistory();
   const loc = useLocation();
+  const show = allowedToShow(link);
 
   let menuItemClasses = "";
   if (Array.isArray(link.activeWhen)) {
@@ -273,18 +291,30 @@ function NavbarItemDesktop({ link, show }) {
             className="absolute left-0 mt-[-10px] w-48 bg-alotrade shadow-lg rounded-md"
             display={{ base: "none", md: "block" }}
           >
-            {link.submenu.map((submenuItem) => (
-              <MenuItem
-                key={submenuItem.name}
-                bg="transparent"
-                onClick={() => history.push(submenuItem.to)}
-                className="px-4 py-2 hover:bg-alotrade hover:text-white"
-                _focus={{ bg: "bg-alotrade", color: "white" }}
-                _active={{ bg: "bg-alotrade", color: "white" }}
-              >
-                {submenuItem.name}
-              </MenuItem>
-            ))}
+            {link.submenu.map((subMenu) => {
+              const showSubMenu = allowedToShow(subMenu);
+
+              return showSubMenu ? (
+                subMenu.submenu ? (
+                  <NavbarItemDesktopSub
+                    key={subMenu.name}
+                    item={subMenu}
+                    allowedToShow={allowedToShow}
+                  />
+                ) : (
+                  <MenuItem
+                    key={subMenu.name}
+                    bg="transparent"
+                    onClick={() => history.push(subMenu.to)}
+                    className="px-4 py-2 hover:bg-alotrade"
+                    _focus={{ bg: "bg-alotrade" }}
+                    _active={{ bg: "bg-alotrade" }}
+                  >
+                    {subMenu.name}
+                  </MenuItem>
+                )
+              ) : null;
+            })}
           </MenuList>
         </div>
       )}
@@ -292,17 +322,68 @@ function NavbarItemDesktop({ link, show }) {
   ) : null;
 }
 
+function NavbarItemDesktopSub({ item, allowedToShow }) {
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const history = useHistory();
+
+  return (
+    <Menu placement="right-start" isOpen={isOpen}>
+      <MenuButton
+        key={item.name}
+        bg="transparent"
+        onClick={() => history.push(item.to)}
+        className={`px-4 py-2 hover:bg-alotrade w-full text-black`}
+        onMouseEnter={onOpen}
+        onMouseLeave={onClose}
+        _focus={{ bg: "bg-alotrade" }}
+        _active={{ bg: "bg-alotrade" }}
+      >
+        <Link className="flex items-center text-black" to={item.to}>
+          {item.name}
+        </Link>
+      </MenuButton>
+
+      <MenuList
+        onMouseEnter={onOpen}
+        onMouseLeave={onClose}
+        className="absolute left-[-10px] mt-[-10px] w-48 bg-alotrade shadow-lg rounded-md"
+        display={{ base: "none", md: "block" }}
+      >
+        {item.submenu.map((subSubMenu) => {
+          const showSubMenu = allowedToShow(subSubMenu);
+          return showSubMenu ? (
+            <MenuItem
+              key={subSubMenu.name}
+              bg="transparent"
+              onClick={() => history.push(subSubMenu.to)}
+              className="px-4 py-2 hover:bg-alotrade text-black"
+              _focus={{ bg: "bg-alotrade" }}
+              _active={{ bg: "bg-alotrade" }}
+            >
+              {subSubMenu.name}
+            </MenuItem>
+          ) : null;
+        })}
+      </MenuList>
+    </Menu>
+  );
+}
+
+// {link.submenu?.length > 0 && <ChevronDownIcon fontSize={20} />}
 function NavbarItemMobile({
   link,
   index,
   toggleSubMenu,
   setMenuOpen,
   activeMenu,
+  allowedToShow,
 }) {
   const history = useHistory();
   const loc = useLocation();
-  return (
-    <Box key={link.name} className={`w-full text-left`}>
+  const show = allowedToShow(link);
+
+  return show ? (
+    <Box className={`w-full text-left`}>
       <Box
         display="flex"
         justifyContent="space-between"
@@ -328,25 +409,90 @@ function NavbarItemMobile({
         in={activeMenu === index && link.submenu?.length > 0}
         animateOpacity
       >
-        <VStack mt={2} pl={6} align="start">
-          {link.submenu?.map((submenuItem) => (
-            <Box
-              onClick={() => {
-                history.push(submenuItem.to);
-                setMenuOpen(false);
-              }}
-              key={submenuItem.name}
-              className={`w-full px-4 py-2 text-left rounded-lg ${
-                loc.pathname === submenuItem.to ? "bg-alotrade text-white" : ""
-              }`}
-            >
-              {submenuItem.name}
-            </Box>
+        {link.submenu &&
+          link.submenu.length > 0 &&
+          link.submenu.map((l, i) => (
+            <NavbarItemMobileSub
+              allowedToShow={allowedToShow}
+              setMenuOpen={setMenuOpen}
+              key={l.name}
+              link={l}
+              index={i}
+            />
           ))}
-        </VStack>
       </Collapse>
     </Box>
-  );
+  ) : null;
+}
+
+function NavbarItemMobileSub({ link, setMenuOpen, index, allowedToShow }) {
+  const [activeMenuSub, setActiveMenuSub] = useState(false);
+  const history = useHistory();
+  const loc = useLocation();
+  const show = allowedToShow(link);
+
+  const toggleSubMenu = (index) => {
+    setActiveMenuSub(activeMenuSub === index ? null : index);
+  };
+
+  return show ? (
+    <VStack mt={2} pl={6} align="start">
+      <Box className={`w-full text-left`}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          // className={`w-full px-4 py-2 text-left rounded-lg ${
+          //   loc.pathname === subSub.to ? "bg-alotrade text-white" : ""
+          // }`}
+          className={
+            !link.submenu && loc.pathname === link.to
+              ? "bg-alotrade text-white rounded-lg"
+              : ""
+          }
+          px={4}
+          py={2}
+          onClick={() => {
+            toggleSubMenu(activeMenuSub === index ? null : index);
+            if (!link.submenu) {
+              history.push(link.to);
+              setMenuOpen(false);
+            }
+          }}
+        >
+          <span className="text-lg">{link.name}</span>
+          {link.submenu?.length > 0 && <ChevronDownIcon fontSize={20} />}
+        </Box>
+
+        <Collapse
+          in={activeMenuSub === index && link.submenu?.length > 0}
+          animateOpacity
+        >
+          {link.submenu &&
+            link.submenu.length > 0 &&
+            link.submenu.map((subSub) => {
+              const show = allowedToShow(subSub);
+              return show ? (
+                <VStack key={subSub.name} mt={2} pl={6} align="start">
+                  <Box
+                    onClick={() => {
+                      history.push(subSub.to);
+                      setMenuOpen(false);
+                    }}
+                    key={subSub.name}
+                    className={`w-full px-4 py-2 text-left rounded-lg ${
+                      loc.pathname === subSub.to ? "bg-alotrade text-white" : ""
+                    }`}
+                  >
+                    {subSub.name}
+                  </Box>
+                </VStack>
+              ) : null;
+            })}
+        </Collapse>
+      </Box>
+    </VStack>
+  ) : null;
 }
 
 export default AppNavbar;

@@ -1,10 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import AppNavbar from "../../components/AppNavbar";
+import { AuthContext } from "../../../context/AuthContext";
 
 const Navbar = () => {
   const { t } = useTranslation();
-
+  const auth = useContext(AuthContext);
   const links = useMemo(
     () => [
       { name: t("Kunduzgi"), to: "/alo24", index: true },
@@ -37,7 +38,13 @@ const Navbar = () => {
     [t]
   );
 
-  return <AppNavbar userType="reception" links={links} />;
+  return (
+    <AppNavbar
+      userType={{ type: "reception" }}
+      user={auth.user}
+      links={links}
+    />
+  );
 };
 
 export default Navbar;
