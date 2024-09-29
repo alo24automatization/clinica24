@@ -8,6 +8,7 @@ import { TableClients } from "./clientComponents/TableClients";
 import { checkClientData, checkProductsData, checkServicesData, } from "./checkData/checkData";
 import { CheckModal } from "../components/ModalCheck";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 
 export const OnlineClients = () => {
     const [beginDay, setBeginDay] = useState(
@@ -81,7 +82,6 @@ export const OnlineClients = () => {
     // getConnectors
     const [connectors, setConnectors] = useState([]);
     const [searchStorage, setSearchStrorage] = useState([]);
-
     const getConnectors = useCallback(
         async (beginDay, endDay) => {
             try {
@@ -367,6 +367,10 @@ export const OnlineClients = () => {
 
     //====================================================================
     //====================================================================
+
+    const history = useHistory()
+
+    
     return (
         <div>
             <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
