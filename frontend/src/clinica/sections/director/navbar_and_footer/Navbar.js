@@ -11,7 +11,7 @@ import { useHttp } from "../../../hooks/http.hook";
 import { useToast } from "@chakra-ui/react";
 import AloLogo from "../../../../clinica_logo.jpg";
 import { useTranslation } from "react-i18next";
-import AppNavbar from "../../components/AppNavbar";
+import AppNavbar from "../../components/navbar/AppNavbar";
 
 export const Navbar = ({ clinica, appearanceFields }) => {
   const { t } = useTranslation();

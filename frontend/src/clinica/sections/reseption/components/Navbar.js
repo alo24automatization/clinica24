@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import AppNavbar from "../../components/AppNavbar";
+import AppNavbar from "../../components/navbar/AppNavbar";
 import { AuthContext } from "../../../context/AuthContext";
 
 const Navbar = () => {
