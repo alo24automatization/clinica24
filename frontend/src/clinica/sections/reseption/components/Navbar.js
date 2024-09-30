@@ -40,7 +40,7 @@ const Navbar = () => {
 
   return (
     <AppNavbar
-      userType={{ type: "reception" }}
+      userType={{ type: "Reception" }}
       user={auth.user}
       links={links}
     />

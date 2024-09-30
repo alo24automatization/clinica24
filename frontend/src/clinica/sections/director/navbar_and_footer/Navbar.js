@@ -155,7 +155,7 @@ export const Navbar = ({ clinica, appearanceFields }) => {
   );
 
   const userType = useMemo(() => {
-    return { type: "director", appearanceFields };
+    return { type: "Director", appearanceFields };
   }, [appearanceFields]);
 
   return <AppNavbar links={links} user={user} userType={userType} />;

@@ -156,7 +156,12 @@ const AppNavbar = ({ links, user, userType }) => {
                 {baseUrl ? (
                   <img
                     className="circle d-inline"
-                    src={baseUrl && `${baseUrl}/api/upload/file/${user.image}`}
+                    src={
+                      userType.type === "Admin"
+                        ? userType.baseUrl &&
+                          `${userType.baseUrl}/api/upload/file/${user.image}`
+                        : baseUrl && `${baseUrl}/api/upload/file/${user.image}`
+                    }
                     alt={user?.firstname + user?.lastname}
                   />
                 ) : (
@@ -175,13 +180,17 @@ const AppNavbar = ({ links, user, userType }) => {
                   <div className="header-user">
                     <img
                       src={
-                        baseUrl && `${baseUrl}/api/upload/file/${user.image}`
+                        userType.type === "Admin"
+                          ? userType.baseUrl &&
+                            `${userType.baseUrl}/api/upload/file/${user.image}`
+                          : baseUrl &&
+                            `${baseUrl}/api/upload/file/${user.image}`
                       }
-                      alt={user.firstname + user.lastname}
+                      alt={user?.firstname + user?.lastname}
                     />
                   </div>
                   {user.firstname} {user.lastname}
-                  <p>Reseption</p>
+                  <p>{userType.type}</p>
                 </div>
                 <button
                   onClick={() => {
