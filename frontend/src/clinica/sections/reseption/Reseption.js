@@ -1,8 +1,7 @@
 import React, { useContext } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-// import { Navbar } from "./components/Navbar";
-import TestNavbar from "./components/TestNavbar";
+import Navbar from "./components/Navbar";
 import { ReseptionRouter } from "./ReseptionRouter";
 
 export const Reseption = () => {
@@ -33,7 +32,7 @@ export const Reseption = () => {
   return (
     <div>
       <Router>
-        <TestNavbar />
+        <Navbar />
         <ReseptionRouter />
       </Router>
     </div>
