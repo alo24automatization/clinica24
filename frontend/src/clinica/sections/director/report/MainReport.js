@@ -2,10 +2,7 @@ import { useToast } from '@chakra-ui/react'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../../context/AuthContext'
 import { useHttp } from '../../../hooks/http.hook'
-import { Modal } from '../../cashier/components/Modal'
 import { CheckModal } from '../../cashier/components/ModalCheck'
-import { checkData } from '../../cashier/offlineclients/checkData/checkData'
-import { TableClients } from '../../cashier/offlineclients/clientComponents/TableClients'
 import { MainReportTable } from './components/MainReportTable'
 import Select from 'react-select'
 import makeAnimated from 'react-select/animated'
@@ -369,6 +366,24 @@ const MainReport = () => {
       getBaseUrl()
     }
   }, [auth, getConnectors, getBaseUrl, s, beginDay, endDay])
+  const { request: request2 } = useHttp()
+  const [user, setUser] = useState({})
+  useEffect(() => {
+    if (check?.client) {
+      request2('/api/offlineclient/client/get/', 'POST', {userId: check.client}).then((data) => {
+        setUser(data)
+      }).catch((error) => {
+        toast({
+          title: error,
+          description: '',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+          position: 'top-right',
+      })
+      })
+    }
+  }, [check, baseUrl])
 
   //====================================================================
   //====================================================================
@@ -438,6 +453,7 @@ const MainReport = () => {
         </div>
       </div>
       <CheckModal
+        user={user}
         baseUrl={baseUrl}
         connector={check}
         clinica={auth && auth.clinica}

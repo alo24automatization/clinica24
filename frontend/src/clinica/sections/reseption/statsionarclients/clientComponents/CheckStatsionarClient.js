@@ -8,8 +8,8 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
   const getTotalprice = (connector) => {
     let roomprice = 0;
     if (connector?.room?.endday) {
-      const beginday = new Date(connector?.room?.beginday);
-      const now = new Date(connector?.room?.endday);
+      const beginday = new Date(connector?.room?.beginday).setHours(0,0,0,0);
+      const now = new Date(connector?.room?.endday).setHours(0,0,0,0);
 
       const timeDifference = now - beginday;
       const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -192,7 +192,7 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
               </h4>
             </td>
             <td colSpan={2} style={{ width: "25%" }}>
-              <p className="fw-bold fs-5 m-0">
+              <p className="fw-bold fs-18 text text-uppercase m-0">
                 {connector?.client?.department}
               </p>
             </td>
@@ -369,7 +369,10 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                     {t("Umumiy")}
                   </td>
                   <td className="text-center font-weight-bold border py-1">
-                    {t("Kelgan vaqti")}
+                    {t("Sana")}
+                  </td>
+                  <td className="text-center font-weight-bold border py-1">
+                    {t("Soati")}
                   </td>
                 </tr>
               </thead>
@@ -395,6 +398,9 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                         </td>
                         <td className="text-right border py-1">
                           {new Date(service.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="text-right border py-1">
+                        {new Date(service.createdAt).toLocaleTimeString().split(' ')[0]}
                         </td>
                       </tr>
                     );
@@ -433,19 +439,9 @@ const CheckStatsionarClient = ({ connector, qr, clinica, baseUrl }) => {
                     {connector?.room?.endday
                       ? Math.round(
                           Math.abs(
-                            (new Date(connector?.room?.endday).setHours(
-                              0,
-                              0,
-                              0,
-                              0
-                            ) -
-                              new Date(connector?.room?.beginday).setHours(
-                                0,
-                                0,
-                                0,
-                                0
-                              )) /
-                              (24 * 60 * 60 * 1000)
+                            (new Date(connector?.room?.endday).setHours(0,0,0,0) -
+                              new Date(connector?.room?.beginday).setHours(0, 0, 0, 0)) /
+                            (24 * 60 * 60 * 1000)
                           )
                         )
                       : Math.round(

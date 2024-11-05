@@ -6,6 +6,10 @@ router.post("/client/register", auth, (req, res) => {
   require("./clients.route").register(req, res);
 });
 
+router.post("/client/get", (req, res) => {
+  require("./clients.route").getUser(req, res);
+});
+
 router.post("/client/add", auth, (req, res) => {
   require("./clients.route").add(req, res);
 });

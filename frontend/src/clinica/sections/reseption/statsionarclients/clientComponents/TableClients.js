@@ -1,8 +1,4 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPrint,
-} from "@fortawesome/free-solid-svg-icons";
 import { Pagination } from "../../components/Pagination";
 import { DatePickers } from "./DatePickers";
 import { useTranslation } from "react-i18next";
@@ -11,6 +7,7 @@ export const TableClients = ({
   setVisible,
   setModal1,
   setCheck,
+  setIsAdding,
   changeStart,
   changeEnd,
   searchPhone,
@@ -150,6 +147,9 @@ export const TableClients = ({
                   {t("ID")}
                 </th>
                 <th className="border py-1 bg-alotrade text-[16px]">
+                  {t("Xona")}
+                </th>
+                <th className="border py-1 bg-alotrade text-[16px]">
                   {t("Probirka")}
                 </th>
                 <th className="border py-1 bg-alotrade text-[16px]">
@@ -186,6 +186,9 @@ export const TableClients = ({
                       {connector.client.id}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
+                      {connector?.room?.room?.number}/{connector?.room?.room?.place}
+                    </td>
+                    <td className="border py-1 text-right text-[16px]">
                       {connector?.dailys[0]?.probirka}
                     </td>
                     <td className="border py-1 text-[16px]">
@@ -194,7 +197,7 @@ export const TableClients = ({
                         connector?.doctor?.firstname}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
-                      {connector?.room?.beginday && new Date(connector.room.beginday).toLocaleDateString()}{" "}
+                      {connector?.room?.beginday && `${new Date(connector.room.beginday).toLocaleDateString()} ${new Date(connector.room.beginday).toLocaleTimeString().split(' ')[0]}`}
                     </td>
                     <td className="border py-1 text-center text-[16px]">
                       {loading ? (
@@ -205,7 +208,8 @@ export const TableClients = ({
                       ) : (
                         <button
                           className="btn btn-success py-0"
-                          onClick={() => {
+                            onClick={() => {
+                            setIsAdding(false)
                             setClient(connector.client);
                             setConnector({
                               ...connector,

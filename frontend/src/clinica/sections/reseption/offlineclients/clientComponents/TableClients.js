@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleUp,
@@ -19,6 +19,7 @@ import { DatePickers } from "./DatePickers";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../../../context/AuthContext";
+import { useHttp } from "../../../../hooks/http.hook";
 
 export const TableClients = ({
   baseUrl,
@@ -61,6 +62,26 @@ export const TableClients = ({
   const history = useHistory();
   const auth = useContext(AuthContext);
   const [clientBorn, setClientBorn] = useState("");
+  const { request: appearanceRequest } = useHttp();
+  const [appearanceFields, setAppearanceFields] = useState({});
+  const getAppearanceFields = async () => {
+    try {
+      const data = await appearanceRequest(
+        `/api/clinica/appearanceFields/${auth.clinica._id}`,
+        "GET",
+        null
+      );
+      setAppearanceFields(data.appearanceFields);
+    } catch (error) {
+      console.log("Appearance settings get error");
+    }
+  };
+
+  useEffect(() => {
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
   return (
     <div className="border-0 table-container">
       <div className="border-0 table-container">
@@ -179,7 +200,9 @@ export const TableClients = ({
                 <th className="border py-1 bg-alotrade text-[16px]">
                   {t("Kelgan vaqti")}
                 </th>
-                <th className="border py-1 bg-alotrade text-[16px]"></th>
+                {appearanceFields.showStationary === true && (
+                  <th className="border py-1 bg-alotrade text-[16px]"></th>
+                )}
                 <th className="border py-1 bg-alotrade text-[16px]"></th>
                 <th className="border py-1 bg-alotrade text-[16px]">
                   {t("Qo'shish")}
@@ -256,33 +279,39 @@ export const TableClients = ({
                     </td>
                     <td className="border py-1 text-right text-[16px]">
                       {new Date(connector?.createdAt).toLocaleDateString()}{" "}
-                      {new Date(connector?.createdAt).toLocaleTimeString()}
+                      {
+                        new Date(connector?.createdAt)
+                          .toLocaleTimeString()
+                          .split(" ")[0]
+                      }
                     </td>
-                    <td className="border py-1 text-center text-[16px]">
-                      {loading ? (
-                        <button className="btn btn-success" disabled>
-                          <span className="spinner-border spinner-border-sm"></span>
-                          Loading...
-                        </button>
-                      ) : (
-                        <button
-                          className="btn btn-success py-0"
-                          onClick={() => {
-                            history.push("alo24/statsionar", {
-                              client: { ...connector.client },
-                              services: [...connector.services],
-                              connector: {
-                                _id: connector._id,
-                                probirka: connector?.probirka,
-                                accept: connector?.accept,
-                              },
-                            });
-                          }}
-                        >
-                          {t("Statsionar")}
-                        </button>
-                      )}
-                    </td>
+                    {appearanceFields.showStationary === true && (
+                      <td className="border py-1 text-center text-[16px]">
+                        {loading ? (
+                          <button className="btn btn-success" disabled>
+                            <span className="spinner-border spinner-border-sm"></span>
+                            Loading...
+                          </button>
+                        ) : (
+                          <button
+                            className="btn btn-success py-0"
+                            onClick={() => {
+                              history.push("alo24/statsionar", {
+                                client: { ...connector.client },
+                                services: [...connector.services],
+                                connector: {
+                                  _id: connector._id,
+                                  probirka: connector?.probirka,
+                                  accept: connector?.accept,
+                                },
+                              });
+                            }}
+                          >
+                            {t("Statsionar")}
+                          </button>
+                        )}
+                      </td>
+                    )}
                     <td className="border py-1 text-center text-[16px]">
                       {loading ? (
                         <button className="btn btn-success" disabled>
@@ -298,7 +327,7 @@ export const TableClients = ({
                               if (connector.services[0]?.counterdoctor) {
                                 const { firstname, lastname } =
                                   connector.services[0].counterdoctor;
-                                  
+
                                 setSelectedCounterDoctor({
                                   value:
                                     connector.services[0].counterdoctor._id,
@@ -306,7 +335,7 @@ export const TableClients = ({
                                 });
                               }
                             }
-                   
+
                             setClientDate(connector.client?.born?.slice(0, 10));
                             setIsAddConnector(true);
                             setVisible(true);

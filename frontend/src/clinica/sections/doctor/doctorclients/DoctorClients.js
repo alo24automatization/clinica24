@@ -48,13 +48,6 @@ export const DoctorClients = () => {
   // RegisterPage
   const [visible, setVisible] = useState(false);
 
-  const changeVisible = () => setVisible(!visible);
-
-  //====================================================================
-  //====================================================================
-
-  //====================================================================
-  //====================================================================
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
   const [countPage, setCountPage] = useState(10);
@@ -106,8 +99,6 @@ export const DoctorClients = () => {
   const [currentDoctorClients, setCurrentDoctorClients] = useState([]);
   const [updatedCliets, setUpdatesClients] = useState([]);
   const handleFilterClients = async (clientFilterData) => {
-    const { complaints, diagnostics, from_age, to_age, gender, national } =
-      clientFilterData;
     try {
       const data = await request(
         `/api/doctor/clients/getclients/filtr`,
@@ -288,7 +279,7 @@ export const DoctorClients = () => {
       socket = socketIOClient(ENDPOINT, {
         path: "/ws",
         withCredentials: true,
-        transports: ["websocket"]
+        transports: ["websocket"],
       });
       socket.on("disconnect", () => {
         console.log("Socket disconnected!");

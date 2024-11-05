@@ -183,6 +183,9 @@ export const TableServices = ({
                 <th className="border-right text-[12px] bg-alotrade ">
                   {t("Kounterdoktor ulushi")}
                 </th>
+                <th className="border-right text-[12px] bg-alotrade ">
+                  {t("Xizmat davomiyligi")}
+                </th>
                 <th className="border-right text-center text-[12px] bg-alotrade">{t("Tahrirlash")}</th>
                 <th className="text-center text-[12px] bg-alotrade">{t("O'chirish")}</th>
               </tr>
@@ -208,6 +211,9 @@ export const TableServices = ({
                     </td>
                     <td className="border-right text-[16px]">
                       {service.counterDoctorProcient}
+                    </td>
+                    <td className="border-right text-[16px]">
+                      0s
                     </td>
                     <td className="border-right text-[16px] text-center">
                       <button

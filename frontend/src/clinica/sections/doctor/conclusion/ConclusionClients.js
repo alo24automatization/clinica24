@@ -1,7 +1,19 @@
 import { useToast } from "@chakra-ui/react";
-import {faAngleDown, faAngleUp, faPenAlt, faSearch, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {
+  faAngleDown,
+  faAngleUp,
+  faPenAlt,
+  faSearch,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
@@ -10,7 +22,6 @@ import { useHttp } from "../../../hooks/http.hook";
 import { Pagination } from "../components/Pagination";
 import Print from "../components/Print";
 import { DatePickers } from "../doctorclients/clientComponents/DatePickers";
-
 
 export const ConclusionClients = () => {
   const [beginDay, setBeginDay] = useState(
@@ -22,7 +33,7 @@ export const ConclusionClients = () => {
   //====================================================================
   //====================================================================
 
-  const history = useHistory()
+  const history = useHistory();
 
   //====================================================================
   //====================================================================
@@ -33,7 +44,7 @@ export const ConclusionClients = () => {
 
   //====================================================================
   //====================================================================
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   //====================================================================
   //====================================================================
   // Pagination
@@ -46,7 +57,7 @@ export const ConclusionClients = () => {
   //====================================================================
   //====================================================================
 
-  const [clientBorn, setClientBorn] = useState(new Date())
+  const [clientBorn, setClientBorn] = useState(new Date());
 
   //====================================================================
   //====================================================================
@@ -75,7 +86,7 @@ export const ConclusionClients = () => {
 
   //====================================================================
   //====================================================================
-  const [type, setType] = useState('begin')
+  const [type, setType] = useState("begin");
   //====================================================================
   //====================================================================
   // getConnectors
@@ -83,56 +94,64 @@ export const ConclusionClients = () => {
   const [searchStorage, setSearchStorage] = useState([]);
   const [currentDoctorClients, setCurrentDoctorClients] = useState([]);
 
-  const getDoctorClients = useCallback(
-    async () => {
-      try {
-        const data = await request(
-          `/api/doctor/conclusion/clients/get`,
-          "POST",
-          {
-            clinica: auth && auth.clinica._id,
-            department: auth?.user?.specialty?._id,
-          },
-          {
-            Authorization: `Bearer ${auth.token}`,
-          }
-        );
-        setDoctorClients([...data].filter(item => {
-          if (type === 'end') {
-            return item?.connector?.room?.endday
+  const getDoctorClients = useCallback(async () => {
+    try {
+      const data = await request(
+        `/api/doctor/conclusion/clients/get`,
+        "POST",
+        {
+          clinica: auth && auth.clinica._id,
+          department: auth?.user?.specialty?._id,
+        },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
+      setDoctorClients(
+        [...data].filter((item) => {
+          if (type === "end") {
+            return item?.connector?.room?.endday;
           } else {
-            return item?.connector?.room?.endday === null
+            return item?.connector?.room?.endday === null;
           }
-        }));
-        setSearchStorage(data);
-        setCurrentDoctorClients(
-          [...data].filter(item => {
-            if (type === 'end') {
-              return item?.connector?.room?.endday
+        })
+      );
+      setSearchStorage(data);
+      setCurrentDoctorClients(
+        [...data]
+          .filter((item) => {
+            if (type === "end") {
+              return item?.connector?.room?.endday;
             } else {
-              return item?.connector?.room?.endday === null
+              return item?.connector?.room?.endday === null;
             }
-          }).slice(indexFirstConnector, indexLastConnector)
-        );
-      } catch (error) {
-        notify({
-          title: error,
-          description: "",
-          status: "error",
-        });
-      }
-    },
-    [request, auth, notify, indexFirstConnector, indexLastConnector]
-  );
-
-  //===================================================================
-  //===================================================================
-
-    const searchBorn = () => {
-      setCurrentDoctorClients([...searchStorage].filter(doctor => {
-        return new Date(new Date(doctor.client.born).setHours(0, 0, 0, 0)).toISOString() === new Date(new Date(clientBorn).setHours(0, 0, 0, 0)).toISOString()
-      }))
+          })
+          .slice(indexFirstConnector, indexLastConnector)
+      );
+    } catch (error) {
+      notify({
+        title: error,
+        description: "",
+        status: "error",
+      });
     }
+  }, [request, auth, notify, indexFirstConnector, indexLastConnector]);
+
+  //===================================================================
+  //===================================================================
+
+  const searchBorn = () => {
+    setCurrentDoctorClients(
+      [...searchStorage].filter((doctor) => {
+        return (
+          new Date(
+            new Date(doctor.client.born).setHours(0, 0, 0, 0)
+          ).toISOString() ===
+          new Date(new Date(clientBorn).setHours(0, 0, 0, 0)).toISOString()
+        );
+      })
+    );
+  };
 
   //===================================================================
   //===================================================================
@@ -162,57 +181,59 @@ export const ConclusionClients = () => {
     [searchStorage, countPage]
   );
 
-  const deleteClient = (async (connector) => {
+  const deleteClient = async (connector) => {
     try {
       const data = await request(
-          `/api/offlineclient/client/delete`,
-          'POST',
-          { ...connector.connector, clinica: auth.clinica},
-          {
-            Authorization: `Bearer ${auth.token}`,
-          },
-      )
+        `/api/offlineclient/client/delete`,
+        "POST",
+        {
+          ...connector.connector,
+          client: { _id: connector?.client?._id },
+          clinica: auth.clinica,
+        },
+        {
+          Authorization: `Bearer ${auth.token}`,
+        }
+      );
 
       await getDoctorClients(beginDay, endDay);
     } catch (error) {
       notify({
         title: t(`${error}`),
-        description: '',
-        status: 'error',
-      })
+        description: "",
+        status: "error",
+      });
     }
-  })
+  };
 
   //====================================================================
   //====================================================================
-
 
   const changeType = (e) => {
-    if (e.target.value === 'end') {
-      const searching = searchStorage.filter((item) =>
-        item?.connector?.room?.endday
+    if (e.target.value === "end") {
+      const searching = searchStorage.filter(
+        (item) => item?.connector?.room?.endday
       );
       setDoctorClients(searching);
       setCurrentDoctorClients(searching.slice(0, countPage));
     } else {
-      const searching = searchStorage.filter((item) =>
-        item?.connector?.room?.endday === null
+      const searching = searchStorage.filter(
+        (item) => item?.connector?.room?.endday === null
       );
       setDoctorClients(searching);
       setCurrentDoctorClients(searching.slice(0, countPage));
     }
     setType(e.target.value);
-  }
+  };
 
   //===================================================================
   //===================================================================
 
-  const setPageSize =
-    (e) => {
-      setCurrentPage(0);
-      setCountPage(e.target.value);
-      setCurrentDoctorClients(searchStorage.slice(0, e.target.value));
-    }
+  const setPageSize = (e) => {
+    setCurrentPage(0);
+    setCountPage(e.target.value);
+    setCurrentDoctorClients(searchStorage.slice(0, e.target.value));
+  };
 
   //====================================================================
   //====================================================================
@@ -246,26 +267,26 @@ export const ConclusionClients = () => {
     if (auth.clinica && !s) {
       setS(1);
       getDoctorClients(beginDay, endDay);
-      getBaseUrl()
+      getBaseUrl();
     }
   }, [auth, beginDay, s, endDay, getDoctorClients, getBaseUrl]);
 
-  const componentRef = useRef()
+  const componentRef = useRef();
   const print = useReactToPrint({
     content: () => componentRef.current,
-  })
+  });
 
   const [printBody, setPrintBody] = useState({
     connector: {},
     client: {},
-    services: []
-  })
+    services: [],
+  });
   const handlePrint = (connector) => {
-    setPrintBody(connector)
+    setPrintBody(connector);
     setTimeout(() => {
-      print()
-    }, 1000)
-  }
+      print();
+    }, 1000);
+  };
 
   //=====================================================================
   //=====================================================================
@@ -338,13 +359,15 @@ export const ConclusionClients = () => {
                     </div>
                     <div className="flex items-center gap-4">
                       <input
-                        onKeyDown={(e) => e.key === 'Enter' && searchBorn(e.target.value)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && searchBorn(e.target.value)
+                        }
                         type="date"
                         name="born"
                         onChange={(e) => setClientBorn(e.target.value)}
                         className="form-control inp"
                         placeholder=""
-                        style={{ color: '#999' }}
+                        style={{ color: "#999" }}
                       />
                       <button onClick={() => searchBorn(clientBorn)}>
                         <FontAwesomeIcon
@@ -362,23 +385,23 @@ export const ConclusionClients = () => {
                         totalDatas={doctorClients.length}
                       />
                     </div>
-                    <div
-                      className="flex items-center gap-2 justify-center"
-                    >
+                    <div className="flex items-center gap-2 justify-center">
                       <select
                         className="form-control form-control-sm selectpicker"
                         placeholder={t("Turini tanlang")}
                         onChange={changeType}
                       >
-                        <option value={'begin'}>{t("Davolanishda")}</option>
-                        <option value={'end'}>{t("Yakunlangan")}</option>
+                        <option value={"begin"}>{t("Davolanishda")}</option>
+                        <option value={"end"}>{t("Yakunlangan")}</option>
                       </select>
                     </div>
                   </div>
                   <table className="table m-0" id="discount-table">
                     <thead>
                       <tr>
-                        <th className="border bg-alotrade text-[16px] py-1">№</th>
+                        <th className="border bg-alotrade text-[16px] py-1">
+                          №
+                        </th>
                         <th className="border bg-alotrade text-[16px] py-1">
                           {t("F.I.O")}
                         </th>
@@ -389,6 +412,9 @@ export const ConclusionClients = () => {
                           {t("ID")}
                         </th>
                         <th className="border bg-alotrade text-[16px] py-1">
+                          {t("Xona")}
+                        </th>
+                        <th className="border bg-alotrade text-[16px] py-1">
                           {t("Telefon raqami")}
                         </th>
                         <th className="border bg-alotrade text-[16px] py-1">
@@ -397,12 +423,8 @@ export const ConclusionClients = () => {
                         <th className="border bg-alotrade text-[16px] py-1">
                           {t("Kelgan vaqti")}
                         </th>
-                        <th className="border bg-alotrade text-[16px] py-1">
-                          {t("Ketgan vaqti")}
-                        </th>
-                        <th className="border bg-alotrade text-[16px] py-1">
 
-                        </th>
+                        <th className="border bg-alotrade text-[16px] py-1"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -417,42 +439,67 @@ export const ConclusionClients = () => {
                                 {currentPage * countPage + key + 1}
                               </td>
                               <td className="border text-[16px] py-1 font-weight-bold">
-                                {connector.client.firstname} {connector.client.lastname}
+                                {connector.client.firstname}{" "}
+                                {connector.client.lastname}
                               </td>
                               <td className="border text-[16px] py-1 font-weight-bold">
-                                {connector?.connector?.doctor?.firstname} {connector?.connector?.doctor?.lastname}
+                                {connector?.connector?.doctor?.firstname}{" "}
+                                {connector?.connector?.doctor?.lastname}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
                                 {connector.client.id}
+                              </td>
+                              <td className="border py-1 text-right text-[16px]">
+                                {connector?.room?.room?.number}/
+                                {connector?.room?.room?.place}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
                                 {connector.client.phone}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
-                                {new Date(connector?.client?.born).toLocaleDateString()}
+                                {new Date(
+                                  connector?.client?.born
+                                ).toLocaleDateString()}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
-                                {new Date(connector?.connector?.createdAt).toLocaleDateString()} {new Date(connector?.connector?.createdAt).toLocaleTimeString()}
+                                {new Date(
+                                  connector?.connector?.createdAt
+                                ).toLocaleDateString()}{" "}
+                                {
+                                  new Date(connector?.connector?.createdAt)
+                                    .toLocaleTimeString()
+                                    .split(" ")[0]
+                                }
                               </td>
                               <td className="border text-[16px] py-1 text-right">
-                                {connector?.connector?.room?.endday && new Date(connector?.connector?.room?.endday).toLocaleDateString()} {connector?.connector?.room?.endday && new Date(connector?.connector?.room?.endday).toLocaleTimeString()}
+                                {connector?.connector?.room?.endday &&
+                                  `${new Date(
+                                    connector?.connector?.room?.endday
+                                  ).toLocaleDateString()} ${
+                                    new Date(connector?.connector?.room?.endday)
+                                      .toLocaleTimeString()
+                                      .split(" ")[0]
+                                  }`}
                               </td>
                               <td className="text-[16px] py-1 text-center flex gap-[4px] items-center">
                                 <button
-                                    onClick={() =>
-                                        history.push("/alo24/conclusion", {...connector})
-                                    }
-                                    className="btn btn-primary py-0"
+                                  onClick={() =>
+                                    history.push("/alo24/conclusion", {
+                                      ...connector,
+                                    })
+                                  }
+                                  className="btn btn-primary py-0"
                                 >
-                                  <FontAwesomeIcon icon={faPenAlt}/>
+                                  <FontAwesomeIcon icon={faPenAlt} />
                                 </button>
                                 <button
-                                    onClick={() =>
-                                        deleteClient(connector)
-                                    }
-                                    className="btn btn-danger py-0"
+                                  disabled={loading}
+                                  onClick={() =>
+                                    !loading && deleteClient(connector)
+                                  }
+                                  className="btn btn-danger py-0"
                                 >
-                                  <FontAwesomeIcon icon={faTrash}/>
+                                  <FontAwesomeIcon icon={faTrash} />
                                 </button>
                               </td>
                             </tr>

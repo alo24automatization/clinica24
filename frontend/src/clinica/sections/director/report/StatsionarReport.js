@@ -6,6 +6,7 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { StatsionarReportTable } from "./components/StatsionarReportTable";
 import { useTranslation } from "react-i18next";
+import { CheckModalStatsionar } from "../../reseption/components/ModalCheckStatsionar";
 
 const animatedComponents = makeAnimated();
 
@@ -22,7 +23,6 @@ export const StatsionarReport = () => {
   //====================================================================
   //====================================================================
   // MODAL
-  const [modal, setModal] = useState(false);
   const [modal1, setModal1] = useState(false);
   //====================================================================
   //====================================================================
@@ -31,8 +31,6 @@ export const StatsionarReport = () => {
   //====================================================================
   // RegisterPage
   const [visible, setVisible] = useState(false);
-
-  const changeVisible = () => setVisible(!visible);
 
   //====================================================================
   //====================================================================
@@ -86,6 +84,24 @@ export const StatsionarReport = () => {
   // getConnectors
   const [connectors, setConnectors] = useState([]);
   const [searchStorage, setSearchStrorage] = useState([]);
+  const [baseUrl, setBaseurl] = useState();
+
+  const getBaseUrl = useCallback(async () => {
+    try {
+        const data = await request(`/api/baseurl`, "GET", null);
+        setBaseurl(data.baseUrl);
+    } catch (error) {
+        notify({
+            title: t(`${error}`),
+            description: "",
+            status: "error",
+        });
+    }
+  }, [request, notify]);
+  
+  useEffect(() => {
+    getBaseUrl();
+}, []);
 
   const getConnectors = useCallback(
     async (beginDay, endDay, clinica, type) => {
@@ -305,12 +321,12 @@ export const StatsionarReport = () => {
         </div>
       </div>
 
-      {/* <CheckModal
-        baseUrl={baseUrl}
-        connector={check}
-        modal={modal1}
-        setModal={setModal1}
-      /> */}
+      <CheckModalStatsionar
+                baseUrl={baseUrl}
+                connector={check}
+                modal={modal1}
+                setModal={setModal1}
+            />
     </div>
   );
 };

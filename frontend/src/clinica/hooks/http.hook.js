@@ -18,7 +18,8 @@ export const useHttp = () => {
           headers["Content-Type"] = "application/json";
         }
 
-        const response = await fetch(`${url}`, { // Use baseUrl
+        const response = await fetch(`${url}`, {
+          // Use baseUrl
           method,
           body,
           headers,

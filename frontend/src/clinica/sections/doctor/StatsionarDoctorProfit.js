@@ -298,9 +298,13 @@ const StatsionarDoctorProfit = () => {
                                         </td>
                                         <td className="border py-1 text-[16px] text-right">
                                             {new Date(doctor?.room?.beginday).toLocaleDateString()}
+                                            {" "}
+                      {new Date(doctor?.room?.beginday).toLocaleTimeString().split(' ')[0]}
                                         </td>
                                         <td className="border py-1 text-[16px] text-right">
                                             {new Date(doctor?.room?.endday).toLocaleDateString()}
+                                            {" "}
+                      {new Date(doctor?.room?.endday).toLocaleTimeString().split(' ')[0]}
                                         </td>
                                         <td className="border py-1 text-[16px] text-right">
                                             {(Math.round(

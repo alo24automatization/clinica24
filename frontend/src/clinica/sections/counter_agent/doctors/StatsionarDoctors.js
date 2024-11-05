@@ -311,6 +311,8 @@ const StatsionarDoctors = () => {
                                                         </td>
                                                         <td className="border py-1 text-[16px]">
                                                             {new Date(connector?.beginday).toLocaleDateString()}
+                                                                {" "}
+                                                            {new Date(connector?.beginday).toLocaleTimeString().split(' ')[0]}
                                                         </td>
                                                         <td className="border py-1 text-left text-[16px]">
                                                             {connector?.endday ?

@@ -281,6 +281,9 @@ export const OnlineClientsDoctor = () => {
           Authorization: `Bearer ${auth.token}`,
         }
       );
+
+      console.log(doctor);
+
       // setClient({ ...client, serviceType: null, service: null, queue: null, bronTime: null, })
       // setDisableds({ time: false, queue: false })
       // setService([])

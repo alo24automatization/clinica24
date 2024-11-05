@@ -32,7 +32,7 @@ export const Navbar = ({ baseUrl, setIsAuthenticated, setUser }) => {
   const { request } = useHttp();
   const auth = useContext(AuthContext);
 
-  const { user } = JSON.parse(localStorage.getItem('AdminData'));
+  const { user } = JSON.parse(localStorage.getItem("AdminData"));
 
   //====================================================================
   //====================================================================
@@ -40,12 +40,10 @@ export const Navbar = ({ baseUrl, setIsAuthenticated, setUser }) => {
   //====================================================================
   //====================================================================
 
-
-
   //====================================================================
   //====================================================================
 
-  const [activePage, setActivePage] = useState(window.location.pathname)
+  const [activePage, setActivePage] = useState(window.location.pathname);
 
   //====================================================================
   //====================================================================
@@ -53,124 +51,194 @@ export const Navbar = ({ baseUrl, setIsAuthenticated, setUser }) => {
   //====================================================================
   //====================================================================
 
-  return (<div>
-    <div className="container-fluid p-0">
-      <nav className="navbar navbar-expand-lg custom-navbar">
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#royalHospitalsNavbar"
-          aria-controls="royalHospitalsNavbar"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon">
-            <i />
-            <i />
-            <i />
-          </span>
-        </button>
-        <div
-          className="bg-[#00c2cb] collapse navbar-collapse justify-content-between"
-          id="royalHospitalsNavbar"
-        >
-          <ul className="bg-[#00c2cb]  navbar-nav">
-            <li className="nav-item mr-4 px-2">
-              <span className="logo" style={{ fontSize: "26pt" }}>
-                Alo24
-              </span>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${activePage === "/alotrade" ? "active-page" : ""
-                  }`}
-                to="/alotrade"
-                onClick={() => setActivePage('/admin')}
-                style={{ background: activePage === "/alotrade" || activePage === "/" ? "#F97316" : "" }}
-              >
-                <i className="icon-devices_other nav-icon" />
-                Shifoxonalar
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${activePage === "/alotrade/users" ? "active-page" : ""
-                  }`}
-                to="/alotrade/users"
-                onClick={() => setActivePage('/alotrade/users')}
-                style={{ background: activePage === "/admin/users" || activePage === "/" ? "#F97316" : "" }}
-              >
-                <i className="icon-devices_other nav-icon" />
-                Foydalanuvchilar
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${activePage === "/alotrade/filials" ? "active-page" : ""
-                  }`}
-                to="/alotrade/filials"
-                onClick={() => setActivePage('/alotrade/filials')}
-                style={{ background: activePage === "/alotrade/filials" || activePage === "/" ? "#F97316" : "" }}
-              >
-                <i className="icon-devices_other nav-icon" />
-                Filiallar
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${activePage === "/alotrade/transfer_tables" ? "active-page" : ""
-                  }`}
-                to="/alotrade/transfer_tables"
-                onClick={() => setActivePage('/alotrade/transfer_tables')}
-                style={{ background: activePage === "/alotrade/transfer_tables" || activePage === "/" ? "#F97316" : "" }}
-              >
-                <i className="icon-devices_other nav-icon" />
-                Shablon almashnuv
-              </Link>
-            </li>
-          </ul>
-          <ul className="header-actions py-1 mr-2">
-            <li className="dropdown">
-              <span
-                id="userSettings"
-                className="user-settings"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-              >
-                <span className="user-name">
-                  {user.firstname} {user.lastname}
+  return (
+    <div>
+      <div className="container-fluid p-0">
+        <nav className="navbar navbar-expand-lg custom-navbar">
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#royalHospitalsNavbar"
+            aria-controls="royalHospitalsNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon">
+              <i />
+              <i />
+              <i />
+            </span>
+          </button>
+          <div
+            className="bg-[#00c2cb] collapse navbar-collapse justify-content-between"
+            id="royalHospitalsNavbar"
+          >
+            <ul className="bg-[#00c2cb]  navbar-nav">
+              <li className="nav-item mr-4 px-2">
+                <span className="logo" style={{ fontSize: "26pt" }}>
+                  Alo24
                 </span>
-                <span className="avatar md">
-                  <img
-                    className="circle d-inline"
-                    src={
-                      baseUrl && `${baseUrl}/api/upload/file/${user.image}`
-                    }
-                  />
-                  <span className="status busy" />
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    activePage === "/alotrade" ? "active-page" : ""
+                  }`}
+                  to="/alotrade"
+                  onClick={() => setActivePage("/admin")}
+                  style={{
+                    background:
+                      activePage === "/alotrade" || activePage === "/"
+                        ? "#F97316"
+                        : "",
+                  }}
+                >
+                  <i className="icon-devices_other nav-icon" />
+                  Shifoxonalar
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    activePage === "/alotrade/users" ? "active-page" : ""
+                  }`}
+                  to="/alotrade/users"
+                  onClick={() => setActivePage("/alotrade/users")}
+                  style={{
+                    background:
+                      activePage === "/admin/users" || activePage === "/"
+                        ? "#F97316"
+                        : "",
+                  }}
+                >
+                  <i className="icon-devices_other nav-icon" />
+                  Foydalanuvchilar
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    activePage === "/alotrade/filials" ? "active-page" : ""
+                  }`}
+                  to="/alotrade/filials"
+                  onClick={() => setActivePage("/alotrade/filials")}
+                  style={{
+                    background:
+                      activePage === "/alotrade/filials" || activePage === "/"
+                        ? "#F97316"
+                        : "",
+                  }}
+                >
+                  <i className="icon-devices_other nav-icon" />
+                  Filiallar
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    activePage === "/alotrade/transfer_tables"
+                      ? "active-page"
+                      : ""
+                  }`}
+                  to="/alotrade/transfer_tables"
+                  onClick={() => setActivePage("/alotrade/transfer_tables")}
+                  style={{
+                    background:
+                      activePage === "/alotrade/transfer_tables" ||
+                      activePage === "/"
+                        ? "#F97316"
+                        : "",
+                  }}
+                >
+                  <i className="icon-devices_other nav-icon" />
+                  Shablon almashnuv
+                </Link>
+              </li>
+            </ul>
+            <ul className="header-actions py-1 mr-2">
+              <li className="dropdown">
+                <span
+                  id="userSettings"
+                  className="user-settings"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                >
+                  <span className="user-name">
+                    {user.firstname} {user.lastname}
+                  </span>
+                  <span className="avatar md">
+                    <img
+                      className="circle d-inline"
+                      src={
+                        baseUrl && `${baseUrl}/api/upload/file/${user.image}`
+                      }
+                    />
+                    <span className="status busy" />
+                  </span>
                 </span>
-              </span>
-              <div
-                className="dropdown-menu dropdown-menu-right"
-                aria-labelledby="userSettings"
-              >
-                <div className="header-profile-actions">
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('AdminData');
-                      setIsAuthenticated(null);
-                      setUser(null);
-                    }}
-                  >
-                    <i className="icon-log-out1" /> Chiqish
-                  </button>
+                <div
+                  className="dropdown-menu dropdown-menu-right"
+                  aria-labelledby="userSettings"
+                >
+                  <div className="header-profile-actions">
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem("AdminData");
+                        setIsAuthenticated(null);
+                        setUser(null);
+                      }}
+                    >
+                      <i className="icon-log-out1" /> Chiqish
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </nav>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
     </div>
-  </div>)
+  );
 };
+
+// import React, { useMemo } from "react";
+// import AppNavbar from "../../sections/components/navbar/AppNavbar";
+// import { useTranslation } from "react-i18next";
+
+// export const Navbar = ({ baseUrl, setIsAuthenticated, setUser }) => {
+//   const { user } = JSON.parse(localStorage.getItem("AdminData"));
+//   const { t } = useTranslation();
+//   const logout = () => {
+//     localStorage.removeItem("AdminData");
+//     setIsAuthenticated(null);
+//     setUser(null);
+//   };
+
+//   const links = useMemo(
+//     () => [
+//       { name: t("Shifoxonalar"), to: "/alotrade", index: true },
+//       {
+//         name: t("Foydalanuvchilar"),
+//         to: "/alotrade/users",
+//       },
+//       {
+//         name: t("Filiallar"),
+//         to: "/alotrade/filials",
+//       },
+//       {
+//         name: t("Shablon almashnuv"),
+//         to: "/alotrade/transfer_tables",
+//       },
+//     ],
+//     [t]
+//   );
+
+//   return (
+//     <AppNavbar
+//       links={links}
+//       user={user}
+//       userType={{ type: "Admin", baseUrl, logout }}
+//     />
+//   );
+// };

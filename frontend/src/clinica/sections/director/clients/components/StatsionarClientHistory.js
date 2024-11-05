@@ -209,10 +209,11 @@ const StatsionarClientHistory = () => {
                                         border: "1px solid #000",
                                         fontSize: "20px",
                                     }}
-                                >
-                                    {connector.clientsType === 'offline' ?
-                                        new Date(connector?.connector?.createdAt).toLocaleDateString() :
-                                        new Date(connector?.connector?.room?.beginday).toLocaleDateString()}
+                            >
+                                {connector.clientsType === 'offline' ?
+                                    `${new Date(connector?.connector?.createdAt).toLocaleDateString()} ${new Date(connector?.connector?.createdAt).toLocaleTimeString().split(' ')[0]}` :
+                                    `${new Date(connector?.connector?.room?.beginday).toLocaleDateString()} ${new Date(connector?.connector?.room?.beginday).toLocaleTimeString().split(' ')[0]}`
+                                }
                                 </td>
                                 <td
                                     className="p-0 fw-bold"
@@ -303,7 +304,11 @@ const StatsionarClientHistory = () => {
                                                     {template?.name}
                                                 </h2>
                                                 {(typeof connector?.client?.id === 'string') && <div className="flex justify-end items-center">
-                                                    <div className="text-[12px] font-bold mt-2 px-2 py-1 bg-gray-400">{t("Tekshiruv sanasi")}: {new Date(section.createdAt).toLocaleDateString()}</div>
+                                                    <div className="text-[12px] font-bold mt-2 px-2 py-1 bg-gray-400">{t("Tekshiruv sanasi")}:
+                                                        {new Date(section.createdAt).toLocaleDateString()}
+                                                        {" "}
+                                            {new Date(section.createdAt).toLocaleTimeString().split(' ')[0]}
+                                                    </div>
                                                 </div>}
                                             </div>
                                             <div
@@ -335,7 +340,11 @@ const StatsionarClientHistory = () => {
                                         {section?.servicetype}
                                     </h2>
                                     {(typeof connector?.client?.id === 'string') && <div className="flex justify-end items-center">
-                                        <div className="text-[12px] font-bold my-2 px-2 py-1 bg-gray-400">{t("Tekshiruv sanasi")}: {new Date(section.createdAt).toLocaleDateString()}</div>
+                                        <div className="text-[12px] font-bold my-2 px-2 py-1 bg-gray-400">{t("Tekshiruv sanasi")}: 
+                                            {new Date(section.createdAt).toLocaleDateString()}
+                                            {" "}
+                                            {new Date(section.createdAt).toLocaleTimeString().split(' ')[0]}
+                                        </div>
                                     </div>}
                                 </div>
                                 <table className="w-full text-center">
@@ -539,9 +548,10 @@ const StatsionarClientHistory = () => {
                                             fontSize: "20px",
                                         }}
                                     >
-                                        {connector.clientsType === 'offline' ?
-                                            new Date(connector?.connector?.createdAt).toLocaleDateString() :
-                                            new Date(connector?.connector?.room?.beginday).toLocaleDateString()}
+                                    {connector.clientsType === 'offline' ?
+                                        `${new Date(connector?.connector?.createdAt).toLocaleDateString()} ${new Date(connector?.connector?.createdAt).toLocaleTimeString().split(' ')[0]}`
+                                        :
+                                        `${new Date(connector?.connector?.room?.beginday).toLocaleDateString()} ${new Date(connector?.connector?.room?.beginday).toLocaleTimeString().split(' ')[0]}`}
                                     </td>
                                     <td
                                         className="p-0 fw-bold"
@@ -632,7 +642,11 @@ const StatsionarClientHistory = () => {
                                                         {template?.name}
                                                     </h2>
                                                     {(typeof connector?.client?.id === 'string') && <div className="flex justify-end items-center">
-                                                        <div className="text-[12px] font-bold mt-2 px-2 py-1 bg-gray-400">{t("Tekshiruv sanasi")}: {new Date(section.createdAt).toLocaleDateString()}</div>
+                                                        <div className="text-[12px] font-bold mt-2 px-2 py-1 bg-gray-400">{t("Tekshiruv sanasi")}: 
+                                                            {new Date(section.createdAt).toLocaleDateString()}
+                                                            {" "}
+                                            {new Date(section.createdAt).toLocaleTimeString().split(' ')[0]}
+                                                        </div>
                                                     </div>}
                                                 </div>
                                                 <div
@@ -664,7 +678,11 @@ const StatsionarClientHistory = () => {
                                             {section?.servicetype}
                                         </h2>
                                         {(typeof connector?.client?.id === 'string') && <div className="flex justify-end items-center">
-                                            <div className="text-[12px] font-bold my-2 px-2 py-1 bg-gray-400">{t("Tekshiruv sanasi")}: {new Date(section.createdAt).toLocaleDateString()}</div>
+                                            <div className="text-[12px] font-bold my-2 px-2 py-1 bg-gray-400">{t("Tekshiruv sanasi")}: 
+                                                {new Date(section.createdAt).toLocaleDateString()}
+                                                {" "}
+                                            {new Date(section.createdAt).toLocaleTimeString().split(' ')[0]}
+                                            </div>
                                         </div>}
                                     </div>
                                     <table className="w-full text-center">

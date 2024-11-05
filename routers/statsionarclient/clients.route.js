@@ -666,6 +666,7 @@ module.exports.add = async (req, res) => {
           counterAgentProcient: serv.counterAgentProcient,
           counterDoctorProcient: serv.counterDoctorProcient,
         },
+        counterdoctor: counteragent ? counteragent : null,
         client: client._id,
         connector: updateStatsionarConnector._id,
         column: { ...serv.column },
@@ -673,7 +674,6 @@ module.exports.add = async (req, res) => {
       });
 
       await newservice.save();
-
       newdaily.services.push(newservice._id);
 
       totalprice += service.service.price * service.pieces;
