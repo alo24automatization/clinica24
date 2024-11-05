@@ -423,7 +423,9 @@ export const ConclusionClients = () => {
                         <th className="border bg-alotrade text-[16px] py-1">
                           {t("Kelgan vaqti")}
                         </th>
-
+                        <th className="border bg-alotrade text-[16px] py-1">
+                          {t("Ketgan vaqti")}
+                        </th>
                         <th className="border bg-alotrade text-[16px] py-1"></th>
                       </tr>
                     </thead>
