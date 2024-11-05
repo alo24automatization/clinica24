@@ -451,9 +451,8 @@ export const ConclusionClients = () => {
                               <td className="border text-[16px] py-1 text-right">
                                 {connector.client.id}
                               </td>
-                              <td className="border py-1 text-right text-[16px]">
-                                {connector?.room?.room?.number}/
-                                {connector?.room?.room?.place}
+                              <td className="border text-[16px] py-1 text-right">
+                                {connector?.room?.room.number}/{connector?.room?.room.place}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
                                 {connector.client.phone}

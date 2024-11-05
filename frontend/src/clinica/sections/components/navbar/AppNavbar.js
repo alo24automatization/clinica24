@@ -163,7 +163,6 @@ const AppNavbar = ({ links, user, userType }) => {
                         : baseUrl && `${baseUrl}/api/upload/file/${user.image}`
                     }
                     alt={'#404'}
-
                   />
                 ) : (
                   user.firstname + user.lastname
