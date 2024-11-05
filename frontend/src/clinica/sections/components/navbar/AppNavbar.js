@@ -167,7 +167,6 @@ const AppNavbar = ({ links, user, userType }) => {
                 ) : (
                   user.firstname + user.lastname
                 )}
-
                 <span className="status busy" />
               </span>
             </span>
