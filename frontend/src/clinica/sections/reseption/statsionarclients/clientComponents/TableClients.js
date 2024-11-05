@@ -31,9 +31,9 @@ export const TableClients = ({
   searchDoctor,
   setRoom,
   setDoctorSelect,
-  setRoomSelect
+  setRoomSelect,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   return (
     <div className="border-0 shadow-lg table-container">
       <div className="border-0 table-container">
@@ -158,9 +158,13 @@ export const TableClients = ({
                 <th className="border py-1 bg-alotrade text-[16px]">
                   {t("Kelgan vaqti")}
                 </th>
-                <th className="border py-1 bg-alotrade text-[16px]">{t("Qo'shish")}</th>
+                <th className="border py-1 bg-alotrade text-[16px]">
+                  {t("Qo'shish")}
+                </th>
                 {/* <th className="border py-1 bg-alotrade text-[16px] text-center">{t("Chek")}</th> */}
-                <th className="border py-1 bg-alotrade text-[16px] text-center">{t("Tugatish")}</th>
+                <th className="border py-1 bg-alotrade text-[16px] text-center">
+                  {t("Tugatish")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -182,11 +186,13 @@ export const TableClients = ({
                     <td className="border py-1 text-right text-[16px]">
                       +998{connector.client.phone}
                     </td>
+
                     <td className="border py-1 text-right text-[16px]">
                       {connector.client.id}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
-                      {connector?.room?.room?.number}/{connector?.room?.room?.place}
+                      {connector?.room?.room?.number}/
+                      {connector?.room?.room?.place}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
                       {connector?.dailys[0]?.probirka}
@@ -197,7 +203,14 @@ export const TableClients = ({
                         connector?.doctor?.firstname}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
-                      {connector?.room?.beginday && `${new Date(connector.room.beginday).toLocaleDateString()} ${new Date(connector.room.beginday).toLocaleTimeString().split(' ')[0]}`}
+                      {connector?.room?.beginday &&
+                        `${new Date(
+                          connector.room.beginday
+                        ).toLocaleDateString()} ${
+                          new Date(connector.room.beginday)
+                            .toLocaleTimeString()
+                            .split(" ")[0]
+                        }`}
                     </td>
                     <td className="border py-1 text-center text-[16px]">
                       {loading ? (
@@ -208,8 +221,8 @@ export const TableClients = ({
                       ) : (
                         <button
                           className="btn btn-success py-0"
-                            onClick={() => {
-                            setIsAdding(false)
+                          onClick={() => {
+                            setIsAdding(false);
                             setClient(connector.client);
                             setConnector({
                               ...connector,
@@ -217,17 +230,26 @@ export const TableClients = ({
                               services: [...connector.services],
                             });
                             setVisible(true);
-                            setRoom(connector.room)
+                            setRoom(connector.room);
                             setDoctorSelect({
                               ...connector.doctor,
-                              label: connector?.doctor?.firstname + ' ' + connector?.doctor?.lastname,
-                              value: connector?.doctor?._id
-                            })
+                              label:
+                                connector?.doctor?.firstname +
+                                " " +
+                                connector?.doctor?.lastname,
+                              value: connector?.doctor?._id,
+                            });
                             setRoomSelect({
                               ...connector?.room,
                               value: connector?.room?._id,
-                              label: connector?.room?.room?.type + " " + connector?.room?.room?.number + " xona " + connector?.room?.room?.place + " o'rin"
-                            })
+                              label:
+                                connector?.room?.room?.type +
+                                " " +
+                                connector?.room?.room?.number +
+                                " xona " +
+                                connector?.room?.room?.place +
+                                " o'rin",
+                            });
                           }}
                         >
                           +
