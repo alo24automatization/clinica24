@@ -1,18 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { DatePickers } from "./DatePickers";
 import "react-datepicker/dist/react-datepicker.css";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../../../context/AuthContext";
-import {
-  Button,
-  Checkbox,
-  FormControl,
-  FormLabel,
-  Input,
-  Switch,
-} from "@chakra-ui/react";
 import {
   faClose,
   faPlus,
@@ -60,6 +51,9 @@ export const RegisterClient = ({
   handleNewCounterDoctorCreate,
   selectedDepartament,
   setSelectedDepartament,
+  // turn
+  handleChangeTurn,
+  clientTurns,
 }) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
@@ -89,6 +83,7 @@ export const RegisterClient = ({
               value: service._id,
               service: service,
               department: department,
+              turn:service.turn
             });
           });
         });
@@ -110,6 +105,8 @@ export const RegisterClient = ({
                 name: service.name,
                 service: service,
                 department: department,
+              turn:service.turn
+
               });
               return "";
             });
@@ -134,6 +131,7 @@ export const RegisterClient = ({
     }
     return option.data.name.toLowerCase().includes(input);
   };
+  console.log(selectedServices);
   return (
     <>
       {/* Row start */}
@@ -383,9 +381,9 @@ export const RegisterClient = ({
                     flex disabled:bg-green-700  justify-center items-center bg-green-700 rounded-md text-lg hover:bg-green-600 transition-all duration-200 w-[42px] h-[37px]   text-white font-semibold`}
                       >
                         {newCounterDoctor.visible ? (
-                          <FontAwesomeIcon size="1xl" icon={faClose} />
+                          <FontAwesomeIcon size="xl" icon={faClose} />
                         ) : (
-                          <FontAwesomeIcon size="1xl" icon={faPlus} />
+                          <FontAwesomeIcon size="xl" icon={faPlus} />
                         )}
                       </button>
                       <Select
@@ -473,54 +471,95 @@ export const RegisterClient = ({
                     </select>
                   </div>
                 </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-base mr-2">
-                      {t("Ambulator karta raqami:")}
-                    </h4>
-                    <button
-                      className="bg-gray-300 flex  justify-center items-center rounded-md text-lg hover:bg-gray-200 transition-all duration-200 px-3.5 h-[40px]  text-black font-semibold"
-                      disabled={!isNewClient && client.card_number}
-                      onClick={(e) => {
-                        if (client?.card_number === null && !isNewClient) {
-                          changeClientData({
-                            ...e,
-                            target: {
-                              ...e.target,
-                              name: "card_number",
-                              value: +lastCardNumber + 1,
-                            },
-                          });
-                        } else if (
-                          client?.card_number === null &&
-                          isNewClient
-                        ) {
-                          changeClientData({
-                            ...e,
-                            target: {
-                              ...e.target,
-                              name: "card_number",
-                              value: +lastCardNumber + 1,
-                            },
-                          });
-                        } else {
-                          changeClientData({
-                            ...e,
-                            target: {
-                              ...e.target,
-                              name: "card_number",
-                              value: null,
-                            },
-                          });
-                        }
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faRotate} />
-                    </button>
+                <div className="grid grid-cols-2 grid-rows-2 w-full gap-x-3">
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-base mr-2">
+                        {t("Ambulator karta raqami:")}
+                      </h4>
+                      <button
+                        className="bg-gray-300 flex  justify-center items-center rounded-md text-lg hover:bg-gray-200 transition-all duration-200 px-3.5 h-[40px]  text-black font-semibold"
+                        disabled={!isNewClient && client.card_number}
+                        onClick={(e) => {
+                          if (client?.card_number === null && !isNewClient) {
+                            changeClientData({
+                              ...e,
+                              target: {
+                                ...e.target,
+                                name: "card_number",
+                                value: +lastCardNumber + 1,
+                              },
+                            });
+                          } else if (
+                            client?.card_number === null &&
+                            isNewClient
+                          ) {
+                            changeClientData({
+                              ...e,
+                              target: {
+                                ...e.target,
+                                name: "card_number",
+                                value: +lastCardNumber + 1,
+                              },
+                            });
+                          } else {
+                            changeClientData({
+                              ...e,
+                              target: {
+                                ...e.target,
+                                name: "card_number",
+                                value: null,
+                              },
+                            });
+                          }
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faRotate} />
+                      </button>
+                    </div>
+                    <h1 style={{ color: "green", fontSize: "22px" }}>
+                      {client?.card_number}
+                    </h1>
                   </div>
-                  <h1 style={{ color: "green", fontSize: "22px" }}>
-                    {client?.card_number}
-                  </h1>
+                  <div>
+                    <label htmlFor="turn-select">{t("Bo'lim navbati")}</label>
+                    <Select
+                      name="turn-select"
+                      placeholder="Tanlang"
+                      className="w-full"
+                      isMulti
+                      onChange={handleChangeTurn}
+                      value={clientTurns}
+                      isDisabled={
+                        !(
+                          departments.find((d) => d._id === selectedDepartament)
+                            ?.dayMaxTurns !== 0
+                        ) ||
+                        selectedDepartament === "all" ||
+                        selectedDepartament === null ||
+                        selectedServices.length == 0 ||
+                        selectedServices.find(
+                          (s) => s.department._id === selectedDepartament
+                        ) === undefined
+                      }
+                      options={departments
+                        .filter((d) => d.dayMaxTurns !== 0&&d._id===selectedDepartament)
+                        .map((department) => {
+                          return {
+                            label: (
+                              <div className="w-full flex justify-between items-center gap-x-2">
+                                <span>{department.name}</span>
+                                <span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">
+                                  {department?.turn}
+                                </span>
+                              </div>
+                            ),
+                            value: department._id,
+                            name: department.name,
+                          };
+                        })}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

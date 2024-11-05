@@ -1,627 +1,334 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Loader } from "../../../loader/Loader";
-import { Button, useToast } from "@chakra-ui/react";
-import { useHttp } from "../../../hooks/http.hook";
-import { AuthContext } from "../../../context/AuthContext";
-import { checkDepartment } from "./checkData";
-import { Modal } from "./modal/Modal";
-import { useHistory } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { DepartmentsModal } from "./Modal";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+const {
+  Department,
+  validateDepartment,
+} = require("../../models/Services/Department");
+const { Clinica } = require("../../models/DirectorAndClinica/Clinica");
+const { Service } = require("../../models/Services/Service");
+const { ServiceType } = require("../../models/Services/ServiceType");
 
-export const Departments = () => {
-  //====================================================================
-  //====================================================================
+//Department register
+module.exports.registerAll = async (req, res) => {
+  try {
+    const departments = req.body;
+    const all = [];
+    for (const d of departments) {
+      const { error } = validateDepartment(d);
+      if (error) {
+        return res.status(400).json({
+          error: error.message,
+        });
+      }
 
-  const { t } = useTranslation();
+      const { name, probirka, clinica } = d;
 
-  const history = useHistory();
+      const clinic = await Clinica.findOne({ name: clinica });
 
-  const [modal, setModal] = useState(false);
-  const [modal1, setModal1] = useState(false);
-  const [remove, setRemove] = useState();
+      if (!clinic) {
+        return res.status(400).json({
+          message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+        });
+      }
 
-  const clearInputs = useCallback(() => {
-    const inputs = document.getElementsByTagName("input");
-    for (const input of inputs) {
-      input.value = "";
+      const department = await Department.findOne({
+        clinica: clinic._id,
+        name,
+      });
+
+      if (department) {
+        return res.status(400).json({
+          message: `Diqqat! ${name} bo'limi avval yaratilgan.`,
+        });
+      }
+
+      const newDepartment = new Department({
+        name,
+        probirka,
+        clinica: clinic._id,
+      });
+      await newDepartment.save();
+      all.push(newDepartment);
     }
-  }, []);
-  //====================================================================
-  //====================================================================
 
-  //====================================================================
-  //====================================================================
-  const toast = useToast();
+    res.send(all);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
 
-  const notify = useCallback((data) => {
-    toast({
-      title: data.title && data.title,
-      description: data.description && data.description,
-      status: data.status && data.status,
-      duration: 5000,
-      isClosable: true,
-      position: "top-right",
+//Department register
+module.exports.register = async (req, res) => {
+  try {
+    const { error } = validateDepartment(req.body);
+    if (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+
+    const { name, probirka, floor, letter, clinica, room, departmentRooms } =
+      req.body;
+
+    const department = await Department.findOne({
+      clinica,
+      name,
     });
-  }, []);
-  //====================================================================
-  //====================================================================
 
-  //====================================================================
-  //====================================================================
-  const { request, loading } = useHttp();
-  const auth = useContext(AuthContext);
-
-  const [department, setDepartment] = useState({
-    probirka: false,
-    clinica: auth.clinica && auth.clinica._id,
-  });
-  //====================================================================
-  //====================================================================
-
-  //====================================================================
-  //====================================================================
-  const [departments, setDepartments] = useState();
-
-  const getDepartments = useCallback(async () => {
-    try {
-      const data = await request(
-        `/api/services/department/getall`,
-        "POST",
-        { clinica: auth.clinica._id },
-        {
-          Authorization: `Bearer ${auth.token}`,
-        }
-      );
-      setDepartments(data);
-    } catch (error) {
-      notify({
-        title: t(`${error}`),
-        description: "",
-        status: "error",
+    if (department) {
+      return res.status(400).json({
+        message: "Diqqat! Ushbu bo'lim avval yaratilgan.",
       });
     }
-  }, [request, auth, notify]);
-  //====================================================================
-  //====================================================================
 
-  //====================================================================
-  //====================================================================
-  const [departmentRooms, setDepartmentRooms] = useState([]);
-  const [departmentModal, setDepartmentModal] = useState(false);
+    const clinic = await Clinica.findById(clinica);
 
-  const createHandler = useCallback(async () => {
-    try {
-      const data = await request(
-        `/api/services/department/register`,
-        "POST",
-        {
-          ...department,
-          departmentRooms: departmentRooms.map((d) => ({
-            number: d.number,
-            type: d.type,
-          })),
-        },
-        {
-          Authorization: `Bearer ${auth.token}`,
-        }
-      );
-      notify({
-        title: `${data.name} ${t("bo'limi yaratildi")}!`,
-        description: "",
-        status: "success",
-      });
-      getDepartments();
-      setDepartment({
-        probirka: false,
-        clinica: auth.clinica && auth.clinica._id,
-      });
-      clearInputs();
-      setDepartmentModal(false);
-      setDepartmentRooms([]);
-    } catch (error) {
-      notify({
-        title: t(`${error}`),
-        description: "",
-        status: "error",
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
       });
     }
-  }, [
-    request,
-    auth,
-    notify,
-    setDepartmentModal,
-    getDepartments,
-    department,
-    clearInputs,
-    departmentRooms,
-  ]);
 
-  const updateHandler = useCallback(async () => {
-    try {
-      const data = await request(
-        `/api/services/department`,
-        "PUT",
-        {
-          ...department,
-          departmentRooms: departmentRooms.map((d) => ({
-            number: d.number,
-            type: d.type,
-          })),
-        },
-        {
-          Authorization: `Bearer ${auth.token}`,
-        }
-      );
-      notify({
-        title: `${data.name} ${t("bo'limi yangilandi")}!`,
-        description: "",
-        status: "success",
-      });
-      getDepartments();
-      setDepartmentRooms([]);
-      setDepartmentModal(false);
-      setDepartment({
-        probirka: false,
-        clinica: auth.clinica && auth.clinica._id,
-      });
-      clearInputs();
-    } catch (error) {
-      notify({
-        title: t(`${error}`),
-        description: "",
-        status: "error",
-      });
-    }
-  }, [
-    request,
-    auth,
-    setDepartmentModal,
-    notify,
-    getDepartments,
-    department,
-    clearInputs,
-    departmentRooms,
-  ]);
-
-  const saveHandler = () => {
-    if (checkDepartment(department, t)) {
-      return notify(checkDepartment(department, t));
-    }
-    if (department._id) {
-      return updateHandler();
-    } else {
-      return createHandler();
-    }
-  };
-
-  const keyPressed = (e) => {
-    if (e.key === "Enter") {
-      return saveHandler();
-    }
-  };
-
-  const deleteHandler = useCallback(async () => {
-    try {
-      const data = await request(
-        `/api/services/department`,
-        "DELETE",
-        { ...remove },
-        {
-          Authorization: `Bearer ${auth.token}`,
-        }
-      );
-      notify({
-        title: `${data.name} ${t("bo'limi o'chirildi")}!`,
-        description: "",
-        status: "success",
-      });
-      getDepartments();
-      setModal(false);
-      setDepartment({
-        probirka: false,
-        clinica: auth.clinica && auth.clinica._id,
-      });
-      clearInputs();
-    } catch (error) {
-      notify({
-        title: t(`${error}`),
-        description: "",
-        status: "error",
-      });
-    }
-  }, [auth, request, remove, notify, getDepartments, clearInputs]);
-
-  const deleteAll = useCallback(async () => {
-    if (departments && departments.length === 0) {
-      return notify({
-        title: t(`Bo'limlar mavjud emas`),
-        description: "",
-        status: "warning",
-      });
-    }
-    try {
-      const data = await request(
-        `/api/services/department/deleteall`,
-        "DELETE",
-        { ...department },
-        {
-          Authorization: `Bearer ${auth.token}`,
-        }
-      );
-      localStorage.setItem("delete", data);
-      notify({
-        title: t(`Barcha bo'limlar o'chirildi!`),
-        description: "",
-        status: "success",
-      });
-      getDepartments();
-      setModal1(false);
-      setDepartment({
-        probirka: false,
-        clinica: auth.clinica && auth.clinica._id,
-      });
-      clearInputs();
-    } catch (error) {
-      notify({
-        title: t(`${error}`),
-        description: "",
-        status: "error",
-      });
-    }
-  }, [
-    auth,
-    request,
-    notify,
-    getDepartments,
-    clearInputs,
-    department,
-    departments,
-  ]);
-  //====================================================================
-  //====================================================================
-
-  //====================================================================
-  //====================================================================
-
-  const checkHandler = (e) => {
-    setDepartment({ ...department, probirka: e.target.checked });
-  };
-
-  const inputHandler = (e) => {
-    setDepartment({
-      ...department,
-      name: e.target.value,
-      letter: e.target.value.substring(0, 1).toUpperCase(),
+    const newDepartment = new Department({
+      name,
+      probirka,
+      clinica,
+      room,
+      floor,
+      letter,
+      departmentRooms,
     });
-  };
+    await newDepartment.save();
 
-  //====================================================================
-  //====================================================================
+    res.send(newDepartment);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
 
-  //====================================================================
-  //====================================================================
+//Department update
+module.exports.update = async (req, res) => {
+  try {
+    const {
+      name,
+      floor,
+      letter,
+      probirka,
+      clinica,
+      room,
+      departmentRooms,
+      dayMaxTurns,
+    } = req.body;
 
-  const [s, setS] = useState();
-  useEffect(() => {
-    if (!s) {
-      setS(1);
-      getDepartments();
+    const department = await Department.findById(req.body._id);
+
+    if (!department) {
+      return res.status(400).json({
+        message: "Diqqat! Ushbu bo'lim topilmadi.",
+      });
     }
-  }, [getDepartments, s]);
-  //====================================================================
-  //====================================================================
 
-  const handleAddRoom = () => {
-    setDepartmentRooms((p) => [...p, { id: Date.now(), type: "", number: "" }]);
-  };
+    const clinic = await Clinica.findById(clinica);
 
-  const departmentRoomsChange = (id, field, val) => {
-    setDepartmentRooms((p) =>
-      p.map((dep) => (dep.id === id ? { ...dep, [field]: val } : dep))
-    );
-  };
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
 
-  return (
-    <>
-      {loading ? <Loader /> : ""}
-      <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
-        <div className="row gutters">
-          <DepartmentsModal
-            closeHandler={() => {
-              setDepartment({
-                probirka: false,
-                clinica: auth.clinica && auth.clinica._id,
-              });
-              setDepartmentModal(false);
-              setDepartmentRooms([]);
-            }}
-            confirm={t("Saqlash")}
-            modal={departmentModal}
-            setModal={setDepartmentModal}
-            handler={saveHandler}
-          >
-            <div className="md:flex flex-wrap">
-              <div className="flex-none md:w-1/2">
-                <div className="text-[16px]">
-                  <label>{t("Bo'lim nomi")}</label>
-                  <input
-                    style={{ minWidth: "25%" }}
-                    value={department.name || ""}
-                    onKeyUp={keyPressed}
-                    onChange={inputHandler}
-                    type="text"
-                    className="form-control w-80"
-                    id="inputName2"
-                    // placeholder={t("Bo'lim nomini kiriting")}
-                  />
-                </div>
-              </div>
-              <div className="flex-none md:w-1/2">
-                <div className="text-[16px]">
-                  <label>{t("Bo'lim qavati")}</label>
-                  <input
-                    style={{ minWidth: "25%" }}
-                    value={department?.floor || ""}
-                    onKeyUp={keyPressed}
-                    onChange={(e) =>
-                      setDepartment({
-                        ...department,
-                        floor: e.target.value,
-                      })
-                    }
-                    type="text"
-                    className="form-control w-80"
-                    id="inputName3"
-                    // placeholder={t("Bo'lim qavatin kiriting")}
-                  />
-                </div>
-              </div>
+    department.name = name;
+    department.probirka = probirka;
+    department.room = room;
+    department.floor = floor;
+    department.departmentRooms = departmentRooms;
+    department.letter = letter;
+    department.dayMaxTurns = dayMaxTurns;
+    await department.save();
+    res.send(department);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+module.exports.switchTurn = async (req, res) => {
+  try {
+    const { id, active, clinica } = req.body;
+    const clinic = await Clinica.findById(clinica);
 
-              <div className="flex-none md:w-1/2">
-                <div className="text-[16px]">
-                  <label>{t("Asosiy xona")}</label>
-                  <input
-                    style={{ minWidth: "25%" }}
-                    value={department?.room || ""}
-                    type="number"
-                    onKeyUp={keyPressed}
-                    onChange={(e) =>
-                      setDepartment({
-                        ...department,
-                        room: e.target.value,
-                      })
-                    }
-                    className="form-control w-80"
-                    id="inputName4"
-                    // placeholder={t("Bo'lim xonasini kiriting")}
-                  />
-                </div>
-              </div>
-              <div className="flex-none md:w-1/2">
-                <div className="text-[16px]">
-                  <label>{t("Harf")}</label>
-                  <input
-                    style={{ minWidth: "25%" }}
-                    value={department?.letter || ""}
-                    onKeyUp={keyPressed}
-                    onChange={(e) =>
-                      setDepartment({
-                        ...department,
-                        letter: e.target.value,
-                      })
-                    }
-                    type="text"
-                    className="form-control w-80"
-                    id="inputName5"
-                    // placeholder={t("Bo'lim xonasini kiriting")}
-                  />
-                </div>
-              </div>
-            </div>
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+    await Department.findByIdAndUpdate(id, { stopTurn: active });
+    const message = active ? "Navbat to'xtatildi!" : "Navbat ochildi!";
+    res.status(201).json({ message });
+  } catch (error) {
+    console.log(error.message);
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+//Department getall
+module.exports.getAll = async (req, res) => {
+  try {
+    const { clinica } = req.body;
+    const clinic = await Clinica.findById(clinica);
 
-            <div className="text-[16px]">
-              <label>{t("Probirka")}</label>
-              <div className="custom-control custom-switch pl-0">
-                <input
-                  onKeyUp={keyPressed}
-                  type="checkbox"
-                  className="custom-control-input"
-                  id="customSwitch1"
-                  checked={department.probirka && department.probirka}
-                  onChange={checkHandler}
-                />
-                <label className="custom-control-label" htmlFor="customSwitch1">
-                  {department.probirka ? t("Probirkali") : t("Probirkasiz")}
-                </label>
-              </div>
-            </div>
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
 
-            <div className="mt-8">
-              {t("Qo'shimcha xona")}{" "}
-              <Button
-                // disabled={editingID !== null}
-                onClick={handleAddRoom}
-                size="sm"
-                colorScheme="green"
-                className="focus:!shadow-none"
-              >
-                <FontAwesomeIcon
-                  className="text-base font-bold"
-                  icon={faPlus}
-                />
-              </Button>
-              {departmentRooms.map((dep) => {
-                return (
-                  <div key={dep.id} className="md:flex flex-wrap">
-                    <div className="flex-none md:w-1/2">
-                      <div className="text-[16px]">
-                        <label>Xona nomeri</label>
-                        <input
-                          style={{ minWidth: "25%" }}
-                          value={dep.number}
-                          type="number"
-                          onChange={(e) =>
-                            departmentRoomsChange(
-                              dep.id,
-                              "number",
-                              e.target.value
-                            )
-                          }
-                          className="form-control w-80"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex-none md:w-1/2">
-                      <div className="text-[16px]">
-                        <label>Xona turi</label>
-                        <input
-                          style={{ minWidth: "25%" }}
-                          value={dep.type}
-                          onChange={(e) =>
-                            departmentRoomsChange(
-                              dep.id,
-                              "type",
-                              e.target.value
-                            )
-                          }
-                          type="text"
-                          className="form-control w-80"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </DepartmentsModal>
-          <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-            <div className="border-0 shadow-lg table-container">
-              <div className="p-4">
-                <Button
-                  // disabled={editingID !== null}
-                  onClick={() => {
-                    setDepartmentModal(true);
-                    setDepartmentRooms([]);
-                  }}
-                  size="sm"
-                  colorScheme="green"
-                  className="focus:!shadow-none"
-                >
-                  <FontAwesomeIcon
-                    className="text-base font-bold"
-                    icon={faPlus}
-                  />
-                </Button>{" "}
-                {t("Xona qo'shish")}
-              </div>
-              <div className="table-responsive">
-                <table className="table m-0">
-                  <thead>
-                    <tr>
-                      <th className="bg-alotrade text-[16px]">№</th>
-                      <th className=" bg-alotrade text-[16px]">{t("Nomi")}</th>
-                      <th className=" bg-alotrade text-[16px]">{t("Qavat")}</th>
-                      <th className=" bg-alotrade text-[16px]">
-                        {t("Xonasi")}
-                      </th>
-                      <th className=" bg-alotrade text-[16px]">{t("Harf")}</th>
-                      <th className=" bg-alotrade text-[16px]">
-                        {t("Barcha xizmat turlari")}
-                      </th>
-                      <th className=" bg-alotrade text-[16px]">
-                        {t("Probirka")}
-                      </th>
-                      <th className=" bg-alotrade text-[16px]">
-                        {t("Tahrirlash")}
-                      </th>
-                      <th className=" bg-alotrade text-[16px]">
-                        {t("O'chirish")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {departments &&
-                      departments.map((d, key) => {
-                        return (
-                          <tr key={key}>
-                            <td className="font-weight-bold text-[16px]">
-                              {key + 1}
-                            </td>
-                            <td className="text-[16px]">{d.name}</td>
-                            <td className="text-[16px]">{d?.floor}</td>
-                            <td className="text-[16px]">{d?.room}</td>
-                            <td className="text-[16px]">{d?.letter}</td>
-                            <td>
-                              <button
-                                onClick={() =>
-                                  history.push("/alo24/servicetypes", {
-                                    department: d._id,
-                                  })
-                                }
-                                className="text-[16px] bg-green-400 text-white font-semibold py-1 px-2"
-                              >
-                                {t("Xizmat turlari")}
-                              </button>
-                            </td>
-                            <td className="text-[16px]">
-                              {d.probirka ? "Probirka" : ""}
-                            </td>
-                            <td>
-                              <button
-                                onClick={() => {
-                                  setDepartment(d);
-                                  setDepartmentModal(true);
-                                  setDepartmentRooms(d.departmentRooms || []);
-                                }}
-                                type="button"
-                                className="text-[16px] bg-alotrade text-white font-semibold py-1 px-2"
-                                style={{ fontSize: "75%" }}
-                              >
-                                {t("Tahrirlash")}
-                              </button>
-                            </td>
-                            <td>
-                              <button
-                                onClick={() => {
-                                  setRemove(d);
-                                  setModal(true);
-                                }}
-                                type="button"
-                                className="text-[16px] text-white font-semibold bg-red-400 py-1 px-2"
-                                style={{ fontSize: "75%" }}
-                              >
-                                {t("O'chirish")}
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    const departments = await Department.find({
+      clinica,
+    })
+      .populate("servicetypes", "name")
+      .populate("services");
 
-      <Modal
-        modal={modal}
-        setModal={setModal}
-        basic={remove && remove.name}
-        text={t("bo'limini o'chirishni tasdiqlaysizmi?")}
-        handler={deleteHandler}
-      />
+    res.send(departments);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
 
-      <Modal
-        modal={modal1}
-        setModal={setModal1}
-        basic={""}
-        text={t("Barcha bo'limlarni o'chirishni tasdiqlaysizmi?")}
-        handler={deleteAll}
-      />
-    </>
-  );
+// Get All Reseption by department id
+module.exports.getAllReseptionById = async (req, res) => {
+  try {
+    const { clinica, _id } = req.body;
+    const clinic = await Clinica.findById(clinica);
+
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+
+    const departments = await Department.findById(_id)
+      .populate("services")
+      .populate("servicetypes");
+
+    res.send(departments);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+
+module.exports.getAllReseption = async (req, res) => {
+  try {
+    const { clinica } = req.body;
+    const clinic = await Clinica.findById(clinica);
+
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+    const departments = await Department.find({
+      clinica,
+    })
+      .select("name probirka services dayMaxTurns takenTurns")
+      .populate("services", "name price servicetype");
+    res.send(departments);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+
+//Department get
+module.exports.get = async (req, res) => {
+  try {
+    const { clinica, _id } = req.body;
+
+    const clinic = await Clinica.findById(clinica);
+
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+
+    const department = await Department.findById(_id);
+
+    if (!department) {
+      return res.status(400).json({
+        message: "Diqqat! Bo'lim topilmadi.",
+      });
+    }
+
+    res.send(department);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+
+//Department delete
+module.exports.delete = async (req, res) => {
+  try {
+    const { _id, clinica } = req.body;
+
+    const clinic = await Clinica.findById(clinica);
+
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+
+    const department = await Department.findByIdAndDelete(_id);
+
+    for (const service of department.services) {
+      const del = await Service.findByIdAndDelete(service);
+    }
+    for (const servicetype of department.servicetypes) {
+      const del = await ServiceType.findByIdAndDelete(servicetype);
+    }
+    res.send(department);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+
+//Department deleteall
+module.exports.deleteAll = async (req, res) => {
+  try {
+    const { clinica } = req.body;
+
+    const clinic = await Clinica.findById(clinica);
+
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+
+    const departments = await Department.find({
+      clinica,
+    });
+    // .select("_id");
+
+    for (const department of departments) {
+      const del = await Department.findByIdAndDelete(department._id);
+      for (const service of del.services) {
+        const del = await Service.findByIdAndDelete(service);
+      }
+      for (const servicetype of department.servicetypes) {
+        const del = await ServiceType.findByIdAndDelete(servicetype);
+      }
+    }
+
+    res.send(departments);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+// Function to reset takenTurns array
+module.exports.resetTakenTurn = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Update the Department's takenTurns array to an empty array
+    await Department.findByIdAndUpdate(id, { takenTurns: [] });
+
+    res.status(200).json({ message: "takenTurns array has been reset." });
+  } catch (error) {
+    console.error(error);
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
 };

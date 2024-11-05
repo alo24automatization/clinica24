@@ -9,14 +9,16 @@ const department = new Schema(
     services: [{ type: Schema.Types.ObjectId, ref: "Service" }],
     servicetypes: [{ type: Schema.Types.ObjectId, ref: "ServiceType" }],
     doctor: { type: Schema.Types.ObjectId, ref: "User" },
-    letter: { type: String, required: false },
-    floor: { type: String, required: false },
-    stopTurn: { type: Boolean, default: false, required: false },
+    letter: { type: String },
+    floor: { type: String },
+    stopTurn: { type: Boolean, default: false },
     room: { type: Number },
     workStart: { type: String },
     waitingTime: { type: Number },
     isArchive: { type: Boolean, default: false },
-    departmentRooms: { type: Array, default: [], required: false },
+    departmentRooms: { type: Array, default: [] },
+    dayMaxTurns: { type: Number, default: 0 },
+    takenTurns: { type: [Number], default: [] },
   },
   {
     timestamps: true,
@@ -42,6 +44,8 @@ function validateDepartment(department) {
     workStart: Joi.string().optional(),
     waitingTime: Joi.number().optional(),
     clinica: Joi.string().required(),
+    dayMaxTurns: Joi.number().optional(),
+    takenTurns: Joi.array().items(Joi.number()).optional(),
   });
 
   return schema.validate(department);

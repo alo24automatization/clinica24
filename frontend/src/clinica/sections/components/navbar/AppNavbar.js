@@ -162,7 +162,8 @@ const AppNavbar = ({ links, user, userType }) => {
                           `${userType.baseUrl}/api/upload/file/${user.image}`
                         : baseUrl && `${baseUrl}/api/upload/file/${user.image}`
                     }
-                    alt={user?.firstname + user?.lastname}
+                    alt={'#404'}
+
                   />
                 ) : (
                   user.firstname + user.lastname
@@ -186,7 +187,7 @@ const AppNavbar = ({ links, user, userType }) => {
                           : baseUrl &&
                             `${baseUrl}/api/upload/file/${user.image}`
                       }
-                      alt={user?.firstname + user?.lastname}
+                      alt={'404'}
                     />
                   </div>
                   {user.firstname} {user.lastname}

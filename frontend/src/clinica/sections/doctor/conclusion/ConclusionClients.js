@@ -412,6 +412,9 @@ export const ConclusionClients = () => {
                           {t("ID")}
                         </th>
                         <th className="border bg-alotrade text-[16px] py-1">
+                          {t("Xona")}
+                        </th>
+                        <th className="border bg-alotrade text-[16px] py-1">
                           {t("Telefon raqami")}
                         </th>
                         <th className="border bg-alotrade text-[16px] py-1">
@@ -447,6 +450,10 @@ export const ConclusionClients = () => {
                               </td>
                               <td className="border text-[16px] py-1 text-right">
                                 {connector.client.id}
+                              </td>
+                              <td className="border py-1 text-right text-[16px]">
+                                {connector?.room?.room?.number}/
+                                {connector?.room?.room?.place}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
                                 {connector.client.phone}

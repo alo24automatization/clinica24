@@ -36,10 +36,15 @@ router.put('/department', auth, (req, res) => {
 router.delete('/department', auth, (req, res) => {
     require('./department').delete(req, res)
 })
-
+router.put('/department/resetTurns/:id', auth, (req, res) => {
+    require('./department').resetTakenTurn(req, res)
+})
 router.delete('/department/deleteall', auth, (req, res) => {
     require('./department').deleteAll(req, res)
 })
+
+
+
 
 //========================================================
 // SERVICE

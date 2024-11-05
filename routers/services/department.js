@@ -6,7 +6,7 @@ const { Clinica } = require("../../models/DirectorAndClinica/Clinica");
 const { Service } = require("../../models/Services/Service");
 const { ServiceType } = require("../../models/Services/ServiceType");
 
-//Department register
+// Department register all
 module.exports.registerAll = async (req, res) => {
   try {
     const departments = req.body;
@@ -14,15 +14,11 @@ module.exports.registerAll = async (req, res) => {
     for (const d of departments) {
       const { error } = validateDepartment(d);
       if (error) {
-        return res.status(400).json({
-          error: error.message,
-        });
+        return res.status(400).json({ error: error.message });
       }
 
       const { name, probirka, clinica } = d;
-
       const clinic = await Clinica.findOne({ name: clinica });
-
       if (!clinic) {
         return res.status(400).json({
           message: "Diqqat! Klinika ma'lumotlari topilmadi.",
@@ -48,21 +44,18 @@ module.exports.registerAll = async (req, res) => {
       await newDepartment.save();
       all.push(newDepartment);
     }
-
     res.send(all);
   } catch (error) {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
 
-//Department register
+// Department register
 module.exports.register = async (req, res) => {
   try {
     const { error } = validateDepartment(req.body);
     if (error) {
-      return res.status(400).json({
-        error: error.message,
-      });
+      return res.status(400).json({ error: error.message });
     }
 
     const { name, probirka, floor, letter, clinica, room, departmentRooms } =
@@ -80,7 +73,6 @@ module.exports.register = async (req, res) => {
     }
 
     const clinic = await Clinica.findById(clinica);
-
     if (!clinic) {
       return res.status(400).json({
         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
@@ -104,22 +96,26 @@ module.exports.register = async (req, res) => {
   }
 };
 
-//Department update
+// Department update
 module.exports.update = async (req, res) => {
   try {
-    const { name, floor, letter, probirka, clinica, room, departmentRooms } =
-      req.body;
+    const {
+      name,
+      floor,
+      letter,
+      probirka,
+      clinica,
+      room,
+      departmentRooms,
+      dayMaxTurns,
+    } = req.body;
 
     const department = await Department.findById(req.body._id);
-
     if (!department) {
-      return res.status(400).json({
-        message: "Diqqat! Ushbu bo'lim topilmadi.",
-      });
+      return res.status(400).json({ message: "Diqqat! Ushbu bo'lim topilmadi." });
     }
 
     const clinic = await Clinica.findById(clinica);
-
     if (!clinic) {
       return res.status(400).json({
         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
@@ -132,45 +128,47 @@ module.exports.update = async (req, res) => {
     department.floor = floor;
     department.departmentRooms = departmentRooms;
     department.letter = letter;
+    department.dayMaxTurns = dayMaxTurns;
+
     await department.save();
     res.send(department);
   } catch (error) {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
+
+// Department switchTurn (enable/disable)
 module.exports.switchTurn = async (req, res) => {
   try {
     const { id, active, clinica } = req.body;
-    const clinic = await Clinica.findById(clinica);
 
+    const clinic = await Clinica.findById(clinica);
     if (!clinic) {
       return res.status(400).json({
         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
       });
     }
+
     await Department.findByIdAndUpdate(id, { stopTurn: active });
     const message = active ? "Navbat to'xtatildi!" : "Navbat ochildi!";
     res.status(201).json({ message });
   } catch (error) {
-    console.log(error.message);
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
-//Department getall
+
+// Department getAll
 module.exports.getAll = async (req, res) => {
   try {
     const { clinica } = req.body;
     const clinic = await Clinica.findById(clinica);
-
     if (!clinic) {
       return res.status(400).json({
         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
       });
     }
 
-    const departments = await Department.find({
-      clinica,
-    })
+    const departments = await Department.find({ clinica })
       .populate("servicetypes", "name")
       .populate("services");
 
@@ -180,56 +178,11 @@ module.exports.getAll = async (req, res) => {
   }
 };
 
-// Get All Reseption by department id
-module.exports.getAllReseptionById = async (req, res) => {
-  try {
-    const { clinica, _id } = req.body;
-    const clinic = await Clinica.findById(clinica);
-
-    if (!clinic) {
-      return res.status(400).json({
-        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
-      });
-    }
-
-    const departments = await Department.findById(_id)
-      .populate("services")
-      .populate("servicetypes");
-
-    res.send(departments);
-  } catch (error) {
-    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
-  }
-};
-
-module.exports.getAllReseption = async (req, res) => {
-  try {
-    const { clinica } = req.body;
-    const clinic = await Clinica.findById(clinica);
-
-    if (!clinic) {
-      return res.status(400).json({
-        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
-      });
-    }
-    const departments = await Department.find({
-      clinica,
-    })
-      .select("name probirka services")
-      .populate("services", "name price servicetype");
-    res.send(departments);
-  } catch (error) {
-    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
-  }
-};
-
-//Department get
+// Department get by id
 module.exports.get = async (req, res) => {
   try {
     const { clinica, _id } = req.body;
-
     const clinic = await Clinica.findById(clinica);
-
     if (!clinic) {
       return res.status(400).json({
         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
@@ -237,7 +190,6 @@ module.exports.get = async (req, res) => {
     }
 
     const department = await Department.findById(_id);
-
     if (!department) {
       return res.status(400).json({
         message: "Diqqat! Bo'lim topilmadi.",
@@ -250,13 +202,12 @@ module.exports.get = async (req, res) => {
   }
 };
 
-//Department delete
+// Department delete
 module.exports.delete = async (req, res) => {
   try {
     const { _id, clinica } = req.body;
 
     const clinic = await Clinica.findById(clinica);
-
     if (!clinic) {
       return res.status(400).json({
         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
@@ -266,46 +217,54 @@ module.exports.delete = async (req, res) => {
     const department = await Department.findByIdAndDelete(_id);
 
     for (const service of department.services) {
-      const del = await Service.findByIdAndDelete(service);
+      await Service.findByIdAndDelete(service);
     }
     for (const servicetype of department.servicetypes) {
-      const del = await ServiceType.findByIdAndDelete(servicetype);
+      await ServiceType.findByIdAndDelete(servicetype);
     }
+
     res.send(department);
   } catch (error) {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
 
-//Department deleteall
+// Department delete all
 module.exports.deleteAll = async (req, res) => {
   try {
     const { clinica } = req.body;
-
     const clinic = await Clinica.findById(clinica);
-
     if (!clinic) {
       return res.status(400).json({
         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
       });
     }
 
-    const departments = await Department.find({
-      clinica,
-    });
-    // .select("_id");
+    const departments = await Department.find({ clinica });
 
     for (const department of departments) {
-      const del = await Department.findByIdAndDelete(department._id);
-      for (const service of del.services) {
-        const del = await Service.findByIdAndDelete(service);
+      await Department.findByIdAndDelete(department._id);
+      for (const service of department.services) {
+        await Service.findByIdAndDelete(service);
       }
       for (const servicetype of department.servicetypes) {
-        const del = await ServiceType.findByIdAndDelete(servicetype);
+        await ServiceType.findByIdAndDelete(servicetype);
       }
     }
 
     res.send(departments);
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+
+// Reset takenTurns array
+module.exports.resetTakenTurn = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Department.findByIdAndUpdate(id, { takenTurns: [] });
+
+    res.status(200).json({ message: "takenTurns array has been reset." });
   } catch (error) {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }

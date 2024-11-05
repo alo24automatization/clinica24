@@ -2,7 +2,7 @@ const { Product } = require("../../models/Warehouse/Product");
 const { Clinica } = require("../../models/DirectorAndClinica/Clinica");
 const { Service } = require("../../models/Services/Service");
 const { ProductConnector } = require("../../models/Warehouse/ProductConnector");
-const {startSession} = require("mongoose");
+const { startSession } = require("mongoose");
 const {
   OfflineClient,
   validateOfflineClient,
@@ -36,16 +36,30 @@ const { checkMinimum } = require("../tgbot/bot_controller");
 const { OnlineClient } = require("../../models/OnlineClient/OnlineClient");
 require("../../models/Cashier/OfflinePayment");
 require("../../models/Users");
-const {StatsionarClient} = require("../../models/StatsionarClient/StatsionarClient");
-const {StatsionarConnector} = require("../../models/StatsionarClient/StatsionarConnector");
-const {OfflineDiscount} = require("../../models/Cashier/OfflineDiscount");
-const {OfflinePayment} = require("../../models/Cashier/OfflinePayment");
-const {StatsionarDaily} = require("../../models/StatsionarClient/StatsionarDaily");
-const {StatsionarDiscount} = require("../../models/Cashier/StatsionarDiscount");
-const {StatsionarPayment} = require("../../models/Cashier/StatsionarPayment");
-const {StatsionarService} = require("../../models/StatsionarClient/StatsionarService");
-const { StatsionarAdver } = require("../../models/StatsionarClient/StatsionarAdver");
-const { StatsionarProduct } = require("../../models/StatsionarClient/StatsionarProduct");
+const {
+  StatsionarClient,
+} = require("../../models/StatsionarClient/StatsionarClient");
+const {
+  StatsionarConnector,
+} = require("../../models/StatsionarClient/StatsionarConnector");
+const { OfflineDiscount } = require("../../models/Cashier/OfflineDiscount");
+const { OfflinePayment } = require("../../models/Cashier/OfflinePayment");
+const {
+  StatsionarDaily,
+} = require("../../models/StatsionarClient/StatsionarDaily");
+const {
+  StatsionarDiscount,
+} = require("../../models/Cashier/StatsionarDiscount");
+const { StatsionarPayment } = require("../../models/Cashier/StatsionarPayment");
+const {
+  StatsionarService,
+} = require("../../models/StatsionarClient/StatsionarService");
+const {
+  StatsionarAdver,
+} = require("../../models/StatsionarClient/StatsionarAdver");
+const {
+  StatsionarProduct,
+} = require("../../models/StatsionarClient/StatsionarProduct");
 const findNextAvailableTurn = async (
   clinica,
   department,
@@ -246,6 +260,9 @@ module.exports.register = async (req, res) => {
       if (clientservice) {
         turn = clientservice.turn;
       }
+      if (service.turn) {
+        turn = service.turn;
+      }
       //=========================================================
       // Create Service
       const serv = await Service.findById(service.serviceid)
@@ -266,13 +283,19 @@ module.exports.register = async (req, res) => {
         client: newclient._id,
         connector: newconnector._id,
         turn,
-
         column: { ...serv.column },
         tables: [...JSON.parse(JSON.stringify(serv.tables))],
       });
 
       await newservice.save();
-
+      // add turn to taken turns for today
+      const departmentFound = await Department.findById(service.department);
+      const isExitsTurn = departmentFound.takenTurns.includes(service.turn);
+      if (!isExitsTurn) {
+        departmentFound.takenTurns.push(service.turn);
+        departmentFound.save();
+        console.log("department saved clients.route.js register func");
+      }
       totalprice += service.service.price * service.pieces;
 
       newconnector.services.push(newservice._id);
@@ -363,7 +386,6 @@ module.exports.register = async (req, res) => {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
   }
 };
-
 module.exports.getUser = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -388,7 +410,6 @@ module.exports.getUser = async (req, res) => {
     res.status(501).json({ error: error });
   }
 };
-
 module.exports.add = async (req, res) => {
   try {
     const { client, connector, services, products, counterdoctor, adver } =
@@ -476,6 +497,9 @@ module.exports.add = async (req, res) => {
       }
       //=========================================================
       //=========================================================
+      if (service.turn) {
+        turn = service.turn;
+      }
       // Create Service
       const serv = await Service.findById(service.serviceid)
         .populate("column", "col1 col2 col3 col4 col5")
@@ -499,7 +523,14 @@ module.exports.add = async (req, res) => {
         tables: [...JSON.parse(JSON.stringify(serv.tables))],
       });
       await newservice.save();
-
+      // add turn to taken turns for today
+      const departmentFound = await Department.findById(service.department);
+      const isExitsTurn = departmentFound.takenTurns.includes(service.turn);
+      if (!isExitsTurn) {
+        departmentFound.takenTurns.push(service.turn);
+        departmentFound.save();
+        console.log("department saved clients.route.js register func");
+      }
       totalprice += service.service.price;
 
       updateOfflineConnector.services.push(newservice._id);
@@ -718,7 +749,9 @@ module.exports.addConnector = async (req, res) => {
 
         turn++;
       }
-
+      if (service.turn) {
+        turn = service.turn;
+      }
       //=========================================================
       // Create Service
       const serv = await Service.findById(service.serviceid)
@@ -743,7 +776,14 @@ module.exports.addConnector = async (req, res) => {
         tables: [...JSON.parse(JSON.stringify(serv.tables))],
       });
       await newservice.save();
-
+      // add turn to taken turns for today
+      const departmentFound = await Department.findById(service.department);
+      const isExitsTurn = departmentFound.takenTurns.includes(service.turn);
+      if (!isExitsTurn) {
+        departmentFound.takenTurns.push(service.turn);
+        departmentFound.save();
+        console.log("department saved clients.route.js register func");
+      }
       totalprice += service.service.price * service.pieces;
 
       newconnector.services.push(newservice._id);
@@ -1276,9 +1316,9 @@ module.exports.getAllReseption = async (req, res) => {
 
 module.exports.delete = async (req, res) => {
   const session = await startSession();
-  await  session.startTransaction();
+  await session.startTransaction();
   try {
-    const { clinica, client, room, _id} = req.body;
+    const { clinica, client, room, _id } = req.body;
 
     const clientId = client?._id;
     const clinic = await Clinica.findById(clinica._id);
@@ -1295,23 +1335,23 @@ module.exports.delete = async (req, res) => {
     }
 
     if (clientId) {
-      await OfflineClient.deleteOne({_id: clientId});
+      await OfflineClient.deleteOne({ _id: clientId });
       await OfflineConnector.deleteMany({ client: clientId });
-      await OfflineDiscount.deleteMany({client: clientId});
-      await OfflinePayment.deleteMany({client: clientId});
-      await OfflineProduct.deleteMany({client: clientId});
+      await OfflineDiscount.deleteMany({ client: clientId });
+      await OfflinePayment.deleteMany({ client: clientId });
+      await OfflineProduct.deleteMany({ client: clientId });
       await OfflineService.deleteMany({ client: clientId });
       await OfflineAdver.deleteMany({ client: clientId });
 
       // StatsionarAdver
-      await StatsionarClient.deleteOne({_id: clientId});
-      await StatsionarConnector.deleteMany({client: clientId});
-      await StatsionarDiscount.deleteMany({client: clientId});
-      await StatsionarPayment.deleteMany({client: clientId});
-      await StatsionarDaily.deleteMany({client: clientId});
-      await StatsionarProduct.deleteMany({client: clientId});
+      await StatsionarClient.deleteOne({ _id: clientId });
+      await StatsionarConnector.deleteMany({ client: clientId });
+      await StatsionarDiscount.deleteMany({ client: clientId });
+      await StatsionarPayment.deleteMany({ client: clientId });
+      await StatsionarDaily.deleteMany({ client: clientId });
+      await StatsionarProduct.deleteMany({ client: clientId });
       await StatsionarService.deleteMany({ client: clientId });
-      await StatsionarRoom.deleteMany({ client: clientId }); 
+      await StatsionarRoom.deleteMany({ client: clientId });
     }
 
     await session.commitTransaction();
@@ -1320,11 +1360,10 @@ module.exports.delete = async (req, res) => {
     session.abortTransaction();
     console.log(error);
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
-  }
-  finally {
+  } finally {
     await session.endSession();
   }
-}
+};
 
 // Update client
 module.exports.update = async (req, res) => {

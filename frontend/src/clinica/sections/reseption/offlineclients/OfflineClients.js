@@ -1,8 +1,21 @@
-import { useToast } from "@chakra-ui/react";
+import {
+  Button,
+  CloseButton,
+  HStack,
+  IconButton,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useToast,
+} from "@chakra-ui/react";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { useHttp } from "../../../hooks/http.hook";
 import { Modal } from "../components/Modal";
+import { Modal as ChakraModal } from "@chakra-ui/react";
+
 import { RegisterClient } from "./clientComponents/RegisterClient";
 import { TableClients } from "./clientComponents/TableClients";
 import {
@@ -18,6 +31,7 @@ import Print from "../../laborotory/components/Print";
 import AllModal from "./clientComponents/AllModal";
 import { useLocation, useHistory } from "react-router-dom";
 import socketIOClient from "socket.io-client";
+import { CiCircleChevRight, CiCircleChevLeft } from "react-icons/ci";
 
 export const OfflineClients = () => {
   const history = useHistory();
@@ -398,6 +412,7 @@ export const OfflineClients = () => {
         department: service.department._id,
         addUser: "Qabulxona",
         pieces: 1,
+        turn: service.turn,
       });
     });
     setServices(s);
@@ -728,7 +743,6 @@ export const OfflineClients = () => {
   // Get the query parameters
   const queryParams = getQueryParams(location.search);
   const fromQuery = queryParams.get("from");
-
   const createHandler = useCallback(async () => {
     setIsActive(false);
     try {
@@ -1115,6 +1129,139 @@ export const OfflineClients = () => {
   }, [state?.onlineclient]);
   //=================================================== =================
   //====================================================================
+  // turns
+
+  const [clientTurns, setClientTurns] = useState([]);
+  const [departmentTurns, setDepartmentTurns] = useState({
+    id: null,
+    turns: [],
+  });
+  const [paginatitedTurns, setPaginatitedTurns] = useState([]);
+  const [page, setPage] = useState(0);
+  const [visibleTurnModal, setVisibleTurnModal] = useState(false);
+  const [selectedTurn, setSelectedTurn] = useState(0);
+  const limitOfTurns = 100;
+  const toogleTurnModal = () => setVisibleTurnModal((prev) => !prev);
+
+  // turn card
+
+  const TurnCard = ({ onClick, number, isTaken }) => (
+    <button
+      onClick={onClick}
+      disabled={isTaken}
+      className={` ${
+        isTaken ? "bg-red-200 !cursor-not-allowed" : "hover:bg-green-200 "
+      } ${
+        selectedTurn === number ? "bg-green-100" : ""
+      } p-3   transition-all duration-300 border-black  border rounded`}
+    >
+      {number}
+    </button>
+  );
+
+  // Pagination component
+  const TurnPagination = () => (
+    <div className="flex items-center gap-x-3 w-full mt-3 justify-center">
+      <IconButton
+        rounded="full"
+        onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+        disabled={page === 0}
+      >
+        <CiCircleChevLeft className="text-3xl" />
+      </IconButton>
+      <IconButton
+        rounded="full"
+        onClick={() => setPage((prev) => prev + 1)}
+        disabled={(page + 1) * limitOfTurns >= departmentTurns.turns.length}
+      >
+        <CiCircleChevRight className="text-3xl" />
+      </IconButton>
+    </div>
+  );
+  const handleChangeTurn = (newSelectedOptions) => {
+    // Check if an option was added or removed
+    let addedOption = null;
+    let removedOption = null;
+    if (newSelectedOptions.length > clientTurns.length) {
+      // Option added
+      addedOption = newSelectedOptions.find(
+        (option) => !clientTurns.includes(option)
+      );
+      toogleTurnModal();
+    } else {
+      removedOption = clientTurns.find(
+        (option) => !newSelectedOptions.includes(option)
+      );
+      newSelectedOptions.forEach((i) => i.value !== removedOption.value);
+    }
+    setClientTurns(newSelectedOptions);
+    setDepartmentTurns({
+      id: addedOption?.value,
+      turns: Array.from({
+        length:
+          departments.find((d) => d._id === addedOption?.value)?.dayMaxTurns ||
+          0,
+      }),
+    });
+  };
+  const handleClickTurn = (turn) =>
+    setSelectedTurn((prev) => (prev ? null : turn));
+  const checkIsTaken = (turn) => {
+    const takenTurns =
+      departments.find((d) => d._id === departmentTurns.id)?.takenTurns || [];
+    return takenTurns.includes(turn);
+  };
+  const addTurnToDepartment = () => {
+    const updatedClientTurns = clientTurns.map((ct) =>
+      ct.value === departmentTurns.id
+        ? {
+            ...ct,
+            turn: selectedTurn,
+            label: (
+              <div className="w-full flex justify-between items-center gap-x-2">
+                <span>{ct.name}</span>
+                <span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">
+                  {selectedTurn}
+                </span>
+              </div>
+            ),
+          }
+        : ct
+    );
+    const updatedServices = services.map((ser) =>
+      ser.department === departmentTurns.id
+        ? { ...ser, turn: selectedTurn }
+        : ser
+    );
+    const updatedSelectedServices = selectedServices.map((ser) =>
+      ser.department._id === departmentTurns.id
+        ? { ...ser, turn: selectedTurn }
+        : ser
+    );
+    const updatedDepartment = departments.map((d) =>
+      d._id === departmentTurns.id
+        ? {
+            ...d,
+            turn: selectedTurn,
+            services: d.services.map((s) => ({ ...s, turn: selectedTurn })),
+          }
+        : d
+    );
+    setDepartments(updatedDepartment);
+    setClientTurns(updatedClientTurns);
+    setServices(updatedServices);
+    setSelectedServices(updatedSelectedServices);
+    toogleTurnModal();
+    setSelectedTurn(0);
+  };
+  useEffect(() => {
+    const updatedClientTurns = departmentTurns.turns.slice(
+      page * limitOfTurns,
+      (page + 1) * limitOfTurns
+    );
+    setPaginatitedTurns(updatedClientTurns);
+  }, [departmentTurns.turns]);
+  // render
   return (
     <div className="min-h-full">
       <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
@@ -1137,8 +1284,55 @@ export const OfflineClients = () => {
                 </button>
               </div>
             </div>
+            {/*  turn modal*/}
+            <ChakraModal
+              size="4xl"
+              closeOnEsc
+              isOpen={visibleTurnModal}
+              onClose={toogleTurnModal}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader className="flex items-center justify-between">
+                  Bo'lim navbatlari
+                  <CloseButton onClick={toogleTurnModal} />
+                </ModalHeader>
+                <ModalBody>
+                  <div className="grid grid-rows-1  md:grid-cols-6 grid-cols-4 lg:grid-cols-10 gap-1">
+                    {paginatitedTurns.map((_, index) => (
+                      <TurnCard
+                        onClick={() =>
+                          handleClickTurn(index + 1 + page * limitOfTurns)
+                        }
+                        key={index}
+                        number={index + 1 + page * limitOfTurns}
+                        isTaken={checkIsTaken(index + 1 + page * limitOfTurns)}
+                      />
+                    ))}
+                  </div>
+                  <TurnPagination />
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    isDisabled={selectedTurn === null}
+                    onClick={addTurnToDepartment}
+                    bg={"green"}
+                    color={"white"}
+                    _hover={"green-100"}
+                  >
+                    Saqlash
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </ChakraModal>
+            {/*  turn modal*/}
+
             <div className={` ${visible ? "" : "d-none"}`}>
               <RegisterClient
+                // turn
+                handleChangeTurn={handleChangeTurn}
+                clientTurns={clientTurns}
+                // others
                 lastCardNumber={lastCardNumber}
                 isNewClient={isNewClient}
                 requiredFields={requiredFields}
