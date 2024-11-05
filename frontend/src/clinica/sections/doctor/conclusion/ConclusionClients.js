@@ -452,7 +452,7 @@ export const ConclusionClients = () => {
                                 {connector.client.id}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
-                                {connector?.room?.room.number}/{connector?.room?.room.place}
+                                {connector?.connector.room?.room.number}/{connector?.connector.room?.room.place}
                               </td>
                               <td className="border text-[16px] py-1 text-right">
                                 {connector.client.phone}
