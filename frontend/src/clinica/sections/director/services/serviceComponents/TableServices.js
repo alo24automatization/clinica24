@@ -2,11 +2,11 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleUp, faAngleDown } from "@fortawesome/free-solid-svg-icons";
 import { Sort } from "./Sort";
-import { Tooltip } from "@chakra-ui/react";
+import { Checkbox,Tooltip } from "@chakra-ui/react";
 import { ExcelUpload } from "./ExcelUpload";
 import { Pagination } from "../../components/Pagination";
 import { useTranslation } from "react-i18next";
-
+import { MdSave } from "react-icons/md";
 export const TableServices = ({
   servicetypes,
   searchDepartment,
@@ -30,6 +30,13 @@ export const TableServices = ({
   loading,
   servicetypesSelect,
   searchServiceType,
+  // nds
+  changeNDS,
+  saveServicesDNS,
+  selectedAllService,
+  NDS_value,
+  changeActiveOfService,
+  changeActiveOfAllService,
 }) => {
 
   const { t } = useTranslation()
@@ -48,6 +55,13 @@ export const TableServices = ({
     document.getElementsByTagName("select")[1].selectedIndex = i + 1;
     // Xatolik bor birinchi mareta tahrirlash bosilganda xizmat turi tanlay olinmaydi
   };
+  // nds
+  const calcNDS = (price, priceNDS=0) => {
+    const NDS_decimal =
+      (NDS_value === "%" ? 0 : parseFloat(NDS_value / 100)) || 0;
+    const NDS_amount = price * NDS_decimal;
+    return priceNDS > 0 ? NDS_amount : 0;
+  };
   return (
     <div className="border-0 table-container">
       <div className="border-0 table-container">
@@ -60,7 +74,7 @@ export const TableServices = ({
                     className="form-control form-control-sm selectpicker"
                     placeholder={t("Bo'limni tanlang")}
                     onChange={setPageSize}
-                    style={{ minWidth: "50px" }}
+                    style={{ minWidth: "60px" }}
                   >
                     <option value={10}>10</option>
                     <option value={25}>25</option>
@@ -102,6 +116,25 @@ export const TableServices = ({
                     className="form-control w-75"
                     placeholder={t("Xizmat nomini kiriting")}
                   />
+                </th>
+                <th className="text-[16px]">
+                  <div className="flex items-center gap-x-2 min-w-[150px] ">
+                    <input
+                      onChange={changeNDS}
+                      type="text"
+                      value={NDS_value}
+                      className="form-control w-75"
+                      placeholder="NDS %"
+                      pattern={`^[0-9]`}
+                    />
+                    <button
+                      disabled={NDS_value === 0}
+                      onClick={saveServicesDNS}
+                      className="p-1.5 disabled:bg-alotrade/50 disabled:cursor-not-allowed bg-alotrade rounded-sm"
+                    >
+                      <MdSave color="#fff" />
+                    </button>
+                  </div>
                 </th>
                 <th colSpan={4} className="text-[16px]">
                   <Pagination
@@ -155,6 +188,13 @@ export const TableServices = ({
                 </th>
               </tr>
               <tr>
+              <th className="border-right  text-[12px] bg-alotrade">
+                  Hammasi:
+                  <Checkbox
+                    isChecked={selectedAllService}
+                    onChange={(e) => changeActiveOfAllService(e.target.checked)}
+                  />
+                </th>
                 <th className="border-right  text-[12px] bg-alotrade">№</th>
                 <th className="border-right  text-[12px] bg-alotrade">
                   {t("Bo'lim")}
@@ -174,6 +214,12 @@ export const TableServices = ({
                 <th className="border-right text-[12px] bg-alotrade">
                   {t("Narxi")}
                 </th>
+                <th className="border-right text-nowrap  text-[12px] bg-alotrade">
+                  QQS narxi
+                </th>
+                <th className="border-right text-nowrap text-[12px] bg-alotrade">
+                  Narxi + QQS
+                </th>
                 <th className="border-right text-[12px] bg-alotrade ">
                   {t("Doktor ulushi")}
                 </th>
@@ -191,9 +237,20 @@ export const TableServices = ({
               </tr>
             </thead>
             <tbody>
-              {currentServices.map((service, key) => {
+              {currentServices?.map((service, key) => {
                 return (
                   <tr key={key}>
+                      <td className="border-right text-[16px] font-weight-bold">
+                      <Checkbox
+                        onChange={() => {
+                          changeActiveOfService(
+                            service.priceNDS === 0,
+                            service?._id
+                          );
+                        }}
+                        isChecked={service.priceNDS > 0}
+                      />
+                    </td>
                     <td className="border-right text-[16px] f ont-weight-bold">
                       {currentPage * countPage + key + 1}
                     </td>
@@ -205,6 +262,12 @@ export const TableServices = ({
                     {/* <td className="border-right text-[16px]">{service.shortname}</td> */}
                     {/* <td className="border-right text-[16px]">{service?.serviceroom}</td> */}
                     <td className="border-right text-[16px]">{service.price}</td>
+                    <td className="border-right text-[16px]">
+                      {calcNDS(service?.price, service?.priceNDS)}
+                    </td>
+                    <td className="border-right text-[16px]">
+                      {calcNDS(service?.price, service?.priceNDS) + service.price}
+                    </td>
                     <td className="border-right text-[16px] ">{service.doctorProcient}</td>
                     <td className="border-right text-[16px]">
                       {service.counterAgentProcient}

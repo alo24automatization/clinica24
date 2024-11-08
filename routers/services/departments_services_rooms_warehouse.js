@@ -52,6 +52,15 @@ router.post('/service/registerall', auth, (req, res) => {
     require('./service').registerAll(req, res)
 })
 
+//  nds
+router.post('/service/getNDS', auth, (req, res) => {
+    require('./service').getServicesNDS(req, res)
+})
+router.post('/service/changeDNS', auth, (req, res) => {
+    require('./service').changeServicesNDS(req, res)
+})
+//  others
+
 router.post('/service/register', auth, (req, res) => {
     require('./service').register(req, res)
 })

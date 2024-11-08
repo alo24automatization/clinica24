@@ -33,6 +33,8 @@ const clinica = new Schema(
     mfo: { type: Number },
     address: { type: String },
     smsKey: { type: String },
+    telegram:{type:String,required:false},
+    instagram:{type:String,required:false},
     orientation: { type: String },
     isClose: { type: Boolean, default: false },
     close_date: { type: Date },
@@ -41,6 +43,7 @@ const clinica = new Schema(
     reseption_and_pay: { type: Boolean, default: false },
     turnCheckVisible: { type: Boolean, default: false },
     connectorDoctor_client: { type: Boolean, default: false },
+    NDS:{type:Number,default:0,required:false},
     requiredFields: {
       type: Map,
       of: Boolean,
@@ -92,8 +95,11 @@ function validateClinica(clinica) {
     ifud2: Joi.string(),
     ifud3: Joi.string(),
     telegramId: Joi.string(),
-
     close_date: Joi.date().optional(),
+    instagram:Joi.string().optional(),
+    telegram:Joi.string().optional(),
+    close_date: Joi.date().optional(),
+    NDS:Joi.number().default(0).optional()
     // isCreateUser: Joi.boolean().optional(),
   });
 

@@ -37,7 +37,7 @@ module.exports.offline = async (req, res) => {
         debt: { $gt: 0 },
       })
         .select("-isArchive -updatedAt -__v")
-        .populate("client", "fullname born phone id")
+        .populate("client", "fullname born phone id").populate('services','service.priceNDS -_id')
         .sort({ _id: -1 })
         .lean()
         .then((connectors) => {
@@ -62,7 +62,7 @@ module.exports.offline = async (req, res) => {
         },
       })
         .select("-isArchive -updatedAt -__v")
-        .populate("client", "fullname born phone id")
+        .populate("client", "fullname born phone id").populate('services','service.priceNDS -_id')
         .sort({ _id: -1 })
         .lean();
     }
@@ -137,6 +137,7 @@ module.exports.payment = async (req, res) => {
     const { payment } = req.body;
 
     delete payment._id;
+    delete payment.services
     payment.client = payment.client._id;
     delete payment.createdAt;
 
