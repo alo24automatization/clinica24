@@ -104,6 +104,8 @@ module.exports.register = async (req, res) => {
       close_date,
       telegramId,
       smsKey,
+      telegram,
+      instagram
     } = req.body;
 
     const clinica = await Clinica.find({ name });
@@ -139,6 +141,8 @@ module.exports.register = async (req, res) => {
       isClose: false,
       telegramId,
       smsKey,
+      telegram,
+      instagram
     });
 
     await newClinica.save();

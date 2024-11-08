@@ -30,6 +30,12 @@ export const RegisterClient = ({
   connector,
 }) => {
   const { t } = useTranslation();
+  const calcServicesNDS =
+  services &&
+  services.filter((service)=>!service.refuse).reduce(
+    (sum, { service }) => sum + (service.price * service.priceNDS) / 100,
+    0
+  ); 
   return (
     <>
       {/* Row start */}
@@ -104,6 +110,9 @@ export const RegisterClient = ({
                         <th className="border py-1 bg-alotrade">
                           {t("Narxi")}
                         </th>
+                        <th className="border py-1 bg-alotrade">
+                          {t("QQS")}
+                        </th>
                         <th className="border py-1 bg-alotrade">{t("Soni")}</th>
                         <th className="border py-1 bg-alotrade">
                           {t("To'lov")}
@@ -130,6 +139,11 @@ export const RegisterClient = ({
                               </td>
                               <td className="text-right py-1 border">
                                 {service.service.price * service.pieces}
+                              </td>
+                              <td className="text-right py-1 border">
+                                {(service.service.price *
+                                  service.service.priceNDS) /
+                                  100}
                               </td>
                               <td className="text-right py-1 border">
                                 {service.pieces}
@@ -223,10 +237,24 @@ export const RegisterClient = ({
                         </td>
                         <td
                           className="border py-1 font-bold  text-teal-600 text-sm"
-                          colSpan={4}
+                          colSpan={1}
                         >
                           {" "}
                           {totalpayment}
+                        </td>
+                        <td
+                          className="border py-1 font-bold text-right text-teal-600 text-sm "
+                          colSpan={""}
+                        >
+                          {" "}
+                          QQS: {calcServicesNDS}
+                        </td>
+                        <td
+                          className="border py-1 font-bold text-right  text-teal-600 text-sm"
+                          colSpan={3}
+                        >
+                          {" "}
+                          To'lovga: {totalpayment + calcServicesNDS}
                         </td>
                       </tr>
                     </tbody>
@@ -249,7 +277,7 @@ export const RegisterClient = ({
                       {t("Jami to'lov")}:
                     </th>
                     <th className="text-left" colSpan={4}>
-                      {totalpayment}
+                      {totalpayment + calcServicesNDS}
                     </th>
                   </tr>
                   <tr>
@@ -284,7 +312,8 @@ export const RegisterClient = ({
                       {totalpayment -
                         payments -
                         discount.discount -
-                        payment.debt}
+                        payment.debt+
+                        calcServicesNDS}
                     </th>
                   </tr>
                 </tfoot>
@@ -378,7 +407,7 @@ export const RegisterClient = ({
                         </span>
                       </div>
                       <input
-                        onChange={changeDebt}
+                        onChange={(e)=>changeDebt(e,calcServicesNDS)}
                         type="number"
                         className="form-control"
                         placeholder={t("Qarz summasini kiriting")}
@@ -421,12 +450,14 @@ export const RegisterClient = ({
                             totalpayment -
                             payments -
                             discount.discount -
-                            payment.debt,
+                            payment.debt+
+                            calcServicesNDS,
                           cash:
                             totalpayment -
                             payments -
                             discount.discount -
-                            payment.debt,
+                            payment.debt+
+                            calcServicesNDS,
                           card: 0,
                           transfer: 0,
                         });
@@ -447,13 +478,15 @@ export const RegisterClient = ({
                             totalpayment -
                             payments -
                             discount.discount -
-                            payment.debt,
+                            payment.debt+
+                            calcServicesNDS,
                           cash: 0,
                           card:
                             totalpayment -
                             payments -
                             discount.discount -
-                            payment.debt,
+                            payment.debt+
+                            calcServicesNDS,
                           transfer: 0,
                         });
                       }}
@@ -473,14 +506,16 @@ export const RegisterClient = ({
                             totalpayment -
                             payments -
                             discount.discount -
-                            payment.debt,
+                            payment.debt+
+                            calcServicesNDS,
                           cash: 0,
                           card: 0,
                           transfer:
                             totalpayment -
                             payments -
                             discount.discount -
-                            payment.debt,
+                            payment.debt+
+                            calcServicesNDS,
                         });
                       }}
                       type="button"
@@ -529,7 +564,8 @@ export const RegisterClient = ({
                         placeholder={t("Naqt to'lov")}
                         value={payment.cash || ""}
                         name="cash"
-                        onChange={inputPayment}
+                        onChange={(e)=>inputPayment(e,+
+                          calcServicesNDS)}
                       />
                     </div>
                   )}
@@ -550,7 +586,7 @@ export const RegisterClient = ({
                         placeholder={t("Karta orqali to'lov")}
                         value={payment.card || ""}
                         name="card"
-                        onChange={inputPayment}
+                        onChange={(e) => inputPayment(e, calcServicesNDS)}
                       />
                     </div>
                   )}
@@ -572,7 +608,7 @@ export const RegisterClient = ({
                         placeholder={t("O'tkazma to'lov")}
                         value={payment.transfer || ""}
                         name="transfer"
-                        onChange={inputPayment}
+                        onChange={(e) => inputPayment(e, calcServicesNDS)}
                       />
                     </div>
                   )}

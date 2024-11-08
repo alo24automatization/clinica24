@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHttp } from "../hooks/http.hook";
+import { BsInstagram, BsTelegram } from "react-icons/bs";
 import {
   Input,
   FormControl,
@@ -28,7 +29,6 @@ import { Loader } from "../loader/Loader";
 import { FileUploadBlanka } from "./fileUpLoad/FileUploadBlanka";
 import { t } from "i18next";
 const storageName = "clinicaData";
-
 const styleDefault = {
   border: "1.5px solid #eee",
   boxShadow: "none",
@@ -558,6 +558,68 @@ export const ClinicaRegister = ({ onFinishCreate, onFinishUpdate, clinicaData })
                             }
                             defaultValue={clinica.phone1 && clinica.phone1}
                             name="phone1"
+                            onChange={changeHandler}
+                          />
+                        </InputGroup>
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel
+                          style={{ color: "#38B2AC", marginTop: "1rem",display:"flex",alignItems:"center",gap:'6px' }}
+                        >
+                         <BsInstagram/> Instagram
+                        </FormLabel>
+                        <InputGroup>
+                          <InputLeftAddon
+                            children="@"
+                            style={
+                              clinica.instagram && clinica.instagram.length > 0
+                                ? styleGreen
+                                : styleDefault
+                            }
+                          />
+                          <Input
+                            onKeyUp={keyPressed}
+                            type="text"
+                            placeholder="Instagram foydlanuvchi nomi"
+                            size="sm"
+                            style={
+                              clinica.instagram && clinica.instagram.length > 0
+                                ? styleGreen
+                                : styleDefault
+                            }
+                            defaultValue={clinica.instagram && clinica.instagram}
+                            name="instagram"
+                            onChange={changeHandler}
+                          />
+                        </InputGroup>
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel
+                          style={{ color: "#38B2AC", marginTop: "1rem",display:"flex",alignItems:"center",gap:'6px' }}
+                        >
+                         <BsTelegram/>  Telegram
+                        </FormLabel>
+                        <InputGroup>
+                          <InputLeftAddon
+                            children="@"
+                            style={
+                              clinica.telegram && clinica.telegram.length > 0
+                                ? styleGreen
+                                : styleDefault
+                            }
+                          />
+                          <Input
+                            onKeyUp={keyPressed}
+                            type="text"
+                            placeholder="Telegram foydlanuvchi nomi"
+                            size="sm"
+                            style={
+                              clinica.telegram && clinica.telegram.length > 0
+                                ? styleGreen
+                                : styleDefault
+                            }
+                            defaultValue={clinica.telegram && clinica.telegram}
+                            name="telegram"
                             onChange={changeHandler}
                           />
                         </InputGroup>
