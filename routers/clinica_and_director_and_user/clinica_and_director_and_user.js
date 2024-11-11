@@ -14,6 +14,12 @@ router.get("/clinica", (req, res) => {
 router.get("/clinica/requiredFields/:id", (req, res) => {
   require("./clinica.route").getRequiredFields(req, res);
 });
+router.get("/clinica/appearanceFields/:id", (req, res) => {
+  require("./clinica.route").getAppearanceFields(req, res);
+});
+router.get("/clinica/monoBlok/:id", (req, res) => {
+  require("./clinica.route").getMonoBlokStatus(req, res);
+});
 router.get("/clinica/connector_doctor_has/:id", (req, res) => {
   require("./clinica.route").getConnector_doctor_has(req, res);
 });
@@ -44,6 +50,12 @@ router.patch("/clinica/connector_doctor_has/:id", (req, res) => {
 });
 router.patch("/clinica/requiredFields/:id", (req, res) => {
   require("./clinica.route").updateRequiredFields(req, res);
+});
+router.patch("/clinica/appearanceFields/:id", (req, res) => {
+  require("./clinica.route").updateAppearanceFields(req, res);
+});
+router.patch("/clinica/monoBlok/:id", (req, res) => {
+  require("./clinica.route").updateMonoBlokStatus(req, res);
 });
 router.post("/clinica/delete", (req, res) => {
   require("./clinica.route").delete(req, res);
@@ -109,14 +121,12 @@ router.get("/user/getUserById/:user_id", (req, res) => {
   require("./user.route").getUserById(req, res);
 });
 
-
 router.put("/user/access/:user_id", (req, res) => {
   require("./user.route").addAccess(req, res);
 });
 // router.put("/user/access/:user_id", (req, res) => {
 //   require("./user.route").addAccess(req, res);
 // });
-
 
 router.post("/user/remove", (req, res) => {
   require("./user.route").removeUser(req, res);

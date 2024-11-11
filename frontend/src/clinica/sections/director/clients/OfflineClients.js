@@ -462,6 +462,8 @@ const OfflineClients = () => {
                                                         </td>
                                                         <td className="border-right text-[16px]">
                                                             {new Date(connector?.createdAt).toLocaleDateString()}
+                                                            {" "}
+                                            {new Date(connector?.createdAt).toLocaleTimeString().split(' ')[0]}
                                                         </td>
                                                         <td className="border-right text-[16px]">
                                                             {connector?.client?.fullname}

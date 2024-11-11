@@ -54,7 +54,10 @@ module.exports.getAll = async (req, res) => {
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
         .populate("clinica", "name phone1 image ")
-        .populate("client", "lastname bronTime firstname born id phone address isDisability clientMoreDetails")
+        .populate(
+          "client",
+          "lastname bronTime firstname born id phone address isDisability clientMoreDetails"
+        )
         .populate({
           path: "services",
           select:
@@ -109,9 +112,9 @@ module.exports.getAll = async (req, res) => {
               new Date(
                 new Date(connector.client.born).setUTCHours(0, 0, 0, 0)
               ).toISOString() ===
-              new Date(
-                new Date(clientborn).setUTCHours(0, 0, 0, 0)
-              ).toISOString()
+                new Date(
+                  new Date(clientborn).setUTCHours(0, 0, 0, 0)
+                ).toISOString()
           )
         );
     } else if (name) {
@@ -121,7 +124,10 @@ module.exports.getAll = async (req, res) => {
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
         .populate("clinica", "name phone1 image")
-        .populate("client", "lastname bronTime firstname born id phone address fullname isDisability clientMoreDetails")
+        .populate(
+          "client",
+          "lastname bronTime firstname born id phone address fullname isDisability clientMoreDetails"
+        )
         .populate({
           path: "services",
           select:
@@ -189,7 +195,10 @@ module.exports.getAll = async (req, res) => {
         .sort({ createdAt: -1 })
         .select("-__v -updatedAt -isArchive")
         .populate("clinica", "name phone1 image")
-        .populate("client", "lastname bronTime firstname born id phone address isDisability clientMoreDetails")
+        .populate(
+          "client",
+          "lastname bronTime firstname born id phone address isDisability clientMoreDetails"
+        )
         .populate({
           path: "services",
           select:
@@ -237,9 +246,9 @@ module.exports.getAll = async (req, res) => {
             return connector.services.some(
               (service) =>
                 String(service?.department?._id) === String(department) &&
-                !service.refuse 
-                // &&
-                // service.payment
+                !service.refuse
+              // &&
+              // service.payment
             );
           })
         );
@@ -272,7 +281,15 @@ module.exports.getAll = async (req, res) => {
 };
 module.exports.getClientsByFilter = async (req, res) => {
   const { clinica, beginDay, endDay, department } = req.body;
-  const { complaints, diagnostics, from_age, to_age, gender, national, isDisability } = req.body.clientFilterData;
+  const {
+    complaints,
+    diagnostics,
+    from_age,
+    to_age,
+    gender,
+    national,
+    isDisability,
+  } = req.body.clientFilterData;
 
   try {
     // Find clinic by ID
@@ -283,7 +300,6 @@ module.exports.getClientsByFilter = async (req, res) => {
         message: "Diqqat! Klinika ma'lumotlari topilmadi.",
       });
     }
-
 
     // Calculate the start and end birth dates from age range
 
@@ -297,7 +313,10 @@ module.exports.getClientsByFilter = async (req, res) => {
       .sort({ createdAt: -1 })
       .select("-__v -updatedAt -isArchive")
       .populate("clinica", "name phone1 image")
-      .populate("client", "lastname firstname born id phone address isDisability gender national")
+      .populate(
+        "client",
+        "lastname firstname born id phone address isDisability gender national"
+      )
       .populate({
         path: "services",
         select:
@@ -370,26 +389,45 @@ module.exports.getClientsByFilter = async (req, res) => {
       }
     }
     const currentDate = new Date();
-    const startBirthDate = new Date(currentDate.getFullYear() - to_age, currentDate.getMonth(), currentDate.getDate());
-    const endBirthDate = new Date(currentDate.getFullYear() - from_age, currentDate.getMonth(), currentDate.getDate());
+    const startBirthDate = new Date(
+      currentDate.getFullYear() - to_age,
+      currentDate.getMonth(),
+      currentDate.getDate()
+    );
+    const endBirthDate = new Date(
+      currentDate.getFullYear() - from_age,
+      currentDate.getMonth(),
+      currentDate.getDate()
+    );
     // Apply additional filters
     let filteredClients = connectors.filter((connector) => {
       let isMatch = true;
       let { client, services } = connector;
       // Check diagnostics
       if (diagnostics !== undefined || complaints !== undefined) {
-        let hasDiagnos = services?.some(({ clientMoreDetails }) => clientMoreDetails?.diagnostics?.some(d => diagnostics?.some((diagnostic) => {
-          return diagnostic.value == d
-        })))
-        let hasComp = services?.some(({ clientMoreDetails }) => clientMoreDetails?.complaints?.some(d => complaints?.some((complaint) => {
-          return complaint.value == d
-        })))
-        isMatch = isMatch && hasDiagnos || hasComp;
+        let hasDiagnos = services?.some(({ clientMoreDetails }) =>
+          clientMoreDetails?.diagnostics?.some((d) =>
+            diagnostics?.some((diagnostic) => {
+              return diagnostic.value == d;
+            })
+          )
+        );
+        let hasComp = services?.some(({ clientMoreDetails }) =>
+          clientMoreDetails?.complaints?.some((d) =>
+            complaints?.some((complaint) => {
+              return complaint.value == d;
+            })
+          )
+        );
+        isMatch = (isMatch && hasDiagnos) || hasComp;
       }
       // Check complaints
 
       if (from_age && to_age) {
-        isMatch = isMatch && client.born >= startBirthDate && client.born <= endBirthDate;
+        isMatch =
+          isMatch &&
+          client.born >= startBirthDate &&
+          client.born <= endBirthDate;
       }
       if (gender) {
         isMatch = isMatch && client.gender == gender;
@@ -400,15 +438,12 @@ module.exports.getClientsByFilter = async (req, res) => {
       if (isDisability === "true" || isDisability === "false") {
         if (typeof client?.isDisability === "boolean") {
           const isDisabilityBoolean = isDisability === "true";
-          console.log(isDisabilityBoolean);
-          console.log(client?.isDisability);
           isMatch = isMatch && client?.isDisability === isDisabilityBoolean;
         }
       }
       return isMatch;
     });
     return res.status(200).json(filteredClients);
-
   } catch (error) {
     // Handle errors
     console.log(error);
@@ -549,9 +584,9 @@ module.exports.getStatsionarAll = async (req, res) => {
               new Date(
                 new Date(connector.client.born).setUTCHours(0, 0, 0, 0)
               ).toISOString() ===
-              new Date(
-                new Date(clientborn).setUTCHours(0, 0, 0, 0)
-              ).toISOString()
+                new Date(
+                  new Date(clientborn).setUTCHours(0, 0, 0, 0)
+                ).toISOString()
           )
         );
     } else if (name) {
@@ -903,6 +938,7 @@ module.exports.addservices = async (req, res) => {
           _id: serv._id,
           name: serv.name,
           price: serv.price,
+          priceNDS: serv.priceNDS || 0,
           shortname: serv.shortname,
           doctorProcient: serv.doctorProcient,
           counterAgentProcient: serv.counterAgentProcient,
@@ -1078,13 +1114,18 @@ module.exports.adoptClient = async (req, res) => {
       offlineService.templates = service.templates;
       offlineService.files = service.files;
       offlineService.accept = true;
-      if (service.clientMoreDetails.diagnostics || service.clientMoreDetails.complaints) {
-        offlineService.clientMoreDetails = service.clientMoreDetails
+      if (
+        service.clientMoreDetails.diagnostics ||
+        service.clientMoreDetails.complaints
+      ) {
+        offlineService.clientMoreDetails = service.clientMoreDetails;
       }
       if (service.clientMoreDetails.isDisability) {
-        const offlineClient = await OfflineClient.findById(service?.clientMoreDetails?._id)
-        offlineClient.isDisability = service.clientMoreDetails.isDisability
-        await offlineClient.save()
+        const offlineClient = await OfflineClient.findById(
+          service?.clientMoreDetails?._id
+        );
+        offlineClient.isDisability = service.clientMoreDetails.isDisability;
+        await offlineClient.save();
       }
       if (service.tables && service.tables.length > 0) {
         offlineService.tables = service.tables;
@@ -1112,7 +1153,7 @@ module.exports.adoptStatsionarClient = async (req, res) => {
       statsionarservice.templates = service.templates;
       statsionarservice.files = service.files;
       statsionarservice.accept = true;
-      statsionarservice.clientMoreDetails = clientMoreDetails
+      statsionarservice.clientMoreDetails = clientMoreDetails;
       if (service.tables && service.tables.length > 0) {
         statsionarservice.tables = service.tables;
       }

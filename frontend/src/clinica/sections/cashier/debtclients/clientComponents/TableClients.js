@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleUp,
@@ -12,8 +12,13 @@ import { DatePickers } from "./DatePickers";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../../../context/AuthContext";
+import { useHttp } from "../../../../hooks/http.hook";
 
 export const TableClients = ({
+  currentPage2,
+  setCurrentPage2,
+  searchStorage,
   changeStart,
   changeEnd,
   searchId,
@@ -28,10 +33,31 @@ export const TableClients = ({
   loading,
   sortDebts,
   getPayment,
-  getDebtsByClientBorn
+  getDebtsByClientBorn,
 }) => {
-  const {t} = useTranslation()
-  const location = useLocation()
+  const { t } = useTranslation();
+  const location = useLocation();
+  const auth = useContext(AuthContext);
+  const { request: appearanceRequest } = useHttp();
+  const [appearanceFields, setAppearanceFields] = useState({});
+  const getAppearanceFields = async () => {
+    try {
+      const data = await appearanceRequest(
+        `/api/clinica/appearanceFields/${auth.clinica._id}`,
+        "GET",
+        null
+      );
+      setAppearanceFields(data.appearanceFields);
+    } catch (error) {
+      console.log("Appearance settings get error");
+    }
+  };
+
+  useEffect(() => {
+    if (auth?.clinica?._id) {
+      getAppearanceFields();
+    }
+  }, [auth?.clinica?._id]);
   return (
     <div className="border-0 shadow-lg table-container">
       <div className="border-0 table-container">
@@ -72,7 +98,9 @@ export const TableClients = ({
                 onChange={sortDebts}
               >
                 <option value="none">{t("Hammasi")}</option>
-                <option value="statsionar">{t("Statsionar")}</option>
+                {appearanceFields.showStationary === true && (
+                  <option value="statsionar">{t("Statsionar")}</option>
+                )}
                 <option value="offline">{t("Kunduzgi")}</option>
               </select>
             </div>
@@ -82,17 +110,20 @@ export const TableClients = ({
                 name="born"
                 className="form-control inp"
                 placeholder=""
-                style={{ color: '#999' }}
-                onKeyDown={(e) => e.key === 'Enter' && getDebtsByClientBorn(e)}
+                style={{ color: "#999" }}
+                onKeyDown={(e) => e.key === "Enter" && getDebtsByClientBorn(e)}
               />
             </div>
             <div className="text-center ml-auto">
               <Pagination
+                currentPage={currentPage}
+                currentPage2={currentPage2}
+                setCurrentPage2={setCurrentPage2}
                 setCurrentDatas={setCurrentConnectors}
-                datas={connectors}
+                datas={searchStorage}
                 setCurrentPage={setCurrentPage}
                 countPage={countPage}
-                totalDatas={connectors.length}
+                totalDatas={searchStorage.length}
               />
             </div>
             <div
@@ -139,9 +170,11 @@ export const TableClients = ({
                 <th className="border bg-alotrade text-[16px] py-1">
                   {t("Izoh")}
                 </th>
-                {!location.pathname.includes('alo24/debtreport') && <th className="border bg-alotrade text-[16px] py-1">
-                  {t("Qabul")}
-                </th>}
+                {!location.pathname.includes("alo24/debtreport") && (
+                  <th className="border bg-alotrade text-[16px] py-1">
+                    {t("Qabul")}
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -158,7 +191,12 @@ export const TableClients = ({
                       {connector.client.fullname}
                     </td>
                     <td className="border py-1 text-right text-[16px]">
-                      {new Date(connector.createdAt).toLocaleDateString()}
+                      {new Date(connector.createdAt).toLocaleDateString()}{" "}
+                      {
+                        new Date(connector.createdAt)
+                          .toLocaleTimeString()
+                          .split(" ")[0]
+                      }
                     </td>
                     <td className="border py-1 text-right text-[16px]">
                       {connector.client.phone}
@@ -169,23 +207,29 @@ export const TableClients = ({
                     <td className="border py-1 text-right text-[16px]">
                       {connector.total}
                     </td>
-                    <td className="border py-1 text-right text-[16px]">{connector.debt}</td>
-                    <td className="border py-1 text-right text-[16px]">{connector?.comment}</td>
-                    {!location.pathname.includes('alo24/debtreport') && <td className="border py-1 text-center text-[16px]">
-                      {loading ? (
-                        <button className="btn btn-success" disabled>
-                          <span className="spinner-border spinner-border-sm"></span>
-                          Loading...
-                        </button>
-                      ) : (
-                        <button
-                          className="btn btn-success py-0"
-                          onClick={() => getPayment(connector)}
-                        >
-                          <FontAwesomeIcon icon={faMoneyBill} />
-                        </button>
-                      )}
-                    </td>}
+                    <td className="border py-1 text-right text-[16px]">
+                      {connector.debt}
+                    </td>
+                    <td className="border py-1 text-right text-[16px]">
+                      {connector?.comment}
+                    </td>
+                    {!location.pathname.includes("alo24/debtreport") && (
+                      <td className="border py-1 text-center text-[16px]">
+                        {loading ? (
+                          <button className="btn btn-success" disabled>
+                            <span className="spinner-border spinner-border-sm"></span>
+                            Loading...
+                          </button>
+                        ) : (
+                          <button
+                            className="btn btn-success py-0"
+                            onClick={() => getPayment(connector)}
+                          >
+                            <FontAwesomeIcon icon={faMoneyBill} />
+                          </button>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 );
               })}

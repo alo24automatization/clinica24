@@ -7,7 +7,6 @@ import { Advers } from "./adver/Advers";
 import AdverChart from "./adver_chart/AdverChart";
 import StatsionarClientHistory from "./clients/components/StatsionarClientHistory";
 import OfflineClients from "./clients/OfflineClients";
-import StatsionarClients from "./clients/StatsionarClients";
 import CounterAgent from "./counteragent/CounterAgent";
 import CounterAgentInfo from "./counteragent/CounterAgentInfo";
 import VisitInfo from "./counteragent/VisitInfo";
@@ -40,7 +39,7 @@ import { Users } from "./users/Users";
 import SettingForms from "./settingForms/SettingForms";
 import DoctorsClients from "../counter_agent/doctors/DoctorsClients";
 
-export const DirectorRouter = () => {
+export const DirectorRouter = ({ getAppearanceFields, appearanceFields }) => {
   return (
     <div className="bg-slate-100">
       <Switch>
@@ -51,8 +50,11 @@ export const DirectorRouter = () => {
         <Route path="/alo24/editdirector">
           <EditDirector />
         </Route>
-        <Route path="/alo24/sozlamalar">
-          <SettingForms />
+        <Route path="/alo24/settings">
+          <SettingForms
+            appearanceFields={appearanceFields}
+            getAppearanceFields={getAppearanceFields}
+          />
         </Route>
         <Route path="/alo24/editdirectorpassword">
           <EditDirectorPassword />

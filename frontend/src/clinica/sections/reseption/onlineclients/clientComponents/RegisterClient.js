@@ -89,7 +89,6 @@ export const RegisterClient = ({
         }
       );
 
-      console.log(data);
       data?.map((item) => {
         setServiceTypes((old) => [
           ...old,
@@ -116,7 +115,6 @@ export const RegisterClient = ({
         }
       );
 
-      console.log(data);
       data &&
         data?.services?.map((item) => {
           setServices((old) => [...old, { value: item._id, label: item.name }]);
@@ -130,8 +128,6 @@ export const RegisterClient = ({
     }
   };
 
-  console.log(serviceTypes);
-
   // useEffect(() => {
   //   if (departments) {
   //     getServices("all");
@@ -142,7 +138,6 @@ export const RegisterClient = ({
     getServiceType();
   }, []);
 
-  console.log(client);
   return (
     <>
       {/* Row start */}

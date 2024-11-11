@@ -15,6 +15,7 @@ const {
     validateDiscount,
 } = require("../../models/Cashier/OfflineDiscount");
 const { Clinica } = require("../../models/DirectorAndClinica/Clinica");
+const { Department } = require("../../models/Services/Department");
 require("../../models/Services/Department");
 
 //Payment
@@ -80,6 +81,20 @@ module.exports.payment = async (req, res) => {
                             refuse: true,
                             payment: false
                         })
+                    }
+
+                     // Check if all department services are refused to back turn
+                    const allRefused = await OfflineService.countDocuments({
+                        department: service.department._id,
+                        connector: service.connector,
+                        refuse: false,
+                    }) === 0;
+
+                    if (allRefused) {
+                        await Department.findOneAndUpdate(
+                            { _id: service.department._id },
+                            { $pull: { takenTurns: service.turn } }
+                        );
                     }
                 } else {
 
@@ -154,7 +169,7 @@ module.exports.payment = async (req, res) => {
                 select: "-__v -updatedAt -isArchive",
                 populate: {
                     path: "department",
-                    select: "room name probirka"
+                    select: "room name floor letter probirka"
                 }
             })
             .populate("products")

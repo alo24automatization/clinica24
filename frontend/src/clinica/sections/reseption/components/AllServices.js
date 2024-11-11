@@ -180,7 +180,7 @@ const AllServices = ({ connector, clinica, baseUrl }) => {
                                 }}
                             >
                                 {connector &&
-                                    new Date(connector.createdAt).toLocaleDateString()}
+                                    `${new Date(connector.createdAt).toLocaleDateString()} ${new Date(connector.createdAt).toLocaleTimeString().split(' ')[0]}`}
                             </td>
                             <td
                                 className="p-0 fw-bold"
@@ -268,7 +268,11 @@ const AllServices = ({ connector, clinica, baseUrl }) => {
                                                 {template?.name}
                                             </h2>
                                             {(typeof connector?.client?.id === 'string') && <div className="flex justify-end items-center">
-                                                <div className="text-[12px] font-bold mt-2 px-2 py-1 bg-gray-400">Tekshiruv sanasi: {new Date(section.createdAt).toLocaleDateString()}</div>
+                                                <div className="text-[12px] font-bold mt-2 px-2 py-1 bg-gray-400">Tekshiruv sanasi: 
+                                                    {new Date(section.createdAt).toLocaleDateString()}
+                                                    {" "}
+                      {new Date(section.createdAt).toLocaleTimeString().split(' ')[0]}
+                                                </div>
                                             </div>}
                                         </div>
                                         <div
@@ -300,7 +304,11 @@ const AllServices = ({ connector, clinica, baseUrl }) => {
                                     {section?.servicetypename}
                                 </h2>
                                 {(typeof connector?.client?.id === 'string') && <div className="flex justify-end items-center">
-                                    <div className="text-[12px] font-bold my-2 px-2 py-1 bg-gray-400">Tekshiruv sanasi: {new Date(section.createdAt).toLocaleDateString()}</div>
+                                    <div className="text-[12px] font-bold my-2 px-2 py-1 bg-gray-400">Tekshiruv sanasi: 
+                                        {new Date(section.createdAt).toLocaleDateString()}
+                                        {" "}
+                      {new Date(section.createdAt).toLocaleTimeString().split(' ')[0]}
+                                    </div>
                                 </div>}
                             </div>
                             <table className="w-full text-center">

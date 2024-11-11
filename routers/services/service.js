@@ -606,4 +606,47 @@ module.exports.deleteAll = async (req, res) => {
 };
 
 
-
+// Services NDS
+module.exports.getServicesNDS = async (req, res) => {
+  try {
+    const { clinica } = req.body;
+    const clinic = await Clinica.findById(clinica);
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+    const {NDS}=clinic;
+    res.status(201).json({NDS});
+  } catch (error) {
+    res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
+  }
+};
+// Services NDS
+module.exports.changeServicesNDS = async (req, res) => {
+  try {
+    const { clinica, NDS_VALUE, serviceIDs } = req.body;
+    // Find the clinic by ID
+    const clinic = await Clinica.findById(clinica);
+    if (!clinic) {
+      return res.status(400).json({
+        message: "Diqqat! Klinika ma'lumotlari topilmadi.",
+      });
+    }
+    // Update the clinic's NDS value
+    clinic.NDS = NDS_VALUE;
+    await clinic.save();
+    // Update the NDS value for each specified service
+    if (serviceIDs && serviceIDs.length > 0) {
+      await Service.updateMany(
+        { _id: { $in: serviceIDs } }, // Match services by IDs
+        { $set: { priceNDS: NDS_VALUE } } // Update NDS value
+      );
+    }
+    // Return the updated NDS value from the clinic
+    res.status(200).json({ NDS: clinic.NDS });
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).json({ error: "Serverda xatolik yuz berdi..." }); // Return server error response
+  }
+};

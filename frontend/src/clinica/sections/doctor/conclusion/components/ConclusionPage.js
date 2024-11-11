@@ -577,8 +577,10 @@ const ConclusionPage = ({ connector, onChange, setConnector, clinica, baseUrl })
                                     fontSize: "20px",
                                 }}
                             >
-                                {connector &&
-                                    new Date(connector?.room?.beginday).toLocaleDateString()}
+                                    {connector &&
+                                        `${new Date(connector?.room?.beginday).toLocaleDateString()} ${new Date(connector?.room?.beginday).toLocaleTimeString().split(' ')[0]}`
+                                    
+                                    }
                             </td>
                             <td
                                 className="p-0 fw-bold"
@@ -599,7 +601,7 @@ const ConclusionPage = ({ connector, onChange, setConnector, clinica, baseUrl })
                                     fontSize: "20px",
                                 }}
                             >
-                                {connector?.room?.endday && new Date(connector?.room?.endday).toLocaleDateString()}
+                                {connector?.room?.endday && `${new Date(connector?.room?.endday).toLocaleDateString()} ${new Date(connector?.room?.endday).toLocaleTimeString().split(' ')[0]}`}
                             </td>
                         </tr>
 

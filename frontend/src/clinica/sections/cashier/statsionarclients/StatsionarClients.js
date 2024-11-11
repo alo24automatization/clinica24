@@ -175,7 +175,7 @@ export const StatsionarClients = () => {
             setCurrentConnectors(connectors);
         } else {
             setCurrentPage(0);
-            setCountPage(e.target.value);
+            setCountPage(+e.target.value);
             setCurrentConnectors(connectors.slice(0, e.target.value));
         }
     };
@@ -271,8 +271,8 @@ export const StatsionarClients = () => {
 
         let roomprice = 0;
         if (connector.room.endday) {
-            const beginday = new Date(connector?.room?.beginday);
-            const now = new Date(connector.room.endday);
+            const beginday = new Date(connector?.room?.beginday).setHours(0,0,0,0);
+            const now = new Date(connector.room.endday).setHours(0,0,0,0);
 
             const timeDifference = now - beginday;
             const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -285,8 +285,8 @@ export const StatsionarClients = () => {
                 type: connector.room.room.type,
             });
         } else {
-            const beginday = new Date(connector?.room?.beginday);
-            const now = new Date();
+            const beginday = new Date(connector?.room?.beginday).setHours(0,0,0,0);
+            const now = new Date().setHours(0,0,0,0);
 
             const timeDifference = now - beginday;
             const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));

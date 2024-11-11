@@ -50,8 +50,8 @@ export const TableClients = ({
   const getTotalprice = (connector) => {
     let roomprice = 0;
     if (connector?.room?.endday) {
-      const beginday = new Date(connector?.room?.beginday);
-      const now = new Date(connector?.room?.endday);
+      const beginday = new Date(connector?.room?.beginday).setHours(0,0,0,0);
+      const now = new Date(connector?.room?.endday).setHours(0,0,0,0);
 
       const timeDifference = now - beginday;
       const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -284,15 +284,12 @@ export const TableClients = ({
                         {connector.client.id}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
-                        {new Date(
-                          connector?.room?.beginday
-                        ).toLocaleDateString()}
+                        {new Date(connector?.room?.beginday).toLocaleDateString()}
+                        {" "}
+                        {new Date(connector?.room?.beginday).toLocaleTimeString().split(' ')[0]}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
-                        {connector?.room?.endday &&
-                          new Date(
-                            connector?.room?.endday
-                          ).toLocaleDateString()}
+                        {connector?.room?.endday &&`${new Date(connector?.room?.endday).toLocaleDateString()} ${new Date(connector?.room?.endday).toLocaleTimeString().split(' ')[0]}`}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {getTotalprice(connector)}
@@ -471,10 +468,11 @@ export const TableClients = ({
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {new Date(connector?.room?.beginday).toDateString()}
+                        {' '}
+                     {new Date(connector?.room?.beginday).toLocaleTimeString().split(' ')[0]}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
-                        {connector?.room?.endday &&
-                          new Date(connector?.room?.endday).toDateString()}
+                        {connector?.room?.endday && `${new Date(connector?.room?.endday).toDateString()} ${new Date(connector?.room?.endday).toLocaleTimeString().split(' ')[0]}}`}
                       </td>
                       <td className="border py-1 text-[16px] text-right">
                         {getTotalprice(connector)}

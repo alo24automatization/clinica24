@@ -86,6 +86,7 @@ export const DebtClients = () => {
   const [offlineDebts, setOfflineDebts] = useState([]);
   const [statsionarDebts, setStatsionarDebts] = useState([]);
   const [debts, setDebts] = useState([]);
+  const [currentPage2, setCurrentPage2] = useState(currentPage)
 
   const getOfflineDebts = useCallback(
     async (beginDay, endDay) => {
@@ -145,6 +146,10 @@ export const DebtClients = () => {
     setConnectors(debts);
     setSearchStrorage(debts);
   }, [offlineDebts, statsionarDebts, indexFirstConnector, indexLastConnector]);
+
+  useEffect(() => {
+    setCurrentPage2(currentPage)
+}, [currentPage])
 
   //====================================================================
   //====================================================================
@@ -214,6 +219,7 @@ export const DebtClients = () => {
     } else {
       sortEl = [...offlineDebts];
     }
+    setCurrentPage2(0);
     setSearchStrorage(sortEl);
     setCurrentConnectors(sortEl.slice(0, countPage));
   };
@@ -226,7 +232,7 @@ export const DebtClients = () => {
   const setPageSize = useCallback(
     (e) => {
       setCurrentPage(0);
-      setCountPage(e.target.value);
+      setCountPage(+e.target.value);
       setCurrentConnectors(connectors.slice(0, countPage));
     },
     [countPage, connectors]
@@ -473,6 +479,9 @@ export const DebtClients = () => {
               />
             </div>
             <TableClients
+              setCurrentPage2={setCurrentPage2}
+              currentPage2={currentPage2}
+              searchStorage={searchStorage}
               setVisible={setVisible}
               changeStart={changeStart}
               changeEnd={changeEnd}

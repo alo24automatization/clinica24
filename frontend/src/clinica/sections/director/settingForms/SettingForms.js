@@ -12,29 +12,33 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { receptionSettingForm } from "./inputs.data";
+import { appearanceSettings, receptionSettingForm } from "./inputs.data";
 import { AuthContext } from "../../../context/AuthContext";
 import { useHttp } from "../../../hooks/http.hook";
 import { GoTrashcan } from "react-icons/go";
 import { BsCloudUploadFill } from "react-icons/bs";
 import { useToast } from "@chakra-ui/react";
-const SettingForms = () => {
+const SettingForms = ({ getAppearanceFields, appearanceFields }) => {
   const auth = useContext(AuthContext);
   const [requiredFields, setRequiredFieds] = useState(null);
   const [cashNavigate, setCashNavigate] = useState(false);
   const [turnCheck, setTurnCheck] = useState(false);
   const [connectorDoctor_client, setConnectorDoctor_client] = useState(false);
+  const [showRegisterOnMonoblok, setShowRegisterOnMonoblok] = useState(false);
   const [ad, setAd] = useState(null);
   const [cardNumber, setCardNumber] = useState("");
   const { request, loading } = useHttp();
   useEffect(() => {
     getRequiredFields();
+    getAppearanceFields();
     getConnectorDoctor();
     getReseptionPayAccess();
     getLastCardNumber();
     getReseptionCheckVisible();
     getAd();
+    getMonoBlokStatus();
   }, []);
+
   //====================================================================
   //====================================================================
   // Required Fields
@@ -54,6 +58,24 @@ const SettingForms = () => {
       // });
     }
   });
+  // monoblok
+  const getMonoBlokStatus = useCallback(async () => {
+    try {
+      const data = await request(
+        `/api/clinica/monoBlok/${auth.clinica._id}`,
+        "GET",
+        null
+      );
+      setShowRegisterOnMonoblok(data.showRegisterOnMonoblok);
+    } catch (error) {
+      // notify({
+      //   title: t(`${error}`),
+      //   description: "",
+      //   status: "error",
+      // });
+    }
+  });
+  // Appearance Fields
   // Required Fields
   const getReseptionPayAccess = useCallback(async () => {
     try {
@@ -140,6 +162,39 @@ const SettingForms = () => {
       // });
     }
   };
+
+  const handleChangeAppearanceFormSwitch = async (name, value) => {
+    try {
+      await request(
+        `/api/clinica/appearanceFields/${auth.clinica._id}`,
+        "PATCH",
+        { appearanceFields: { ...appearanceFields, [name]: value } }
+      );
+      getAppearanceFields();
+    } catch (error) {
+      console.log(error);
+      // notify({
+      //   title: t(`${error}`),
+      //   description: "",
+      //   status: "error",
+      // });
+    }
+  };
+  const handleChangeMonoBlockStatusFormSwitch = async ({ target }) => {
+    try {
+      await request(`/api/clinica/monoBlok/${auth.clinica._id}`, "PATCH", {
+        showRegisterOnMonoblok: target.checked,
+      });
+      getMonoBlokStatus();
+    } catch (error) {
+      console.log(error);
+      // notify({
+      //   title: t(`${error}`),
+      //   description: "",
+      //   status: "error",
+      // });
+    }
+  };
   const toast = useToast();
 
   const notify = useCallback(
@@ -159,8 +214,7 @@ const SettingForms = () => {
     if (auth.clinica.queueAd) {
       return notify({
         title: "Diqqat! File avval yuklangan",
-        description:
-         "",
+        description: "",
         status: "error",
       });
     }
@@ -196,14 +250,14 @@ const SettingForms = () => {
       await request(`/api/clinica/updateAd/${auth.clinica._id}`, "PATCH", {
         ad,
       });
-      if(!ad){
+      if (!ad) {
         notify({
           status: "success",
           description: "",
           title: "File muvaffaqqiyatli o'chirildi",
         });
       }
-      getAd()
+      getAd();
     } catch (error) {
       notify({
         title: `${error}`,
@@ -322,7 +376,7 @@ const SettingForms = () => {
           Mijoz ro'yxatdan o'tkazish sozlamalari
         </span>
         <ul className="my-2 ml-2">
-          {receptionSettingForm.map((item) => (
+          {receptionSettingForm.map((item, i) => (
             <li key={item.key} className="border-b py-1">
               <FormControl
                 display="flex"
@@ -335,7 +389,7 @@ const SettingForms = () => {
                   )
                 }
               >
-                <FormLabel htmlFor="email-alerts" mb="0">
+                <FormLabel htmlFor={`reception-setting-${i}`} mb="0">
                   {item.name}
                 </FormLabel>
                 <Switch
@@ -343,7 +397,7 @@ const SettingForms = () => {
                   isChecked={
                     !requiredFields ? true : requiredFields[item.input_name]
                   }
-                  id={item.input_name}
+                  id={`reception-setting-${i}`}
                 />
               </FormControl>
             </li>
@@ -360,13 +414,13 @@ const SettingForms = () => {
                 handleChangeReceptionPaySwitch(target.checked)
               }
             >
-              <FormLabel htmlFor="email-alerts" mb="0">
+              <FormLabel htmlFor="reception-cash" mb="0">
                 Yo'naltirish
               </FormLabel>
               <Switch
                 disabled={loading}
                 isChecked={cashNavigate}
-                id={"cashNavigate"}
+                id={"reception-cash"}
               />
             </FormControl>
           </li>
@@ -382,13 +436,13 @@ const SettingForms = () => {
                 handleChangeReceptionConnectorDoctorHasSwitch(target.checked)
               }
             >
-              <FormLabel htmlFor="email-alerts" mb="0">
+              <FormLabel htmlFor="connector-doctor" mb="0">
                 Ochish
               </FormLabel>
               <Switch
                 disabled={loading}
                 isChecked={connectorDoctor_client}
-                id={"connectorDoctor_client"}
+                id={"connector-doctor"}
               />
             </FormControl>
           </li>
@@ -413,33 +467,89 @@ const SettingForms = () => {
             </FormControl>
           </li>
         </ul>
-      </div>
-      <div className={"pb-6 pt-4 col-xl-4 border-r borer-4"}>
-        <h1 className="text-center font-semibold text-lg mb-3">
-          Kassa sozlamalari
-        </h1>
-        <span className="font-medium">Navbat cheki</span>
-        <ul className="my-2 ml-2">
+        <span className="font-medium">Rejim monoblok</span>
+        <ul className="mt-2 ml-2">
           <li className="border-b py-1">
             <FormControl
-              display="flex"
-              alignItems="center"
-              justifyContent={"space-between"}
-              onChange={({ target }) =>
-                handleChangeReceptionCheckSwitch(target.checked)
-              }
+              display="block"
+              onChange={handleChangeMonoBlockStatusFormSwitch}
             >
-              <FormLabel htmlFor="email-alerts" mb="0">
+              <FormLabel htmlFor="connector-doctor" mb="0">
                 Ochish
               </FormLabel>
               <Switch
                 disabled={loading}
-                isChecked={turnCheck}
-                id={"cashNavigate"}
+                isChecked={showRegisterOnMonoblok}
+                id={"connector-doctor"}
               />
             </FormControl>
           </li>
         </ul>
+      </div>
+      <div className={"pb-6 pt-4 col-xl-4 border-r borer-4"}>
+        <div>
+          <h1 className="text-center font-semibold text-lg mb-3">
+            Kassa sozlamalari
+          </h1>
+          <span className="font-medium">Navbat cheki</span>
+          <ul className="my-2 ml-2">
+            <li className="border-b py-1">
+              <FormControl
+                display="flex"
+                alignItems="center"
+                justifyContent={"space-between"}
+                onChange={({ target }) =>
+                  handleChangeReceptionCheckSwitch(target.checked)
+                }
+              >
+                <FormLabel htmlFor="cashNavigate" mb="0">
+                  Ochish
+                </FormLabel>
+                <Switch
+                  disabled={loading}
+                  isChecked={turnCheck}
+                  id={"cashNavigate"}
+                />
+              </FormControl>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h1 className="text-center font-semibold text-lg mb-3">
+            Ko'rinish sozlamalari
+          </h1>
+          {/* <span className="font-medium">Statsionar bo'limi</span> */}
+          <ul className="my-2 ml-2">
+            {appearanceSettings.map((item, i) => (
+              <li key={item.key} className="border-b py-1">
+                <FormControl
+                  display="flex"
+                  alignItems="center"
+                  justifyContent={"space-between"}
+                  onChange={({ target }) =>
+                    handleChangeAppearanceFormSwitch(
+                      item.input_name,
+                      target.checked
+                    )
+                  }
+                >
+                  <FormLabel htmlFor={`appearance-setting-${i}`} mb="0">
+                    {item.name}
+                  </FormLabel>
+                  <Switch
+                    disabled={loading}
+                    isChecked={
+                      !appearanceFields
+                        ? true
+                        : appearanceFields[item.input_name]
+                    }
+                    id={`appearance-setting-${i}`}
+                  />
+                </FormControl>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
       <div className={"pb-6 pt-4 col-xl-4 border-r borer-4"}>
         <h1 className="text-center font-semibold text-lg mb-3">

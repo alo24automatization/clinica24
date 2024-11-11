@@ -16,3 +16,18 @@ export const receptionSettingForm = [
   { key: 5, input_name: "nation", name: "Millati", active: false },
   { key: 6, input_name: "address", name: "Manzili", active: false },
 ];
+
+export const appearanceSettings = [
+  {
+    key: 1,
+    input_name: "showStationary",
+    name: "Statsionarni ko'rsatish",
+    active: false,
+  },
+  {
+    key: 2,
+    input_name: "showCashbox",
+    name: "Kassani ko'rsatish",
+    active: false,
+  },
+];

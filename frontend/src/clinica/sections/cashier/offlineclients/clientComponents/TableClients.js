@@ -19,8 +19,9 @@ export const TableClients = ({
   setCheck,
   setModal1,
   modal,
+  calcServicesNDS,
   changeStart,
-                               setTurnCheckData,
+  setTurnCheckData,
   changeEnd,
   searchPhone,
   setClient,
@@ -45,6 +46,12 @@ export const TableClients = ({
 }) => {
   const { t } = useTranslation();
   const getTotalprice = (connector) => {
+    const calcServicesNDS =
+      connector.services &&
+      connector.services.reduce(
+        (sum, { service }) => sum + (service.price * (service.priceNDS||0)) / 100,
+        0
+      );
     let servicesTotal = connector.services.reduce((prev, s) => {
       if (s.refuse === false) {
         prev += s.service.price * s.pieces;
@@ -57,7 +64,7 @@ export const TableClients = ({
       }
       return prev;
     }, 0);
-    return servicesTotal + productsTotal;
+    return servicesTotal + productsTotal + calcServicesNDS;
   };
 
   const getDebt = (connector) => {
@@ -97,6 +104,7 @@ export const TableClients = ({
     }
     return "bg-orange-400";
   };
+  // nds
 
   return (
     <div className="border-0 table-container">
@@ -306,7 +314,7 @@ export const TableClients = ({
                             changeClient(connector, key);
                             setVisible(true);
                             setCheck(connector);
-                            setTurnCheckData(connector)
+                            setTurnCheckData(connector);
                             window.scrollTo({
                               top: 0,
                               behavior: "smooth",
@@ -328,7 +336,7 @@ export const TableClients = ({
                           className="btn btn-primary py-0"
                           onClick={() => {
                             setCheck(connector);
-                            setTurnCheckData(connector)
+                            setTurnCheckData(connector);
                             setModal1(true);
                           }}
                         >

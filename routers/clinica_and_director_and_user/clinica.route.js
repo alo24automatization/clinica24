@@ -104,6 +104,8 @@ module.exports.register = async (req, res) => {
       close_date,
       telegramId,
       smsKey,
+      telegram,
+      instagram
     } = req.body;
 
     const clinica = await Clinica.find({ name });
@@ -139,6 +141,8 @@ module.exports.register = async (req, res) => {
       isClose: false,
       telegramId,
       smsKey,
+      telegram,
+      instagram
     });
 
     await newClinica.save();
@@ -299,6 +303,54 @@ module.exports.getRequiredFields = async (req, res) => {
     });
   }
 };
+
+module.exports.getAppearanceFields = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("appearanceFields");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    res.status(200).json({
+      appearanceFields: clinica.appearanceFields,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+};
+module.exports.getMonoBlokStatus = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("showRegisterOnMonoblok");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    res.status(200).json({
+      showRegisterOnMonoblok: clinica.showRegisterOnMonoblok,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+};
+
 module.exports.getConnector_doctor_has = async (req, res) => {
   const { id } = req.params;
   if (!id) {
@@ -345,7 +397,7 @@ module.exports.getreseption_payAccess = async (req, res) => {
     });
   }
 };
-module.exports.getreseption_turnCheck=async (req,res)=>{
+module.exports.getreseption_turnCheck = async (req, res) => {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({
@@ -367,7 +419,7 @@ module.exports.getreseption_turnCheck=async (req,res)=>{
       message: "Serverda xatolik yuz berdi.",
     });
   }
-}
+};
 module.exports.updateRequiredFields = async (req, res) => {
   const { id } = req.params;
   const { requiredFields } = req.body;
@@ -395,7 +447,58 @@ module.exports.updateRequiredFields = async (req, res) => {
     });
   }
 };
-module.exports.getAd=async (req,res)=>{
+module.exports.updateMonoBlokStatus = async (req, res) => {
+  const { id } = req.params;
+  const { showRegisterOnMonoblok } = req.body;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("showRegisterOnMonoblok");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    clinica.showRegisterOnMonoblok=showRegisterOnMonoblok
+    await clinica.save();
+    res.status(201).json({ message: "Ma'lumot saqlandi!" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+};
+module.exports.updateAppearanceFields = async (req, res) => {
+  const { id } = req.params;
+  const { appearanceFields } = req.body;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("appearanceFields");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    clinica.appearanceFields = {
+      ...clinica.appearanceFields.toObject(),
+      ...appearanceFields,
+    };
+    await clinica.save();
+    res.status(201).json({ message: "Ma'lumot saqlandi!" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+};
+module.exports.getAd = async (req, res) => {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({
@@ -417,7 +520,7 @@ module.exports.getAd=async (req,res)=>{
       message: "Serverda xatolik yuz berdi.",
     });
   }
-}
+};
 module.exports.updateAd = async (req, res) => {
   const { id } = req.params;
   const { ad } = req.body;
@@ -432,19 +535,19 @@ module.exports.updateAd = async (req, res) => {
   try {
     // Find the document by ID and update the 'ad' field
     const clinica = await Clinica.findById(id);
-    
+
     if (!clinica) {
       return res.status(404).json({
         message: "Diqqat! Clinica ID si topilmadi.",
       });
     }
-    
+
     // Update the 'ad' field
     clinica.ad = ad;
-    
+
     // Save the updated document
     await clinica.save();
-    
+
     console.log(clinica);
     res.status(200).json({ message: "Ma'lumot saqlandi!" });
   } catch (error) {
@@ -454,8 +557,6 @@ module.exports.updateAd = async (req, res) => {
     });
   }
 };
-
-
 
 module.exports.updateReseptionPayAccess = async (req, res) => {
   const { id } = req.params;

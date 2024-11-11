@@ -230,7 +230,9 @@ export const TableClients = ({
                     {connector?.connector?.probirka || (connector?.connector?.dailys && connector?.connector?.dailys[0]?.probirka)}
                   </td>
                   <td className="border py-1 text-right text-[16px]">
-                    {new Date(connector.connector.createdAt).toLocaleDateString()} {new Date(connector.connector.createdAt).toLocaleTimeString()}
+                    {new Date(connector.connector.createdAt).toLocaleDateString()}
+                    {' '}
+                     {new Date(connector.connector.createdAt).toLocaleTimeString().split(' ')[0]}
                   </td>
                   <td className="border py-1 text-right text-[16px]">
                     <div className="custom-control custom-checkbox text-center">
