@@ -41,12 +41,12 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
               <tr>
                 <td>
                   <ul className="list-unstyled  text-start ml-3 mb-0">
-                  <li
+                    <li
                       className="flex items-center mb-2 gap-x- justify-between"
                       style={{ fontSize: "15pt", fontFamily: "times" }}
                     >
                       <div className="mr-2 flex items-center gap-x-2">
-                      <BsTelegram className="text-blue-400"/>
+                        <BsTelegram className="text-blue-400" />
                         <strong
                           style={{
                             color: "black",
@@ -54,14 +54,14 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                             fontFamily: "times",
                           }}
                         >
-                     Telegram:{" "}
+                          Telegram:{" "}
                         </strong>
                         <div style={{ color: "black" }}>
-                        {clinica && clinica.telegram}
-                      </div>
+                          {clinica && clinica.telegram}
+                        </div>
                       </div>
                       <div className="mr-2 flex items-center gap-x-3">
-                      <BsInstagram className="text-purple-800"/>
+                        <BsInstagram className="text-purple-800" />
                         <strong
                           style={{
                             color: "black",
@@ -72,10 +72,9 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                           Instagram:{" "}
                         </strong>
                         <div style={{ color: "black" }}>
-                        {clinica && clinica.instagram}
+                          {clinica && clinica.instagram}
+                        </div>
                       </div>
-                      </div>
-                  
                     </li>
                     <li
                       className="flex items-center mb-2"
@@ -324,7 +323,7 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                             </td>
                             <td className="py-0 border pl-2 text-right">
                               {(service.service.price *
-                                service.service.priceNDS) /
+                                (service?.service?.priceNDS || 0)) /
                                 100}
                             </td>
                           </tr>
@@ -502,7 +501,7 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                         summ +
                         (service.refuse === false
                           ? (service.service.price / 100) *
-                            service.service.priceNDS
+                            (service?.service?.priceNDS || 0)
                           : 0)
                       );
                     }, 0)}
@@ -515,7 +514,7 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                         summ +
                         (service.refuse === false
                           ? (service.service.price / 100) *
-                            service.service.priceNDS
+                            (service?.service?.priceNDS || 0)
                           : 0)
                       );
                     }, 0) +
@@ -597,12 +596,12 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
               <tr>
                 <td>
                   <ul className="list-unstyled  text-start ml-3 mb-0">
-                  <li
+                    <li
                       className="flex items-center mb-2 gap-x- justify-between"
                       style={{ fontSize: "15pt", fontFamily: "times" }}
                     >
                       <div className="mr-2 flex items-center gap-x-2">
-                      <BsTelegram className="text-blue-400"/>
+                        <BsTelegram className="text-blue-400" />
                         <strong
                           style={{
                             color: "black",
@@ -610,14 +609,14 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                             fontFamily: "times",
                           }}
                         >
-                     Telegram:{" "}
+                          Telegram:{" "}
                         </strong>
                         <div style={{ color: "black" }}>
-                        {clinica && clinica.telegram}
-                      </div>
+                          {clinica && clinica.telegram}
+                        </div>
                       </div>
                       <div className="mr-2 flex items-center gap-x-3">
-                      <BsInstagram className="text-purple-800"/>
+                        <BsInstagram className="text-purple-800" />
                         <strong
                           style={{
                             color: "black",
@@ -628,10 +627,9 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                           Instagram:{" "}
                         </strong>
                         <div style={{ color: "black" }}>
-                        {clinica && clinica.instagram}
+                          {clinica && clinica.instagram}
+                        </div>
                       </div>
-                      </div>
-                  
                     </li>
                     <li
                       className="flex items-center mb-2"
@@ -880,7 +878,7 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                             </td>
                             <td className="py-0 border pl-2 text-right">
                               {(service.service.price *
-                                service.service.priceNDS) /
+                                (service?.service?.priceNDS || 0)) /
                                 100}
                             </td>
                           </tr>
@@ -1058,7 +1056,7 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                         summ +
                         (service.refuse === false
                           ? (service.service.price / 100) *
-                            service.service.priceNDS
+                            (service?.service?.priceNDS || 0)
                           : 0)
                       );
                     }, 0)}
@@ -1071,7 +1069,7 @@ export const Check = ({ baseUrl, clinica, connector, qr, user }) => {
                         summ +
                         (service.refuse === false
                           ? (service.service.price / 100) *
-                            service.service.priceNDS
+                            (service?.service?.priceNDS || 0)
                           : 0)
                       );
                     }, 0) +

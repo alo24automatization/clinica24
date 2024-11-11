@@ -88,7 +88,6 @@ export const OfflineClients = () => {
   // getConnectors
   const [connectors, setConnectors] = useState([]);
   const [searchStorage, setSearchStrorage] = useState([]);
-
   const getConnectors = useCallback(
     async (beginDay, endDay) => {
       try {
@@ -279,22 +278,24 @@ export const OfflineClients = () => {
   const location = useLocation();
   const history = useHistory();
   const IsPayFromReseption =
-    location.search.substring("1", location.search?.length - 5) ===
-    sessionStorage.getItem("payFromReseption");
+    sessionStorage.getItem("payFromReseption") === "payFromReseption";
+  const IsPayFromReseptionAndMonoblok = auth?.clinica?.showRegisterOnMonoblok;
+  const client_id = sessionStorage.getItem("client_id");
+  const [openPayModal, setOpenPayModal] = useState(false);
   useEffect(() => {
-    if (location.state && "client_id" in location.state) {
-      if (loading === false) {
-        const connector = connectors.find(
-          (c) => c.client._id === location.state.client_id
-        );
+    if (client_id) {
+      if (loading === false && connectors.length > 0) {
+        const connector = connectors.find((c) => c.client._id === client_id);
         if (connector) {
           const index = connectors.indexOf(connector);
           changeClient(connector, index);
           changeVisible();
+          setOpenPayModal(true);
         }
       }
     }
-  }, [location.state, connectors]);
+  }, [connectors, loading]);
+
   const changeClient = useCallback((connector, index) => {
     setIndex(index);
     let total = 0;
@@ -730,6 +731,7 @@ export const OfflineClients = () => {
       );
     }
     setModal(true);
+    return true;
   };
   const createHandler = async () => {
     setIsActive(false);
@@ -789,9 +791,16 @@ export const OfflineClients = () => {
         });
         setAll();
         setCheck(data);
+        console.log("----");
+        console.log(data);
+        console.log("----");
+
+        setTurnCheckData(data);
         if (auth.clinica?.reseption_and_pay) {
           setOpenSmallCheck(IsPayFromReseption);
           sessionStorage.removeItem("payFromReseption");
+          sessionStorage.removeItem("modeMonoblok");
+          sessionStorage.removeItem("client_id");
           if (IsPayFromReseption) {
             history.push("/alo24");
           }
@@ -859,9 +868,13 @@ export const OfflineClients = () => {
             </div>
             <div className={` ${visible ? "" : "d-none"}`}>
               <RegisterClient
+                openPayModal={openPayModal}
+                setOpenPayModal={setOpenPayModal}
+                IsPayFromReseptionAndMonoblok={IsPayFromReseptionAndMonoblok}
                 inputPayment={inputPayment}
                 totalpayment={totalpayment}
                 checkPayment={checkPayment}
+                createHandler={createHandler}
                 debtComment={debtComment}
                 changeDebt={changeDebt}
                 serviceComment={serviceComment}

@@ -4,6 +4,7 @@ const Joi = require("joi");
 const CLINICA_APPEARANCE_DEFAULT = {
   showStationary: true,
   showCashbox: true,
+
 };
 
 const clinica = new Schema(
@@ -44,6 +45,7 @@ const clinica = new Schema(
     turnCheckVisible: { type: Boolean, default: false },
     connectorDoctor_client: { type: Boolean, default: false },
     NDS:{type:Number,default:0,required:false},
+    showRegisterOnMonoblok:{type:Boolean,required:false,default:false},
     requiredFields: {
       type: Map,
       of: Boolean,
@@ -99,7 +101,8 @@ function validateClinica(clinica) {
     instagram:Joi.string().optional(),
     telegram:Joi.string().optional(),
     close_date: Joi.date().optional(),
-    NDS:Joi.number().default(0).optional()
+    NDS:Joi.number().default(0).optional(),
+    showRegisterOnMonoblok:Joi.boolean().default(false).optional(),
     // isCreateUser: Joi.boolean().optional(),
   });
 

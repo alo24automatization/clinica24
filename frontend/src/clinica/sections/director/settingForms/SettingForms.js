@@ -24,6 +24,7 @@ const SettingForms = ({ getAppearanceFields, appearanceFields }) => {
   const [cashNavigate, setCashNavigate] = useState(false);
   const [turnCheck, setTurnCheck] = useState(false);
   const [connectorDoctor_client, setConnectorDoctor_client] = useState(false);
+  const [showRegisterOnMonoblok, setShowRegisterOnMonoblok] = useState(false);
   const [ad, setAd] = useState(null);
   const [cardNumber, setCardNumber] = useState("");
   const { request, loading } = useHttp();
@@ -35,6 +36,7 @@ const SettingForms = ({ getAppearanceFields, appearanceFields }) => {
     getLastCardNumber();
     getReseptionCheckVisible();
     getAd();
+    getMonoBlokStatus();
   }, []);
 
   //====================================================================
@@ -48,6 +50,23 @@ const SettingForms = ({ getAppearanceFields, appearanceFields }) => {
         null
       );
       setRequiredFieds(data.requiredFields);
+    } catch (error) {
+      // notify({
+      //   title: t(`${error}`),
+      //   description: "",
+      //   status: "error",
+      // });
+    }
+  });
+  // monoblok
+  const getMonoBlokStatus = useCallback(async () => {
+    try {
+      const data = await request(
+        `/api/clinica/monoBlok/${auth.clinica._id}`,
+        "GET",
+        null
+      );
+      setShowRegisterOnMonoblok(data.showRegisterOnMonoblok);
     } catch (error) {
       // notify({
       //   title: t(`${error}`),
@@ -152,6 +171,21 @@ const SettingForms = ({ getAppearanceFields, appearanceFields }) => {
         { appearanceFields: { ...appearanceFields, [name]: value } }
       );
       getAppearanceFields();
+    } catch (error) {
+      console.log(error);
+      // notify({
+      //   title: t(`${error}`),
+      //   description: "",
+      //   status: "error",
+      // });
+    }
+  };
+  const handleChangeMonoBlockStatusFormSwitch = async ({ target }) => {
+    try {
+      await request(`/api/clinica/monoBlok/${auth.clinica._id}`, "PATCH", {
+        showRegisterOnMonoblok: target.checked,
+      });
+      getMonoBlokStatus();
     } catch (error) {
       console.log(error);
       // notify({
@@ -429,6 +463,24 @@ const SettingForms = ({ getAppearanceFields, appearanceFields }) => {
                   boxShadow: "none",
                 }}
                 name="card_number"
+              />
+            </FormControl>
+          </li>
+        </ul>
+        <span className="font-medium">Rejim monoblok</span>
+        <ul className="mt-2 ml-2">
+          <li className="border-b py-1">
+            <FormControl
+              display="block"
+              onChange={handleChangeMonoBlockStatusFormSwitch}
+            >
+              <FormLabel htmlFor="connector-doctor" mb="0">
+                Ochish
+              </FormLabel>
+              <Switch
+                disabled={loading}
+                isChecked={showRegisterOnMonoblok}
+                id={"connector-doctor"}
               />
             </FormControl>
           </li>

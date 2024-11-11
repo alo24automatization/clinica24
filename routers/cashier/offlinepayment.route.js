@@ -169,7 +169,7 @@ module.exports.payment = async (req, res) => {
                 select: "-__v -updatedAt -isArchive",
                 populate: {
                     path: "department",
-                    select: "room name probirka"
+                    select: "room name floor letter probirka"
                 }
             })
             .populate("products")

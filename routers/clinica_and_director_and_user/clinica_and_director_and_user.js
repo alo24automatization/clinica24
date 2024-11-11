@@ -17,6 +17,9 @@ router.get("/clinica/requiredFields/:id", (req, res) => {
 router.get("/clinica/appearanceFields/:id", (req, res) => {
   require("./clinica.route").getAppearanceFields(req, res);
 });
+router.get("/clinica/monoBlok/:id", (req, res) => {
+  require("./clinica.route").getMonoBlokStatus(req, res);
+});
 router.get("/clinica/connector_doctor_has/:id", (req, res) => {
   require("./clinica.route").getConnector_doctor_has(req, res);
 });
@@ -50,6 +53,9 @@ router.patch("/clinica/requiredFields/:id", (req, res) => {
 });
 router.patch("/clinica/appearanceFields/:id", (req, res) => {
   require("./clinica.route").updateAppearanceFields(req, res);
+});
+router.patch("/clinica/monoBlok/:id", (req, res) => {
+  require("./clinica.route").updateMonoBlokStatus(req, res);
 });
 router.post("/clinica/delete", (req, res) => {
   require("./clinica.route").delete(req, res);

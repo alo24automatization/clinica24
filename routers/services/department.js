@@ -225,7 +225,14 @@ module.exports.getAllReseption = async (req, res) => {
       clinica,
     })
       .select("name probirka services dayMaxTurns takenTurns")
-      .populate("services", "name price servicetype");
+      .populate({
+        path: "services",
+        select: "name price servicetype",
+        populate: {
+          path: "servicetype",
+          select: "name",
+        },
+      });
     res.send(departments);
   } catch (error) {
     res.status(501).json({ error: "Serverda xatolik yuz berdi..." });
