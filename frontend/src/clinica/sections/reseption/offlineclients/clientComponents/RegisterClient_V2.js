@@ -4,6 +4,7 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../../../context/AuthContext";
+import { IoIosAdd } from "react-icons/io";
 import {
   faClose,
   faPlus,
@@ -11,11 +12,23 @@ import {
   faSave,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  Button,
+  Checkbox,
+  CloseButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+} from "@chakra-ui/react";
 
 const animatedComponents = makeAnimated();
 
-export const RegisterClient = ({
+export const RegisterClientV2 = ({
   selectedServices,
+  setSelectedServices,
   selectedProducts,
   isAddHandler,
   isConnectorHandler,
@@ -83,7 +96,7 @@ export const RegisterClient = ({
               value: service._id,
               service: service,
               department: department,
-              turn:service.turn
+              turn: service.turn,
             });
           });
         });
@@ -105,8 +118,7 @@ export const RegisterClient = ({
                 name: service.name,
                 service: service,
                 department: department,
-              turn:service.turn
-
+                turn: service.turn,
               });
               return "";
             });
@@ -131,20 +143,85 @@ export const RegisterClient = ({
     }
     return option.data.name.toLowerCase().includes(input);
   };
-  console.log(selectedServices);
+  // services modal
+  const [servicesModalVisible, setServicesModalVisible] = useState(false);
+  const toogleServicesModal = () =>
+    setServicesModalVisible(!servicesModalVisible);
+
+  let prevServiceType = null;
+  const showServiceType = (serviceType) => {
+    if (serviceType !== prevServiceType) {
+      prevServiceType = serviceType;
+      return serviceType;
+    }
+    return null;
+  };
+  const onSelectService = (checked, service) => {
+    if (checked) {
+      setSelectedServices([...selectedServices, service]);
+    } else {
+      const updatedSelectedServices = selectedServices.filter(
+        (s) => s.service._id !== service.service._id
+      );
+      setSelectedServices(updatedSelectedServices);
+    }
+  };
+  const handleSaveServicesAndDepartment = () => {
+    changeService(selectedServices);
+    toogleServicesModal();
+  };
+  // change pieces of service
+  const onChangePieceOfService = (isInput, value, buttonType, index) => {
+    if (isInput) {
+      setNewServices(
+        Object.values({
+          ...newservices,
+          [index]: {
+            ...newservices[index],
+            pieces: value === "" ? 0 : value,
+          },
+        })
+      );
+    } else {
+      setNewServices(
+        Object.values({
+          ...newservices,
+          [index]: {
+            ...newservices[index],
+            pieces:
+              buttonType === "plus"
+                ? newservices[index].pieces + 1
+                : buttonType === "minus"
+                ? newservices[index].pieces - 1
+                : newservices[index].pieces,
+          },
+        })
+      );
+    }
+  };
+  const removeService = (serviceID) => {
+    const updatedNewServices = newservices.filter(
+      (s) => s.service._id !== serviceID
+    );
+    const updatedSelecteServices = selectedServices.filter(
+      (s) => s.service._id !== serviceID
+    );
+    setNewServices(updatedNewServices);
+    setSelectedServices(updatedSelecteServices);
+  };
   return (
     <>
       {/* Row start */}
       <div className={`row gutters`}>
-        <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 relative">
+        <div className="col-xl-4 col-lg-6 col-md-12 col-sm-12 relative">
           <div
             className={
               isAddService && !isVisible
-                ? "absolute top-0 left-0 w-full h-[80%] bg-gray-400 bg-opacity-50 z-10 flex justify-center items-center p-4"
+                ? "absolute top-0 left-0 w-full h-[92%] bg-gray-600 bg-opacity-50 z-10 flex justify-center items-center p-4"
                 : "hidden"
             }
           >
-            <div className="text-red-500 font-bold text-[14px] p-2">
+            <div className="text-red-500 mb-20 font-bold text-[18px] p-2">
               Mijozning ma'lumotlarini o'zgartirish uchun TAHRIRLASH tugmasini
               bosing{" "}
             </div>
@@ -156,29 +233,29 @@ export const RegisterClient = ({
               </div>
             </div>
             <div className="card-body">
-              <div className="row gutters">
-                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+              <div className="">
+                <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                   <div className="form-group">
                     <label htmlFor="fullName">{t("Familiyasi")}</label>
                     <input
                       value={client.lastname || ""}
                       onChange={changeClientData}
                       type="text"
-                      className="form-control form-control-sm"
+                      className="form-control py-4 form-control-sm"
                       name="lastname"
                       id="client_lastname"
                       placeholder={t("Familiyasi")}
                     />
                   </div>
                 </div>
-                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                   <div className="form-group">
                     <label htmlFor="inputEmail">{t("Ismi")}</label>
                     <input
                       value={client.firstname || ""}
                       onChange={changeClientData}
                       type="text"
-                      className="form-control form-control-sm"
+                      className="form-control py-4 form-control-sm"
                       id="client_firstname"
                       name="firstname"
                       placeholder={t("Ismi")}
@@ -188,7 +265,7 @@ export const RegisterClient = ({
                 {!requiredFields ? null : (
                   <>
                     {requiredFields?.fathername && (
-                      <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                      <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                         <div className="form-group">
                           <label htmlFor="education">
                             {t("Otasining ismi")}
@@ -197,7 +274,7 @@ export const RegisterClient = ({
                             value={client.fathername || ""}
                             onChange={changeClientData}
                             type="text"
-                            className="form-control form-control-sm"
+                            className="form-control py-4  form-control-sm"
                             id="fathername"
                             name="fathername"
                             placeholder={t("Otasining ismi")}
@@ -206,7 +283,7 @@ export const RegisterClient = ({
                       </div>
                     )}
                     {requiredFields?.born && (
-                      <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                      <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                         <label htmlFor="education">
                           {t("Tug'ilgan sanasi")}
                         </label>
@@ -215,7 +292,7 @@ export const RegisterClient = ({
                           onChange={(e) => changeClientBorn(e)}
                           type="date"
                           name="born"
-                          className="form-control inp"
+                          className="form-control  inp"
                           placeholder=""
                           style={{ color: "#999" }}
                           value={clientDate}
@@ -223,7 +300,7 @@ export const RegisterClient = ({
                       </div>
                     )}
                     {requiredFields?.phone && (
-                      <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                      <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                         <div className="form-group">
                           <label htmlFor="addreSs">{t("Telefon raqami")}</label>
                           <div className="input-group input-group-sm mb-3">
@@ -239,7 +316,7 @@ export const RegisterClient = ({
                               value={client.phone || ""}
                               onChange={changeClientData}
                               type="number"
-                              className="form-control"
+                              className="form-control py-4"
                               name="phone"
                             />
                           </div>
@@ -247,7 +324,7 @@ export const RegisterClient = ({
                       </div>
                     )}
                     {requiredFields?.gender && (
-                      <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                      <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                         <div className="form-group">
                           <label htmlFor="biO">{t("Jinsi")}</label>
                           <div>
@@ -298,7 +375,7 @@ export const RegisterClient = ({
                       </div>
                     )}
                     {requiredFields.nation && (
-                      <div className="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                      <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                         <div className="form-group">
                           <label htmlFor="biO">{t("Fuqoroligi")}</label>
                           <div>
@@ -358,7 +435,7 @@ export const RegisterClient = ({
                           <textarea
                             value={client.address || ""}
                             onChange={changeClientData}
-                            className="form-control form-control-sm"
+                            className="form-control py-3 form-control-sm"
                             name="address"
                             rows={1}
                             placeholder={t("Manzilni kiriting....")}
@@ -369,7 +446,7 @@ export const RegisterClient = ({
                   </>
                 )}
 
-                <div className="col-sm-6 col-12">
+                <div className="col-sm-12 col-12">
                   <div className="form-group">
                     <label htmlFor="biO">{t("Yullanma")}</label>
                     <div className="flex items-center gap-x-3">
@@ -416,7 +493,7 @@ export const RegisterClient = ({
                               onChange={handleNewCounterDoctorInputChange}
                               value={newCounterDoctor.value}
                               type="text"
-                              className="form-control"
+                              className="form-control "
                               placeholder="Familya Ism"
                             />
                             <button
@@ -452,12 +529,12 @@ export const RegisterClient = ({
                                         </select> */}
                   </div>
                 </div>
-                <div className="col-sm-6 col-12">
+                <div className="col-sm-12 col-12">
                   <div className="form-group">
                     <label htmlFor="biO">{t("Reklama")}</label>
                     <select
                       onChange={changeAdver}
-                      className="form-control form-control-sm selectpicker"
+                      className="form-control py-3 form-control-sm selectpicker"
                       placeholder="Reklamalarni tanlash"
                     >
                       <option value="delete">{t("Tanlanmagan")}</option>
@@ -471,7 +548,7 @@ export const RegisterClient = ({
                     </select>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 grid-rows-2 w-full gap-x-3">
+                <div className="grid grid-cols-1 grid-rows-2 w-full gap-x-3">
                   <div className="mt-4">
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold text-base mr-2">
@@ -543,7 +620,10 @@ export const RegisterClient = ({
                         ) === undefined
                       }
                       options={departments
-                        .filter((d) => d.dayMaxTurns !== 0&&d._id===selectedDepartament)
+                        .filter(
+                          (d) =>
+                            d.dayMaxTurns !== 0 && d._id === selectedDepartament
+                        )
                         .map((department) => {
                           return {
                             label: (
@@ -573,14 +653,144 @@ export const RegisterClient = ({
             </div>
           </div>
         </div>
-        <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+        <div className="col-xl-8 col-lg-6 col-md-12 col-sm-12">
+          <Modal
+            closeOnEsc
+            closeOnOverlayClick
+            isOpen={servicesModalVisible}
+            onClose={toogleServicesModal}
+            size="full"
+          >
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader className="flex items-center justify-between">
+                <div className="flex items-center w-full mt-2">
+                  <h1 className="col-xl-4">Bo'limlar</h1>
+                  <h1>Xizmatlar</h1>
+                </div>
+                <CloseButton onClick={toogleServicesModal} />
+              </ModalHeader>
+              <ModalBody>
+                <div className="h-[calc(100vh-64px-88px)] flex gap-x-3">
+                  {/* list of department */}
+                  <ul className="w-[30%] h-[calc(100vh-64px-80px)] overflow-y-auto  space-y-2 border-r-2 pr-3 p-1">
+                    {departments?.map((d, index) => (
+                      <li className="" key={index + d?._id}>
+                        <Button
+                          onClick={() => setSelectedDepartament(d?._id)}
+                          className={`${
+                            selectedDepartament === d?._id
+                              ? "!bg-alotrade text-white"
+                              : ""
+                          } !w-full`}
+                        >
+                          <span className="truncate block">{d.name}</span>
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                  {/* list of department's services */}
+                  <ul className="col-xl-4 mt-2 space-y-2 max-h-[calc(100vh-64px-88px)] overflow-y-auto ">
+                    {services
+                      ?.filter((s) => s.department?._id === selectedDepartament)
+                      .slice(
+                        0,
+                        services?.filter(
+                          (s) => s.department?._id === selectedDepartament
+                        ).length >= 15
+                          ? services?.filter(
+                              (s) => s.department?._id === selectedDepartament
+                            ).length / 2
+                          : services?.filter(
+                              (s) => s.department?._id === selectedDepartament
+                            ).length
+                      )
+                      .map((service, index) => (
+                        <li className="" key={index}>
+                          <h5 className="text-alotrade font-bold">
+                            {showServiceType(
+                              service?.service?.servicetype?.name
+                            )}
+                          </h5>
+                          <label className="flex border-b items-center gap-x-3 cursor-pointer">
+                            <Checkbox
+                              isChecked={selectedServices.some(
+                                (s) => s.service._id === service.service._id
+                              )}
+                              onChange={(e) =>
+                                onSelectService(e.target.checked, service)
+                              }
+                              className="mt-0.5"
+                            />
+                            <h1 className="font-bold text-xl select-none ">
+                              {service.name}
+                            </h1>
+                          </label>
+                        </li>
+                      ))}
+                  </ul>
+                  <ul className="col-xl-4 mt-2 space-y-2 max-h-[calc(100vh-64px-88px)] overflow-y-auto ">
+                    {services
+                      ?.filter((s) => s.department?._id === selectedDepartament)
+                      .slice(
+                        services?.filter(
+                          (s) => s.department?._id === selectedDepartament
+                        ).length /
+                          2 <
+                          15
+                          ? services?.filter(
+                              (s) => s.department?._id === selectedDepartament
+                            ).length + 1
+                          : services?.filter(
+                              (s) => s.department?._id === selectedDepartament
+                            ).length / 2
+                      )
+                      .map((service, index) => (
+                        <li className="" key={index}>
+                          <h5 className="text-alotrade font-bold">
+                            {showServiceType(
+                              service?.service?.servicetype?.name
+                            )}
+                          </h5>
+                          <label className="flex border-b items-center gap-x-3 cursor-pointer">
+                            <Checkbox
+                              onChange={(e) =>
+                                onSelectService(e.target.checked, service)
+                              }
+                              className="mt-0.5"
+                            />
+                            <h1 className="font-bold text-xl select-none">
+                              {service.name}
+                            </h1>
+                          </label>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  onClick={handleSaveServicesAndDepartment}
+                  color={"white"}
+                  className="!bg-alotrade"
+                >
+                  Saqlash
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
           <div className="card">
-            <div className="card-header">
-              <div className="card-title">{t("Xizmatlar bilan ishlash")}</div>
+            <div className="card-header flex justify-center ">
+              <button
+                onClick={toogleServicesModal}
+                className="bg-alotrade rounded  flex items-center text-white py-3 px-4 mt-4"
+              >
+                <IoIosAdd className="font-bold text-2xl" /> Xizmat qo'shish
+              </button>
             </div>
             <div className="card-body">
               <div className="row gutters">
-                <div className="col-12">
+                <div className="col-12 hidden">
                   <div className="form-group">
                     <label htmlFor="fullName">{t("Bo'limlar")}</label>
                     <select
@@ -603,7 +813,7 @@ export const RegisterClient = ({
                     </select>
                   </div>
                 </div>
-                <div className="col-12">
+                <div className="col-12 hidden">
                   <div className="form-group">
                     <label htmlFor="inputEmail">{t("Xizmatlar")}</label>
                     <Select
@@ -624,7 +834,7 @@ export const RegisterClient = ({
                     />
                   </div>
                 </div>
-                <div className="col-12">
+                <div className="col-12 hidden">
                   <div className="form-group">
                     <label htmlFor="inputEmail">{t("Mahsulotlar")}</label>
                     <Select
@@ -667,23 +877,60 @@ export const RegisterClient = ({
                                 {service?.service?.price * service?.pieces}
                               </td>
                               <td className="text-right py-1">
-                                <input
-                                  onChange={(e) =>
-                                    setNewServices(
-                                      Object.values({
-                                        ...newservices,
-                                        [index]: {
-                                          ...newservices[index],
-                                          pieces: e.target.value,
-                                        },
-                                      })
-                                    )
-                                  }
-                                  className="text-right outline-none"
-                                  style={{ maxWidth: "50px", outline: "none" }}
-                                  defaultValue={service?.pieces}
-                                  type="number"
-                                />
+                                <div className="flex items-center justify-center">
+                                  <button
+                                    disabled={service.pieces <= 1}
+                                    onClick={() =>
+                                      onChangePieceOfService(
+                                        false,
+                                        null,
+                                        "minus",
+                                        index
+                                      )
+                                    }
+                                    className="bg-red-500 disabled:bg-red-200 rounded text-white py-2 px-3"
+                                  >
+                                    -
+                                  </button>
+                                  <input
+                                    onChange={(e) =>
+                                      onChangePieceOfService(
+                                        true,
+                                        e.target.value,
+                                        null,
+                                        index
+                                      )
+                                    }
+                                    className="outline-none text-center"
+                                    style={{
+                                      maxWidth: "50px",
+                                      outline: "none",
+                                    }}
+                                    value={service?.pieces}
+                                    type="number"
+                                  />
+                                  <button
+                                    onClick={() =>
+                                      onChangePieceOfService(
+                                        false,
+                                        null,
+                                        "plus",
+                                        index
+                                      )
+                                    }
+                                    className="bg-alotrade rounded text-white py-2 px-3"
+                                  >
+                                    +
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      removeService(service.service._id)
+                                    }
+                                    className="bg-red-500 rounded ml-2 text-white py-2 px-3"
+                                  >
+                                    <span className="icon-trash-2"></span>
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           );

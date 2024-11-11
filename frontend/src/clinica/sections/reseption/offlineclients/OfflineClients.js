@@ -17,6 +17,7 @@ import { Modal } from "../components/Modal";
 import { Modal as ChakraModal } from "@chakra-ui/react";
 
 import { RegisterClient } from "./clientComponents/RegisterClient";
+import { RegisterClientV2 } from "./clientComponents/RegisterClient_V2";
 import { TableClients } from "./clientComponents/TableClients";
 import {
   checkClientData,
@@ -722,15 +723,15 @@ export const OfflineClients = () => {
   //====================================================================
   // CreateHandler
   const navigateToPay = (client_id) => {
-    if (auth.clinica.reseption_and_pay) {
+    if (auth?.clinica?.reseption_and_pay) {
       history.push({
         pathname: "/alo24/cashier",
-        search: "?payFromReseption=true",
-        state: {
-          client_id,
-        },
       });
       sessionStorage.setItem("payFromReseption", "payFromReseption");
+      if(auth?.clinica?.showRegisterOnMonoblok){
+        sessionStorage.setItem("modeMonoblok", "modeMonoblok");
+      }
+      sessionStorage.setItem("client_id", client_id);
     }
   };
   const location = useLocation();
@@ -1261,7 +1262,12 @@ export const OfflineClients = () => {
     );
     setPaginatitedTurns(updatedClientTurns);
   }, [departmentTurns.turns]);
+
+  const RegisterVersions = auth?.clinica?.showRegisterOnMonoblok
+    ? RegisterClientV2
+    : RegisterClient;
   // render
+
   return (
     <div className="min-h-full">
       <div className="bg-slate-100 content-wrapper px-lg-5 px-3">
@@ -1291,7 +1297,6 @@ export const OfflineClients = () => {
               isOpen={visibleTurnModal}
               onClose={toogleTurnModal}
             >
-              <ModalOverlay />
               <ModalContent>
                 <ModalHeader className="flex items-center justify-between">
                   Bo'lim navbatlari
@@ -1328,7 +1333,7 @@ export const OfflineClients = () => {
             {/*  turn modal*/}
 
             <div className={` ${visible ? "" : "d-none"}`}>
-              <RegisterClient
+              <RegisterVersions
                 // turn
                 handleChangeTurn={handleChangeTurn}
                 clientTurns={clientTurns}
@@ -1344,6 +1349,7 @@ export const OfflineClients = () => {
                   handleNewCounterDoctorInputChange
                 }
                 selectedServices={selectedServices}
+                setSelectedServices={setSelectedServices}
                 selectedProducts={selectedProducts}
                 showNewCounterDoctor={showNewCounterDoctor}
                 updateData={updateHandler}

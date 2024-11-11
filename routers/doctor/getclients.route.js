@@ -938,6 +938,7 @@ module.exports.addservices = async (req, res) => {
           _id: serv._id,
           name: serv.name,
           price: serv.price,
+          priceNDS: serv.priceNDS || 0,
           shortname: serv.shortname,
           doctorProcient: serv.doctorProcient,
           counterAgentProcient: serv.counterAgentProcient,

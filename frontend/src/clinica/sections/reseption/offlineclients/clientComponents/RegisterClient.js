@@ -131,7 +131,7 @@ export const RegisterClient = ({
     }
     return option.data.name.toLowerCase().includes(input);
   };
-  console.log(selectedServices);
+  
   return (
     <>
       {/* Row start */}

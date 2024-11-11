@@ -244,11 +244,11 @@ export const TableServices = ({
                       <Checkbox
                         onChange={() => {
                           changeActiveOfService(
-                            service.priceNDS === 0,
+                            service?.priceNDS === 0,
                             service?._id
                           );
                         }}
-                        isChecked={service.priceNDS > 0}
+                        isChecked={service?.priceNDS > 0}
                       />
                     </td>
                     <td className="border-right text-[16px] f ont-weight-bold">

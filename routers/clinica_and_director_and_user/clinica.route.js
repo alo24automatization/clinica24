@@ -327,6 +327,29 @@ module.exports.getAppearanceFields = async (req, res) => {
     });
   }
 };
+module.exports.getMonoBlokStatus = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("showRegisterOnMonoblok");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    res.status(200).json({
+      showRegisterOnMonoblok: clinica.showRegisterOnMonoblok,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+};
 
 module.exports.getConnector_doctor_has = async (req, res) => {
   const { id } = req.params;
@@ -416,6 +439,30 @@ module.exports.updateRequiredFields = async (req, res) => {
       ...clinica.requiredFields.toObject(),
       ...requiredFields,
     };
+    await clinica.save();
+    res.status(201).json({ message: "Ma'lumot saqlandi!" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Serverda xatolik yuz berdi.",
+    });
+  }
+};
+module.exports.updateMonoBlokStatus = async (req, res) => {
+  const { id } = req.params;
+  const { showRegisterOnMonoblok } = req.body;
+  if (!id) {
+    return res.status(400).json({
+      message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+    });
+  }
+  try {
+    const clinica = await Clinica.findById(id).select("showRegisterOnMonoblok");
+    if (!clinica) {
+      return res.status(400).json({
+        message: "Diqqat! Clinica ID si ko'rsatilmagan.",
+      });
+    }
+    clinica.showRegisterOnMonoblok=showRegisterOnMonoblok
     await clinica.save();
     res.status(201).json({ message: "Ma'lumot saqlandi!" });
   } catch (error) {

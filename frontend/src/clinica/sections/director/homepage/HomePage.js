@@ -157,7 +157,7 @@ export const HomePage = () => {
         <DailyCircle
           nth={3}
           text={dailyReport.expense}
-          label={t('Xarajatlar')}
+          label={t('Xizmatlar')}
         />
       </div>
       <div className={'h-[25rem]'}>

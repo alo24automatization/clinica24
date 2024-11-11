@@ -49,7 +49,7 @@ export const TableClients = ({
     const calcServicesNDS =
       connector.services &&
       connector.services.reduce(
-        (sum, { service }) => sum + (service.price * service.priceNDS) / 100,
+        (sum, { service }) => sum + (service.price * (service.priceNDS||0)) / 100,
         0
       );
     let servicesTotal = connector.services.reduce((prev, s) => {
