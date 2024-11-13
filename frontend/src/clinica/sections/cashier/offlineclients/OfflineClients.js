@@ -801,7 +801,7 @@ export const OfflineClients = () => {
             history.push("/alo24");
           }
         }
-        setSmallCheckType("done");
+        // setSmallCheckType("done");
         getConnectors(beginDay, endDay);
         setTimeout(() => {
           setIsActive(true);
