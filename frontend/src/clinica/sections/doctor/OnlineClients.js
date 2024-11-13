@@ -278,11 +278,7 @@ export const OnlineClients = () => {
 
     socket.on("connect_error", (err) => {
       console.error("Connection error:", err);
-      notify({
-        title: t("Socket connection error."),
-        description: "",
-        status: "error",
-      });
+      
     });
   };
   const getServiceType = async () => {

@@ -800,11 +800,7 @@ export const OfflineClients = () => {
 
       socket.on("connect_error", (err) => {
         console.error("Connection error:", err);
-        notify({
-          title: t("Socket connection error."),
-          description: "",
-          status: "error",
-        });
+        
         setIsActive(true);
       });
       localStorage.removeItem("newClient");
