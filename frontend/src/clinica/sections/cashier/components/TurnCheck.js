@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 const TurnCheck = (props) => {
   const { clinica, connector, smallCheckType } = props;
+  console.log(smallCheckType);
   const { t } = useTranslation();
   const [departments, setDeparmtents] = useState([]);
   useEffect(() => {
