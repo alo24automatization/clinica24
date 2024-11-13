@@ -787,9 +787,7 @@ export const OfflineClients = () => {
         });
         setAll();
         setCheck(data);
-        console.log("----");
-        console.log(data);
-        console.log("----");
+
 
         setTurnCheckData(data);
         if (auth.clinica?.reseption_and_pay) {
