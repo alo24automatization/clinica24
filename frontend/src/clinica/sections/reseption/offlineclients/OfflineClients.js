@@ -1349,7 +1349,11 @@ export const OfflineClients = () => {
                 selectedProducts={selectedProducts}
                 showNewCounterDoctor={showNewCounterDoctor}
                 updateData={updateHandler}
-                checkData={checkData}
+                checkData={ client._id && !isAddConnector
+                  ? isActive && addHandler
+                  : client._id && isAddConnector
+                  ? isActive && addConnectorHandler
+                  : isActive && createHandler}
                 setNewProducts={setNewProducts}
                 setNewServices={setServices}
                 selectedCounterdoctor={selectedCounterdoctor}
