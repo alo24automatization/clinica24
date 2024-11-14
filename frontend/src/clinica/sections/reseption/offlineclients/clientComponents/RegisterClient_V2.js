@@ -626,48 +626,6 @@ export const RegisterClientV2 = ({
                       {client?.card_number}
                     </h1>
                   </div>
-                  <div>
-                    <label htmlFor="turn-select">{t("Bo'lim navbati")}</label>
-                    <Select
-                      name="turn-select"
-                      placeholder="Tanlang"
-                      className="w-full"
-                      isMulti
-                      onChange={handleChangeTurn}
-                      value={clientTurns}
-                      isDisabled={
-                        !(
-                          departments.find((d) => d._id === selectedDepartament)
-                            ?.dayMaxTurns !== 0
-                        ) ||
-                        selectedDepartament === "all" ||
-                        selectedDepartament === null ||
-                        selectedServices.length == 0 ||
-                        selectedServices.find(
-                          (s) => s.department._id === selectedDepartament
-                        ) === undefined
-                      }
-                      options={departments
-                        .filter(
-                          (d) =>
-                            d.dayMaxTurns !== 0 && d._id === selectedDepartament
-                        )
-                        .map((department) => {
-                          return {
-                            label: (
-                              <div className="w-full flex justify-between items-center gap-x-2">
-                                <span>{department.name}</span>
-                                <span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">
-                                  {department?.turn}
-                                </span>
-                              </div>
-                            ),
-                            value: department._id,
-                            name: department.name,
-                          };
-                        })}
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -827,13 +785,59 @@ export const RegisterClientV2 = ({
             </ModalContent>
           </Modal>
           <div className="card">
-            <div className="card-header flex justify-center ">
+            <div className="card-header items-center gap-x-3 flex justify-around ">
               <button
                 onClick={toogleServicesModal}
                 className="bg-alotrade rounded  flex items-center text-white py-3 px-4 mt-4"
               >
-                <IoIosAdd className="font-bold text-2xl" /> Xizmat qo'shish
+                <IoIosAdd
+                  className="
+                font-bold text-2xl"
+                />{" "}
+                Xizmat qo'shish
               </button>
+              <div>
+                <label htmlFor="turn-select">{t("Bo'lim navbati")}</label>
+                <Select
+                  name="turn-select"
+                  placeholder="Tanlang"
+                  className="w-[280px]"
+                  isMulti
+                  onChange={handleChangeTurn}
+                  value={clientTurns}
+                  isDisabled={
+                    !(
+                      departments.find((d) => d._id === selectedDepartament)
+                        ?.dayMaxTurns !== 0
+                    ) ||
+                    selectedDepartament === "all" ||
+                    selectedDepartament === null ||
+                    selectedServices.length == 0 ||
+                    selectedServices.find(
+                      (s) => s.department._id === selectedDepartament
+                    ) === undefined
+                  }
+                  options={departments
+                    .filter(
+                      (d) =>
+                        d.dayMaxTurns !== 0 && d._id === selectedDepartament
+                    )
+                    .map((department) => {
+                      return {
+                        label: (
+                          <div className="w-full flex justify-between items-center gap-x-2">
+                            <span>{department.name}</span>
+                            <span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">
+                              {department?.turn}
+                            </span>
+                          </div>
+                        ),
+                        value: department._id,
+                        name: department.name,
+                      };
+                    })}
+                />
+              </div>
             </div>
             <div className="card-body">
               <div className="row gutters">
