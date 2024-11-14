@@ -216,7 +216,17 @@ export const RegisterClientV2 = ({
   const selectedDepartamentServices = services?.filter(
     (s) => s.department?._id === selectedDepartament
   );
-  const groupedServices = Object?.groupBy(
+  function groupBy(array, keyGetter) {
+    return array.reduce((result, item) => {
+      const key = keyGetter(item);
+      if (!result[key]) {
+        result[key] = [];
+      }
+      result[key].push(item);
+      return result;
+    }, {});
+  }
+  const groupedServices = groupBy(
     selectedDepartamentServices,
     ({ service, department }) => service.servicetype?.name || department.name
   );
@@ -693,8 +703,13 @@ export const RegisterClientV2 = ({
                   {/* list of department */}
                   <ul className="w-[30%] h-[calc(100vh-64px-80px)] overflow-y-auto  space-y-2 border-r-2 pr-3 p-1">
                     {departments?.map((d, index) => (
-                      <li className=" flex items-center gap-x-2 justify-between" key={index + d?._id}>
-                        <span className="bg-alotrade w-[40px] flex items-center justify-center font-bold h-[40px] rounded text-white">{d.room}</span>
+                      <li
+                        className=" flex items-center gap-x-2 justify-between"
+                        key={index + d?._id}
+                      >
+                        <span className="bg-alotrade w-[40px] flex items-center justify-center font-bold h-[40px] rounded text-white">
+                          {d.room}
+                        </span>
                         <Button
                           onClick={() => setSelectedDepartament(d?._id)}
                           className={`${
@@ -703,7 +718,9 @@ export const RegisterClientV2 = ({
                               : ""
                           } !w-full !justify-start`}
                         >
-                          <span className="truncate block !text-left">{d.name} </span>
+                          <span className="truncate block !text-left">
+                            {d.name}{" "}
+                          </span>
                         </Button>
                       </li>
                     ))}
@@ -716,7 +733,6 @@ export const RegisterClientV2 = ({
                           {showServiceType(service?.service?.servicetype?.name)}
                         </h5>
                         <label className="flex border-b items-center gap-x-3 cursor-pointer">
-                          {index + 1}
                           <Checkbox
                             isChecked={selectedServices.some(
                               (s) => s.service._id === service.service._id
@@ -744,7 +760,6 @@ export const RegisterClientV2 = ({
                           )}
                         </h5>
                         <label className="flex border-b items-center gap-x-3 cursor-pointer">
-                          {index + 1}
                           <Checkbox
                             isChecked={selectedServices.some(
                               (s) => s.service._id === service.service._id
