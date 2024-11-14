@@ -216,12 +216,12 @@ export const RegisterClientV2 = ({
   const selectedDepartamentServices = services?.filter(
     (s) => s.department?._id === selectedDepartament
   );
-  const groupedServices = Object.groupBy(
+  const groupedServices = Object?.groupBy(
     selectedDepartamentServices,
     ({ service, department }) => service.servicetype?.name || department.name
   );
   // Flatten the grouped services into a single array
-  const flattenedServices = Object.values(groupedServices).flat();
+  const flattenedServices = Object?.values(groupedServices).flat();
 
   // Split the services into two parts: 0–15 and 15–end
   const firstHalfServices = flattenedServices.slice(0, 15);
