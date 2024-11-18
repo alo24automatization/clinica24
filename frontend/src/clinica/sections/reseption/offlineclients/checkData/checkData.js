@@ -27,8 +27,51 @@ export const checkClientData = (client, t) => {
 
   return false;
 };
+export const checkServicesAndTurn = (departments, services, t, notify) => {
+  if (!Array.isArray(departments) || !Array.isArray(services)) {
+    throw new Error(
+      "Invalid input: 'departments' and 'services' must be arrays."
+    );
+  }
+  if (services.length == 0)
+    return notify({
+      title: `${t("Diqqat!")} ${t("xizmatlar mavjud emas")}`,
+      status: "error",
+      description: "",
+    });
 
+  for (const department of departments) {
+    for (const service of services) {
+      if (
+        department._id === service.department &&
+        department.dayMaxTurns !== 0 &&
+        service.turn === undefined
+      ) {
+        
+        return notify({
+          title:
+            t("Diqqat!") +
+            " " +
+            department.name +
+            " " +
+            t("navbat ko'rsatilmagan!"),
+          description: "",
+          status: "error",
+        });
+      }
+    }
+  }
+
+  return false;
+};
 export const checkServicesData = (services, t) => {
+  if (services.length == 0)
+    return {
+      title: `${t("Diqqat!")} ${t("xizmatlar mavjud emas")}`,
+      status: "error",
+      description: "",
+    };
+
   for (const service of services) {
     if (service.pieces === "0") {
       return {

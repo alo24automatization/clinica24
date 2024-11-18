@@ -4,7 +4,6 @@ const Joi = require("joi");
 const CLINICA_APPEARANCE_DEFAULT = {
   showStationary: true,
   showCashbox: true,
-
 };
 
 const clinica = new Schema(
@@ -34,8 +33,8 @@ const clinica = new Schema(
     mfo: { type: Number },
     address: { type: String },
     smsKey: { type: String },
-    telegram:{type:String,required:false},
-    instagram:{type:String,required:false},
+    telegram: { type: String, required: false },
+    instagram: { type: String, required: false },
     orientation: { type: String },
     isClose: { type: Boolean, default: false },
     close_date: { type: Date },
@@ -44,8 +43,8 @@ const clinica = new Schema(
     reseption_and_pay: { type: Boolean, default: false },
     turnCheckVisible: { type: Boolean, default: false },
     connectorDoctor_client: { type: Boolean, default: false },
-    NDS:{type:Number,default:0,required:false},
-    showRegisterOnMonoblok:{type:Boolean,required:false,default:false},
+    NDS: { type: Number, default: 0, required: false },
+    showRegisterOnMonoblok: { type: Boolean, required: false, default: false },
     requiredFields: {
       type: Map,
       of: Boolean,
@@ -56,6 +55,7 @@ const clinica = new Schema(
         address: true,
         born: true,
         nation: true,
+        turn:true
       },
     },
     appearanceFields: {
@@ -98,11 +98,11 @@ function validateClinica(clinica) {
     ifud3: Joi.string(),
     telegramId: Joi.string(),
     close_date: Joi.date().optional(),
-    instagram:Joi.string().optional(),
-    telegram:Joi.string().optional(),
+    instagram: Joi.string().optional(),
+    telegram: Joi.string().optional(),
     close_date: Joi.date().optional(),
-    NDS:Joi.number().default(0).optional(),
-    showRegisterOnMonoblok:Joi.boolean().default(false).optional(),
+    NDS: Joi.number().default(0).optional(),
+    showRegisterOnMonoblok: Joi.boolean().default(false).optional(),
     // isCreateUser: Joi.boolean().optional(),
   });
 

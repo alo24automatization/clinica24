@@ -15,6 +15,7 @@ export const receptionSettingForm = [
   { key: 4, input_name: "gender", name: "Jinsi", active: false },
   { key: 5, input_name: "nation", name: "Millati", active: false },
   { key: 6, input_name: "address", name: "Manzili", active: false },
+  { key: 7, input_name: "turn", name: "Navbat", active: true },
 ];
 
 export const appearanceSettings = [

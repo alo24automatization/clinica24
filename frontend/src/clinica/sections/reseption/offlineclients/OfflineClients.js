@@ -22,7 +22,9 @@ import { TableClients } from "./clientComponents/TableClients";
 import {
   checkClientData,
   checkProductsData,
+  checkServicesAndTurn,
   checkServicesData,
+  checkServicesTurn,
 } from "./checkData/checkData";
 import { CheckModal } from "../components/ModalCheck";
 import { useRef } from "react";
@@ -716,19 +718,21 @@ export const OfflineClients = () => {
     }
     setModal(true);
   };
+
   const checkFields = () => {
     if (checkClientData(client, t)) {
       return notify(checkClientData(client, t));
     }
-
+    if (requiredFields?.turn) {
+      return checkServicesAndTurn(departments, services, t, notify);
+    }
     if (checkServicesData(services && services, t)) {
       return notify(checkServicesData(services, t));
     }
-
     if (checkProductsData(newproducts, t)) {
       return notify(checkProductsData(newproducts, t));
     }
-    return true;
+    return false;
   };
   //====================================================================
   //====================================================================
@@ -759,8 +763,8 @@ export const OfflineClients = () => {
   const queryParams = getQueryParams(location.search);
   const fromQuery = queryParams.get("from");
   const createHandler = useCallback(async () => {
-    const checked = checkFields();
-    if (!checked) {
+    const isError = checkFields();
+    if (isError || isError === undefined) {
       return;
     }
     setIsActive(false);
@@ -909,8 +913,8 @@ export const OfflineClients = () => {
   ]);
 
   const addHandler = useCallback(async () => {
-    const checked = checkFields();
-    if (!checked) {
+    const isError = checkFields();
+    if (isError || isError === undefined) {
       return;
     }
     setIsActive(false);
@@ -970,8 +974,8 @@ export const OfflineClients = () => {
     getConnectors,
   ]);
   const addConnectorHandler = async () => {
-    const checked = checkFields();
-    if (!checked) {
+    const isError = checkFields();
+    if (isError || isError === undefined) {
       return;
     }
     setIsActive(false);
