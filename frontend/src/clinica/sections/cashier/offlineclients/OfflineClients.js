@@ -776,11 +776,7 @@ export const OfflineClients = () => {
 
         socket.on("connect_error", (err) => {
           console.error("Connection error:", err);
-          notify({
-            title: t("Socket connection error."),
-            description: "",
-            status: "error",
-          });
+          
           setIsActive(true);
         });
 
@@ -791,9 +787,7 @@ export const OfflineClients = () => {
         });
         setAll();
         setCheck(data);
-        console.log("----");
-        console.log(data);
-        console.log("----");
+
 
         setTurnCheckData(data);
         if (auth.clinica?.reseption_and_pay) {
@@ -805,7 +799,7 @@ export const OfflineClients = () => {
             history.push("/alo24");
           }
         }
-        setSmallCheckType("done");
+        // setSmallCheckType("done");
         getConnectors(beginDay, endDay);
         setTimeout(() => {
           setIsActive(true);

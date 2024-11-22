@@ -344,11 +344,6 @@ export const OnlineClientsDoctor = () => {
 
     socket.on("connect_error", (err) => {
       console.error("Socket connection error:", err);
-      notify({
-        title: t("Socket connection error."),
-        description: "",
-        status: "error",
-      });
     });
 
     socket.on("departmentsOnline", (data) => {

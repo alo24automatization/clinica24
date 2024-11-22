@@ -22,7 +22,9 @@ import { TableClients } from "./clientComponents/TableClients";
 import {
   checkClientData,
   checkProductsData,
+  checkServicesAndTurn,
   checkServicesData,
+  checkServicesTurn,
 } from "./checkData/checkData";
 import { CheckModal } from "../components/ModalCheck";
 import { useRef } from "react";
@@ -716,6 +718,22 @@ export const OfflineClients = () => {
     }
     setModal(true);
   };
+
+  const checkFields = () => {
+    if (checkClientData(client, t)) {
+      return notify(checkClientData(client, t));
+    }
+    if (requiredFields?.turn) {
+      return checkServicesAndTurn(departments, services, t, notify);
+    }
+    if (checkServicesData(services && services, t)) {
+      return notify(checkServicesData(services, t));
+    }
+    if (checkProductsData(newproducts, t)) {
+      return notify(checkProductsData(newproducts, t));
+    }
+    return false;
+  };
   //====================================================================
   //====================================================================
 
@@ -728,7 +746,7 @@ export const OfflineClients = () => {
         pathname: "/alo24/cashier",
       });
       sessionStorage.setItem("payFromReseption", "payFromReseption");
-      if(auth?.clinica?.showRegisterOnMonoblok){
+      if (auth?.clinica?.showRegisterOnMonoblok) {
         sessionStorage.setItem("modeMonoblok", "modeMonoblok");
       }
       sessionStorage.setItem("client_id", client_id);
@@ -745,6 +763,10 @@ export const OfflineClients = () => {
   const queryParams = getQueryParams(location.search);
   const fromQuery = queryParams.get("from");
   const createHandler = useCallback(async () => {
+    const isError = checkFields();
+    if (isError || isError === undefined) {
+      return;
+    }
     setIsActive(false);
     try {
       const data = await request(
@@ -800,11 +822,7 @@ export const OfflineClients = () => {
 
       socket.on("connect_error", (err) => {
         console.error("Connection error:", err);
-        notify({
-          title: t("Socket connection error."),
-          description: "",
-          status: "error",
-        });
+
         setIsActive(true);
       });
       localStorage.removeItem("newClient");
@@ -895,6 +913,10 @@ export const OfflineClients = () => {
   ]);
 
   const addHandler = useCallback(async () => {
+    const isError = checkFields();
+    if (isError || isError === undefined) {
+      return;
+    }
     setIsActive(false);
     try {
       const data = await request(
@@ -952,7 +974,12 @@ export const OfflineClients = () => {
     getConnectors,
   ]);
   const addConnectorHandler = async () => {
+    const isError = checkFields();
+    if (isError || isError === undefined) {
+      return;
+    }
     setIsActive(false);
+
     try {
       const data = await request(
         `/api/offlineclient/client/connector/add`,
@@ -1353,7 +1380,13 @@ export const OfflineClients = () => {
                 selectedProducts={selectedProducts}
                 showNewCounterDoctor={showNewCounterDoctor}
                 updateData={updateHandler}
-                checkData={checkData}
+                checkData={
+                  client._id && !isAddConnector
+                    ? isActive && addHandler
+                    : client._id && isAddConnector
+                    ? isActive && addConnectorHandler
+                    : isActive && createHandler
+                }
                 setNewProducts={setNewProducts}
                 setNewServices={setServices}
                 selectedCounterdoctor={selectedCounterdoctor}

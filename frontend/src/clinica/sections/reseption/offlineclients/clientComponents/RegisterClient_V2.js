@@ -149,7 +149,10 @@ export const RegisterClientV2 = ({
     setServicesModalVisible(!servicesModalVisible);
 
   let prevServiceType = null;
-  const showServiceType = (serviceType) => {
+  const showServiceType = (serviceType, index) => {
+    if (index === 0) {
+      return serviceType;
+    }
     if (serviceType !== prevServiceType) {
       prevServiceType = serviceType;
       return serviceType;
@@ -209,6 +212,31 @@ export const RegisterClientV2 = ({
     setNewServices(updatedNewServices);
     setSelectedServices(updatedSelecteServices);
   };
+
+  const selectedDepartamentServices = services?.filter(
+    (s) => s.department?._id === selectedDepartament
+  );
+  function groupBy(array, keyGetter) {
+    return array.reduce((result, item) => {
+      const key = keyGetter(item);
+      if (!result[key]) {
+        result[key] = [];
+      }
+      result[key].push(item);
+      return result;
+    }, {});
+  }
+  const groupedServices = groupBy(
+    selectedDepartamentServices,
+    ({ service, department }) => service.servicetype?.name || department.name
+  );
+  // Flatten the grouped services into a single array
+  const flattenedServices = Object?.values(groupedServices).flat();
+
+  // Split the services into two parts: 0–15 and 15–end
+  const firstHalfServices = flattenedServices.slice(0, 15);
+  const secondHalfServices = flattenedServices.slice(15);
+
   return (
     <>
       {/* Row start */}
@@ -598,48 +626,6 @@ export const RegisterClientV2 = ({
                       {client?.card_number}
                     </h1>
                   </div>
-                  <div>
-                    <label htmlFor="turn-select">{t("Bo'lim navbati")}</label>
-                    <Select
-                      name="turn-select"
-                      placeholder="Tanlang"
-                      className="w-full"
-                      isMulti
-                      onChange={handleChangeTurn}
-                      value={clientTurns}
-                      isDisabled={
-                        !(
-                          departments.find((d) => d._id === selectedDepartament)
-                            ?.dayMaxTurns !== 0
-                        ) ||
-                        selectedDepartament === "all" ||
-                        selectedDepartament === null ||
-                        selectedServices.length == 0 ||
-                        selectedServices.find(
-                          (s) => s.department._id === selectedDepartament
-                        ) === undefined
-                      }
-                      options={departments
-                        .filter(
-                          (d) =>
-                            d.dayMaxTurns !== 0 && d._id === selectedDepartament
-                        )
-                        .map((department) => {
-                          return {
-                            label: (
-                              <div className="w-full flex justify-between items-center gap-x-2">
-                                <span>{department.name}</span>
-                                <span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">
-                                  {department?.turn}
-                                </span>
-                              </div>
-                            ),
-                            value: department._id,
-                            name: department.name,
-                          };
-                        })}
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -675,61 +661,80 @@ export const RegisterClientV2 = ({
                   {/* list of department */}
                   <ul className="w-[30%] h-[calc(100vh-64px-80px)] overflow-y-auto  space-y-2 border-r-2 pr-3 p-1">
                     {departments?.map((d, index) => (
-                      <li className="" key={index + d?._id}>
+                      <li
+                        className=" flex items-center gap-x-2 justify-between"
+                        key={index + d?._id}
+                      >
+                        <span className="bg-alotrade w-[40px] flex items-center justify-center font-bold h-[40px] rounded text-white">
+                          {d.room}
+                        </span>
                         <Button
                           onClick={() => setSelectedDepartament(d?._id)}
                           className={`${
                             selectedDepartament === d?._id
-                              ? "!bg-alotrade text-white"
+                              ? "!bg-alotrade  !justify-start text-white"
                               : ""
-                          } !w-full`}
+                          } !w-full !justify-start`}
                         >
-                          <span className="truncate block">{d.name}</span>
+                          <span className="truncate block !text-left">
+                            {d.name}{" "}
+                          </span>
                         </Button>
                       </li>
                     ))}
                   </ul>
-                  {/* list of department's services */}
+                  {/* list of department's services 0 to 15 */}
                   <ul className="col-xl-4 mt-2 space-y-2 max-h-[calc(100vh-64px-88px)] overflow-y-auto ">
-                    {services
-                      ?.filter((s) => s.department?._id === selectedDepartament)
-                      .slice(
-                        0,
-                        services?.filter(
-                          (s) => s.department?._id === selectedDepartament
-                        ).length >= 15
-                          ? services?.filter(
-                              (s) => s.department?._id === selectedDepartament
-                            ).length / 2
-                          : services?.filter(
-                              (s) => s.department?._id === selectedDepartament
-                            ).length
-                      )
-                      .map((service, index) => (
-                        <li className="" key={index}>
-                          <h5 className="text-alotrade font-bold">
-                            {showServiceType(
-                              service?.service?.servicetype?.name
+                    {firstHalfServices.map((service, index) => (
+                      <li className="" key={service._id}>
+                        <h5 className="text-alotrade font-bold">
+                          {showServiceType(service?.service?.servicetype?.name)}
+                        </h5>
+                        <label className="flex border-b items-center gap-x-3 cursor-pointer">
+                          <Checkbox
+                            isChecked={selectedServices.some(
+                              (s) => s.service._id === service.service._id
                             )}
-                          </h5>
-                          <label className="flex border-b items-center gap-x-3 cursor-pointer">
-                            <Checkbox
-                              isChecked={selectedServices.some(
-                                (s) => s.service._id === service.service._id
-                              )}
-                              onChange={(e) =>
-                                onSelectService(e.target.checked, service)
-                              }
-                              className="mt-0.5"
-                            />
-                            <h1 className="font-bold text-xl select-none ">
-                              {service.name}
-                            </h1>
-                          </label>
-                        </li>
-                      ))}
+                            onChange={(e) =>
+                              onSelectService(e.target.checked, service)
+                            }
+                            className="mt-0.5"
+                          />
+                          <h1 className="font-bold text-xl select-none ">
+                            {service.name}
+                          </h1>
+                        </label>
+                      </li>
+                    ))}
                   </ul>
+                  {/* 15 to last element */}
                   <ul className="col-xl-4 mt-2 space-y-2 max-h-[calc(100vh-64px-88px)] overflow-y-auto ">
+                    {secondHalfServices.map((service, index) => (
+                      <li className="" key={service._id}>
+                        <h5 className="text-alotrade font-bold">
+                          {showServiceType(
+                            service?.service?.servicetype?.name,
+                            index
+                          )}
+                        </h5>
+                        <label className="flex border-b items-center gap-x-3 cursor-pointer">
+                          <Checkbox
+                            isChecked={selectedServices.some(
+                              (s) => s.service._id === service.service._id
+                            )}
+                            onChange={(e) =>
+                              onSelectService(e.target.checked, service)
+                            }
+                            className="mt-0.5"
+                          />
+                          <h1 className="font-bold text-xl select-none ">
+                            {service.name}
+                          </h1>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                  {/* <ul className="col-xl-4 mt-2 space-y-2 max-h-[calc(100vh-64px-88px)] overflow-y-auto ">
                     {services
                       ?.filter((s) => s.department?._id === selectedDepartament)
                       .slice(
@@ -765,7 +770,7 @@ export const RegisterClientV2 = ({
                           </label>
                         </li>
                       ))}
-                  </ul>
+                  </ul> */}
                 </div>
               </ModalBody>
               <ModalFooter>
@@ -780,13 +785,59 @@ export const RegisterClientV2 = ({
             </ModalContent>
           </Modal>
           <div className="card">
-            <div className="card-header flex justify-center ">
+            <div className="card-header items-center gap-x-3 flex justify-around ">
               <button
                 onClick={toogleServicesModal}
                 className="bg-alotrade rounded  flex items-center text-white py-3 px-4 mt-4"
               >
-                <IoIosAdd className="font-bold text-2xl" /> Xizmat qo'shish
+                <IoIosAdd
+                  className="
+                font-bold text-2xl"
+                />{" "}
+                Xizmat qo'shish
               </button>
+              <div>
+                <label htmlFor="turn-select">{t("Bo'lim navbati")}</label>
+                <Select
+                  name="turn-select"
+                  placeholder="Tanlang"
+                  className="w-[280px]"
+                  isMulti
+                  onChange={handleChangeTurn}
+                  value={clientTurns}
+                  isDisabled={
+                    !(
+                      departments.find((d) => d._id === selectedDepartament)
+                        ?.dayMaxTurns !== 0
+                    ) ||
+                    selectedDepartament === "all" ||
+                    selectedDepartament === null ||
+                    selectedServices.length == 0 ||
+                    selectedServices.find(
+                      (s) => s.department._id === selectedDepartament
+                    ) === undefined
+                  }
+                  options={departments
+                    .filter(
+                      (d) =>
+                        d.dayMaxTurns !== 0 && d._id === selectedDepartament
+                    )
+                    .map((department) => {
+                      return {
+                        label: (
+                          <div className="w-full flex justify-between items-center gap-x-2">
+                            <span>{department.name}</span>
+                            <span className="p-1 rounded-sm !bg-green-500 font-medium  text-white">
+                              {department?.turn}
+                            </span>
+                          </div>
+                        ),
+                        value: department._id,
+                        name: department.name,
+                      };
+                    })}
+                />
+              </div>
             </div>
             <div className="card-body">
               <div className="row gutters">

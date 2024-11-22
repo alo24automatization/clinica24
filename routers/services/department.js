@@ -224,7 +224,7 @@ module.exports.getAllReseption = async (req, res) => {
     const departments = await Department.find({
       clinica,
     })
-      .select("name probirka services dayMaxTurns takenTurns")
+      .select("name probirka services room dayMaxTurns takenTurns")
       .populate({
         path: "services",
         select: "name price servicetype",
