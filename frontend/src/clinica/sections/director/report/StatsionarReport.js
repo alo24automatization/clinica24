@@ -12,10 +12,10 @@ const animatedComponents = makeAnimated();
 
 export const StatsionarReport = () => {
   const [beginDay, setBeginDay] = useState(
-    new Date(new Date().setHours(0, 0, 0, 0))
+    new Date(new Date(new Date().getMonth() - 3).setUTCHours(0, 0, 0, 0))
   );
   const [endDay, setEndDay] = useState(
-    new Date(new Date().setHours(23, 59, 59, 59))
+    new Date(new Date().setUTCHours(23, 59, 59, 59))
   );
 
   const [check, setCheck] = useState({});
@@ -227,8 +227,8 @@ export const StatsionarReport = () => {
       setBeginDay(
         (() => {
           const curr = new Date();
-          curr.setDate(new Date(new Date().setHours(0, 0, 0, 0)));
-          curr.setHours(23, 59, 59, 59);
+          curr.setDate(new Date().getDate() - 1);
+          curr.setUTCHours(23, 59, 59, 59);
           return curr;
         })()
       );
@@ -237,7 +237,7 @@ export const StatsionarReport = () => {
         (() => {
           const curr = new Date();
           curr.setTime(curr.getTime() - (90 * 24 * 60 * 60 * 1000)) //subtract 90 days or 3 months
-          curr.setHours(23, 59, 59, 59);
+          curr.setUTCHours(23, 59, 59, 59);
           return curr;
         })()
       );
