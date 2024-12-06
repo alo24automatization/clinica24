@@ -12,10 +12,10 @@ const animatedComponents = makeAnimated();
 
 export const StatsionarReport = () => {
   const [beginDay, setBeginDay] = useState(
-    new Date(new Date(new Date().getMonth() - 3).setUTCHours(0, 0, 0, 0))
+    new Date(new Date().setHours(0, 0, 0, 0))
   );
   const [endDay, setEndDay] = useState(
-    new Date(new Date().setUTCHours(23, 59, 59, 59))
+    new Date(new Date().setHours(23, 59, 59, 59))
   );
 
   const [check, setCheck] = useState({});
@@ -88,20 +88,20 @@ export const StatsionarReport = () => {
 
   const getBaseUrl = useCallback(async () => {
     try {
-        const data = await request(`/api/baseurl`, "GET", null);
-        setBaseurl(data.baseUrl);
+      const data = await request(`/api/baseurl`, "GET", null);
+      setBaseurl(data.baseUrl);
     } catch (error) {
-        notify({
-            title: t(`${error}`),
-            description: "",
-            status: "error",
-        });
+      notify({
+        title: t(`${error}`),
+        description: "",
+        status: "error",
+      });
     }
   }, [request, notify]);
-  
+
   useEffect(() => {
     getBaseUrl();
-}, []);
+  }, []);
 
   const getConnectors = useCallback(
     async (beginDay, endDay, clinica, type) => {
@@ -225,21 +225,21 @@ export const StatsionarReport = () => {
 
     if (e.target.value === "todayPayments" || e.target.value === "today")
       setBeginDay(
-          (() => {
-            const curr = new Date();
-            curr.setDate(new Date().getDate() - 1);
-            curr.setUTCHours(23, 59, 59, 59);
-            return curr;
-          })()
+        (() => {
+          const curr = new Date();
+          curr.setDate(new Date().getDate() - 1);
+          curr.setUTCHours(23, 59, 59, 59);
+          return curr;
+        })()
       );
-    else{
+    else {
       setBeginDay(
-          (() => {
-            const curr = new Date();
-            curr.setTime(curr.getTime() - (90 * 24 * 60 * 60 * 1000)) //subtract 90 days or 3 months
-            curr.setUTCHours(23, 59, 59, 59);
-            return curr;
-          })()
+        (() => {
+          const curr = new Date();
+          curr.setTime(curr.getTime() - (90 * 24 * 60 * 60 * 1000)) //subtract 90 days or 3 months
+          curr.setUTCHours(23, 59, 59, 59);
+          return curr;
+        })()
       );
     }
 
@@ -322,11 +322,11 @@ export const StatsionarReport = () => {
       </div>
 
       <CheckModalStatsionar
-                baseUrl={baseUrl}
-                connector={check}
-                modal={modal1}
-                setModal={setModal1}
-            />
+        baseUrl={baseUrl}
+        connector={check}
+        modal={modal1}
+        setModal={setModal1}
+      />
     </div>
   );
 };
