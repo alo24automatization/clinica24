@@ -227,8 +227,8 @@ export const StatsionarReport = () => {
       setBeginDay(
         (() => {
           const curr = new Date();
-          curr.setDate(new Date().getDate() - 1);
-          curr.setUTCHours(23, 59, 59, 59);
+          curr.setDate(new Date(new Date().setHours(0, 0, 0, 0)));
+          curr.setHours(23, 59, 59, 59);
           return curr;
         })()
       );
@@ -237,7 +237,7 @@ export const StatsionarReport = () => {
         (() => {
           const curr = new Date();
           curr.setTime(curr.getTime() - (90 * 24 * 60 * 60 * 1000)) //subtract 90 days or 3 months
-          curr.setUTCHours(23, 59, 59, 59);
+          curr.setHours(23, 59, 59, 59);
           return curr;
         })()
       );
